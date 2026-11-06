@@ -107,8 +107,27 @@ def test_random_curves_match_brute_force_reference() -> None:
         length = rng.randint(1, 30)
         equity_curve = [rng.uniform(0.01, 1000.0) for _ in range(length)]
         result = calculate_max_drawdown(equity_curve)
-        assert 0.0 <= result < 1.0
+        assert 0.0 <= result <= 1.0
         assert result == pytest.approx(_brute_force_max_drawdown(equity_curve))
+
+
+@pytest.mark.parametrize(
+    "equity_curve",
+    [
+        [100, 1e-15],
+        [1e308, 5e-324],
+    ],
+)
+def test_extreme_magnitudes_stay_within_unit_interval(
+    equity_curve: list[float],
+) -> None:
+    result = calculate_max_drawdown(equity_curve)
+    assert 0.0 <= result <= 1.0
+    assert result == pytest.approx(1.0)
+
+
+def test_extreme_magnitudes_without_drawdown() -> None:
+    assert calculate_max_drawdown([5e-324, 1e-300, 1e308]) == 0.0
 
 
 def test_package_level_import() -> None:

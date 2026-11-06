@@ -23,8 +23,10 @@ def calculate_max_drawdown(equity_curve: Sequence[float]) -> float:
             value must be a finite, strictly positive real number.
 
     Returns:
-        The maximum drawdown as a fraction in the range ``[0, 1)``. Returns
-        ``0.0`` when no drawdown occurs.
+        The maximum drawdown as a fraction in the range ``[0, 1]``. Returns
+        ``0.0`` when no drawdown occurs. Mathematically the drawdown is below
+        ``1``, but floating-point rounding can yield exactly ``1.0`` when a
+        value is negligible relative to its running peak.
 
     Raises:
         ValueError: If ``equity_curve`` is empty, or contains a value that is
