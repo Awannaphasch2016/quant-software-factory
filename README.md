@@ -32,3 +32,11 @@ ruff format --check .
 mypy
 pytest
 ```
+
+## Remote script execution
+
+`calculate_max_drawdown` stays a pure function that returns a float.
+`scripts/calculate_max_drawdown.py` is the allowlisted entry point a remote
+runner can execute: one JSON object on stdin, one JSON object on stdout.
+The operator guide is
+[docs/remote-script-execution.md](docs/remote-script-execution.md).
