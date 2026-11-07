@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "repository": "Awannaphasch2016/quant-software-factory",
+  "default_branch": "main",
+  "blob": {
+    "provider": "vercel_blob",
+    "access": "private",
+    "store_id": "store_CEauyrab8003cHZO",
+    "store_name": "quant-execution-results",
+    "team_slug": "anak2",
+    "team_id": "team_HH56QrlGNZZs3DWHlokF5NlZ",
+    "region": "iad1",
+    "secret_name": "BLOB_READ_WRITE_TOKEN",
+    "github_environment": "execution-upload"
+  }
+}
