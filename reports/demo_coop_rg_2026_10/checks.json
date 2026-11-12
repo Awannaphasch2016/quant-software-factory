@@ -1,0 +1,146 @@
+[
+  {
+    "name": "input.files.opening_positions.csv",
+    "passed": true,
+    "expected": "present",
+    "actual": "present"
+  },
+  {
+    "name": "input.files.transactions.csv",
+    "passed": true,
+    "expected": "present",
+    "actual": "present"
+  },
+  {
+    "name": "input.files.prices.csv",
+    "passed": true,
+    "expected": "present",
+    "actual": "present"
+  },
+  {
+    "name": "input.columns.opening_positions.csv",
+    "passed": true,
+    "expected": "instrument,volume,cost_value",
+    "actual": "instrument,volume,cost_value"
+  },
+  {
+    "name": "input.columns.transactions.csv",
+    "passed": true,
+    "expected": "trade_date,instrument,side,qty,price,fee,tax,amount",
+    "actual": "trade_date,instrument,side,qty,price,fee,tax,amount"
+  },
+  {
+    "name": "input.columns.prices.csv",
+    "passed": true,
+    "expected": "date,instrument,close",
+    "actual": "date,instrument,close"
+  },
+  {
+    "name": "input.parse.opening_positions.csv",
+    "passed": true,
+    "expected": "all fields parse",
+    "actual": "ok"
+  },
+  {
+    "name": "input.parse.transactions.csv",
+    "passed": true,
+    "expected": "all fields parse",
+    "actual": "ok"
+  },
+  {
+    "name": "input.parse.prices.csv",
+    "passed": true,
+    "expected": "all fields parse",
+    "actual": "ok"
+  },
+  {
+    "name": "input.dates.transactions",
+    "passed": true,
+    "expected": "all trade dates within 2026-10-01 to 2026-10-31",
+    "actual": "ok"
+  },
+  {
+    "name": "input.dates.prices",
+    "passed": true,
+    "expected": "all price dates equal 2026-09-30 or fall within 2026-10-01 to 2026-10-31",
+    "actual": "ok"
+  },
+  {
+    "name": "input.sides",
+    "passed": true,
+    "expected": "sides in BUY, SELL, DIVIDEND, DEPOSIT, WITHDRAWAL",
+    "actual": "ok"
+  },
+  {
+    "name": "input.sell_volume",
+    "passed": true,
+    "expected": "no SELL exceeds the volume held at that point",
+    "actual": "ok"
+  },
+  {
+    "name": "input.prices.opening",
+    "passed": true,
+    "expected": "a 2026-09-30 price for every instrument held at the opening date",
+    "actual": "ok"
+  },
+  {
+    "name": "input.prices.closing",
+    "passed": true,
+    "expected": "a 2026-10-30 price for every instrument held at the as-of date",
+    "actual": "ok"
+  },
+  {
+    "name": "accounting.identity",
+    "passed": true,
+    "expected": "792,398.00",
+    "actual": "792,398.00"
+  },
+  {
+    "name": "accounting.holdings_total.cost_value",
+    "passed": true,
+    "expected": "768,398.00",
+    "actual": "768,398.00"
+  },
+  {
+    "name": "accounting.holdings_total.market_value",
+    "passed": true,
+    "expected": "792,398.00",
+    "actual": "792,398.00"
+  },
+  {
+    "name": "accounting.holdings_total.unrealized_pnl",
+    "passed": true,
+    "expected": "24,000.00",
+    "actual": "24,000.00"
+  },
+  {
+    "name": "accounting.holdings_total.weight_pct",
+    "passed": true,
+    "expected": "100.00%",
+    "actual": "100.00%"
+  },
+  {
+    "name": "accounting.weights_sum",
+    "passed": true,
+    "expected": "100.00%",
+    "actual": "100.00%"
+  },
+  {
+    "name": "accounting.cash_replay",
+    "passed": true,
+    "expected": "267,398.00",
+    "actual": "267,398.00"
+  },
+  {
+    "name": "narrative.numbers_in_report",
+    "passed": true,
+    "expected": "every number in narrative.md appears in report.json",
+    "actual": ""
+  },
+  {
+    "name": "narrative.style",
+    "passed": true,
+    "expected": "2 to 4 paragraphs, under 180 words, no banned phrases, no repeated sentence openers",
+    "actual": "3 paragraphs, 139 words"
+  }
+]

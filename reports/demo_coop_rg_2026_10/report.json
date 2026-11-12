@@ -1,0 +1,174 @@
+{
+  "header": {
+    "title": "Returns & Transactions Report",
+    "report_id": "demo_coop_rg_2026_10",
+    "client": "DEMO-COOP",
+    "account": "DEMO-0001",
+    "strategy": "Reverse Grid",
+    "period_start": "2026-10-01",
+    "period_end": "2026-10-31",
+    "opening_date": "2026-09-30",
+    "as_of_date": "2026-10-30",
+    "currency": "THB"
+  },
+  "kpi_summary": {
+    "closing_nav": "792,398.00",
+    "total_pnl": "27,398.00",
+    "period_return_pct": "3.83%",
+    "period_return_basis": "simple return on opening NAV, not time-weighted",
+    "realized_capital_gain": "14,798.00",
+    "net_dividends": "3,600.00",
+    "unrealized_pnl": "24,000.00"
+  },
+  "pnl_breakdown": {
+    "rows": [
+      {
+        "instrument": "AAA",
+        "realized_capital_gain": "17,835.00",
+        "net_dividend": "0.00",
+        "change_in_unrealized": "17,000.00",
+        "total_pnl": "34,835.00"
+      },
+      {
+        "instrument": "BBB",
+        "realized_capital_gain": "-3,037.00",
+        "net_dividend": "3,600.00",
+        "change_in_unrealized": "-8,000.00",
+        "total_pnl": "-7,437.00"
+      }
+    ],
+    "total": {
+      "instrument": "Total",
+      "realized_capital_gain": "14,798.00",
+      "net_dividend": "3,600.00",
+      "change_in_unrealized": "9,000.00",
+      "total_pnl": "27,398.00"
+    }
+  },
+  "holdings": {
+    "rows": [
+      {
+        "instrument": "AAA",
+        "volume": "9,000",
+        "average_cost": "49.00",
+        "cost_value": "441,000.00",
+        "market_price": "52.00",
+        "market_value": "468,000.00",
+        "unrealized_pnl": "27,000.00",
+        "holding_return_pct": "6.12%",
+        "weight_pct": "59.06%"
+      },
+      {
+        "instrument": "BBB",
+        "volume": "3,000",
+        "average_cost": "20.00",
+        "cost_value": "60,000.00",
+        "market_price": "19.00",
+        "market_value": "57,000.00",
+        "unrealized_pnl": "-3,000.00",
+        "holding_return_pct": "-5.00%",
+        "weight_pct": "7.19%"
+      },
+      {
+        "instrument": "CASH",
+        "volume": null,
+        "average_cost": null,
+        "cost_value": "267,398.00",
+        "market_price": null,
+        "market_value": "267,398.00",
+        "unrealized_pnl": "0.00",
+        "holding_return_pct": null,
+        "weight_pct": "33.75%"
+      }
+    ],
+    "total": {
+      "instrument": "Total",
+      "volume": null,
+      "average_cost": null,
+      "cost_value": "768,398.00",
+      "market_price": null,
+      "market_value": "792,398.00",
+      "unrealized_pnl": "24,000.00",
+      "holding_return_pct": null,
+      "weight_pct": "100.00%"
+    }
+  },
+  "transactions": {
+    "rows": [
+      {
+        "trade_date": "2026-10-26",
+        "instrument": "CASH",
+        "side": "DEPOSIT",
+        "qty": null,
+        "price": null,
+        "fee": "0.00",
+        "tax": "0.00",
+        "net_cash_amount": "50,000.00",
+        "realized_gain": null
+      },
+      {
+        "trade_date": "2026-10-20",
+        "instrument": "BBB",
+        "side": "SELL",
+        "qty": "2,000",
+        "price": "18.50",
+        "fee": "37.00",
+        "tax": "0.00",
+        "net_cash_amount": "36,963.00",
+        "realized_gain": "-3,037.00"
+      },
+      {
+        "trade_date": "2026-10-15",
+        "instrument": "BBB",
+        "side": "DIVIDEND",
+        "qty": "5,000",
+        "price": "0.80",
+        "fee": "0.00",
+        "tax": "400.00",
+        "net_cash_amount": "3,600.00",
+        "realized_gain": null
+      },
+      {
+        "trade_date": "2026-10-12",
+        "instrument": "AAA",
+        "side": "SELL",
+        "qty": "3,000",
+        "price": "55.00",
+        "fee": "165.00",
+        "tax": "0.00",
+        "net_cash_amount": "164,835.00",
+        "realized_gain": "17,835.00"
+      },
+      {
+        "trade_date": "2026-10-05",
+        "instrument": "AAA",
+        "side": "BUY",
+        "qty": "2,000",
+        "price": "43.95",
+        "fee": "100.00",
+        "tax": "0.00",
+        "net_cash_amount": "-88,000.00",
+        "realized_gain": null
+      }
+    ]
+  },
+  "reconciliation": {
+    "opening_nav": "715,000.00",
+    "deposits": "50,000.00",
+    "withdrawals": "0.00",
+    "total_pnl": "27,398.00",
+    "expected_closing_nav": "792,398.00",
+    "actual_closing_nav": "792,398.00",
+    "difference": "0.00"
+  },
+  "narrative": {
+    "paragraphs": [
+      "During the period, the account's net asset value moved from 715,000.00 THB to 792,398.00 THB. Total profit and loss was 27,398.00 THB, a simple period return of 3.83% on opening net asset value. Deposits of 50,000.00 THB were added and no withdrawals were made.",
+      "The account sold 3,000 AAA shares for net proceeds of 164,835.00 THB and a realized capital gain of 17,835.00 THB. It also sold 2,000 BBB shares for net proceeds of 36,963.00 THB and a realized capital gain of -3,037.00 THB. BBB paid a net dividend of 3,600.00 THB after withholding tax of 400.00 THB.",
+      "At the end of the period, AAA showed unrealized P/L of 27,000.00 THB, a holding return of 6.12%. BBB showed unrealized P/L of -3,000.00 THB, a holding return of -5.00%. Cash stood at 267,398.00 THB, or 33.75% of net asset value."
+    ]
+  },
+  "disclaimer": {
+    "text": "This report is prepared for the named account holder only. It is not an offer, solicitation, or investment advice. Past performance does not indicate future results."
+  }
+}
