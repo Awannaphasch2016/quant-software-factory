@@ -1,0 +1,100 @@
+[
+  {
+    "name": "A1_freshness_nav_daily",
+    "layer": "A",
+    "passed": true,
+    "expected": "2026-10-30",
+    "actual": "2026-10-30"
+  },
+  {
+    "name": "A2_account_info_has_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": ">= 1 row",
+    "actual": "1 row(s)"
+  },
+  {
+    "name": "A2_holdings_daily_has_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": ">= 1 row",
+    "actual": "2 row(s)"
+  },
+  {
+    "name": "A2_nav_daily_as_of_date",
+    "layer": "A",
+    "passed": true,
+    "expected": "row dated 2026-10-30",
+    "actual": "present"
+  },
+  {
+    "name": "A2_nav_daily_has_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": ">= 1 row",
+    "actual": "2 row(s)"
+  },
+  {
+    "name": "A2_nav_daily_opening_date",
+    "layer": "A",
+    "passed": true,
+    "expected": "row dated 2026-09-30",
+    "actual": "present"
+  },
+  {
+    "name": "A2_performance_as_of_month",
+    "layer": "A",
+    "passed": true,
+    "expected": "row for period 2026-10",
+    "actual": "present"
+  },
+  {
+    "name": "A2_performance_has_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": ">= 1 row",
+    "actual": "1 row(s)"
+  },
+  {
+    "name": "A3_schema_account_info",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_cash_flow",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_holdings_daily",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_nav_daily",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_performance",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_transactions",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  }
+]
