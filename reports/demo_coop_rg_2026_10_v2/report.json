@@ -1,0 +1,127 @@
+{
+  "header": {
+    "title": "Returns & Transactions Report",
+    "client": "DEMO-COOP",
+    "account": "DEMO-0001",
+    "strategy": "Reverse Grid",
+    "inception": "28 Feb 2024",
+    "period": "2026-10",
+    "period_start": "2026-10-01",
+    "period_end": "2026-10-31",
+    "opening_date": "2026-09-30",
+    "as_of": "2026-10-30",
+    "currency": "THB",
+    "report_id": "demo_coop_rg_2026_10_v2"
+  },
+  "kpi_summary": {
+    "net_asset_value": "792,398.00",
+    "cash": "267,398.00",
+    "realized_capital_gain": "14,798.00",
+    "dividends_net": "3,600.00",
+    "change_in_unrealized_pl": "9,000.00",
+    "total_pl": "27,398.00",
+    "period_return": "3.83%"
+  },
+  "holdings": [
+    {
+      "instrument": "AAA",
+      "volume": "9,000",
+      "avg_cost": "49.00",
+      "cost_value": "441,000.00",
+      "market_price": "52.00",
+      "market_value": "468,000.00",
+      "unrealized_pl": "27,000.00"
+    },
+    {
+      "instrument": "BBB",
+      "volume": "3,000",
+      "avg_cost": "20.00",
+      "cost_value": "60,000.00",
+      "market_price": "19.00",
+      "market_value": "57,000.00",
+      "unrealized_pl": "-3,000.00"
+    },
+    {
+      "instrument": "CASH",
+      "volume": null,
+      "avg_cost": null,
+      "cost_value": null,
+      "market_price": null,
+      "market_value": "267,398.00",
+      "unrealized_pl": null
+    },
+    {
+      "instrument": "Total",
+      "volume": null,
+      "avg_cost": null,
+      "cost_value": "501,000.00",
+      "market_price": null,
+      "market_value": "792,398.00",
+      "unrealized_pl": "24,000.00"
+    }
+  ],
+  "transactions": [
+    {
+      "date": "2026-10-26",
+      "instrument": "CASH",
+      "side": "DEPOSIT",
+      "qty": null,
+      "price": null,
+      "fee": null,
+      "tax": null,
+      "amount": "50,000.00",
+      "realized_pl": null
+    },
+    {
+      "date": "2026-10-20",
+      "instrument": "BBB",
+      "side": "SELL",
+      "qty": "2,000",
+      "price": "18.50",
+      "fee": "37.00",
+      "tax": "0.00",
+      "amount": "36,963.00",
+      "realized_pl": "-3,037.00"
+    },
+    {
+      "date": "2026-10-15",
+      "instrument": "BBB",
+      "side": "DIVIDEND",
+      "qty": "5,000",
+      "price": "0.80",
+      "fee": "0.00",
+      "tax": "400.00",
+      "amount": "3,600.00",
+      "realized_pl": null
+    },
+    {
+      "date": "2026-10-12",
+      "instrument": "AAA",
+      "side": "SELL",
+      "qty": "3,000",
+      "price": "55.00",
+      "fee": "165.00",
+      "tax": "0.00",
+      "amount": "164,835.00",
+      "realized_pl": "17,835.00"
+    },
+    {
+      "date": "2026-10-05",
+      "instrument": "AAA",
+      "side": "BUY",
+      "qty": "2,000",
+      "price": "43.95",
+      "fee": "100.00",
+      "tax": "0.00",
+      "amount": "-88,000.00",
+      "realized_pl": null
+    }
+  ],
+  "narrative": [
+    "Net asset value was 792,398.00 THB on 30 Oct 2026. Total P/L for the period was a gain of 27,398.00 THB, a simple return of 3.83% on opening net asset value.",
+    "During the period the account made 2 sales: AAA on 12 Oct 2026 with a realized gain of 17,835.00 THB and BBB on 20 Oct 2026 with a realized loss of 3,037.00 THB. Realized capital gain for the period was 14,798.00 THB. Net dividends of 3,600.00 THB were received from one payment.",
+    "At the as-of date the account held 2 positions: AAA with an unrealized gain of 27,000.00 THB and BBB with an unrealized loss of 3,000.00 THB. Unrealized P/L on these positions was a gain of 24,000.00 THB, and the change in unrealized P/L for the period was a gain of 9,000.00 THB.",
+    "The account received a deposit of 50,000.00 THB on 26 Oct 2026. No withdrawals were made in the period."
+  ],
+  "disclaimer": "This report is prepared for the named account holder only. It is not an offer, solicitation, or investment advice. Past performance does not indicate future results."
+}

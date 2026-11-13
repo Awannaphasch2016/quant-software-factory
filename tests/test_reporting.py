@@ -59,6 +59,13 @@ def _run(root: Path, out: Path) -> tuple[int, list[dict[str, Any]]]:
     return rc, results
 
 
+def _committed_layer_a() -> bytes:
+    """Layer A part of the committed checks.json, formatted as check_data writes."""
+    committed = json.loads(COMMITTED.read_text(encoding="utf-8"))
+    layer_a = [r for r in committed if r["layer"] == "A"]
+    return (json.dumps(layer_a, indent=2) + "\n").encode("utf-8")
+
+
 def _by_name(results: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     return {r["name"]: r for r in results}
 
@@ -120,7 +127,7 @@ def test_checks_json_deterministic_and_matches_committed(tmp_path: Path) -> None
     _run(FIXTURE, second)
     data = (first / "checks.json").read_bytes()
     assert data == (second / "checks.json").read_bytes()
-    assert data == COMMITTED.read_bytes()
+    assert data == _committed_layer_a()
     assert data.endswith(b"\n")
 
 
@@ -250,4 +257,4 @@ def test_module_entrypoint(tmp_path: Path) -> None:
         text=True,
     )
     assert proc.returncode == 0, proc.stderr
-    assert (tmp_path / "checks.json").read_bytes() == COMMITTED.read_bytes()
+    assert (tmp_path / "checks.json").read_bytes() == _committed_layer_a()
