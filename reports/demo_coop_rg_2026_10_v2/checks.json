@@ -96,5 +96,110 @@
     "passed": true,
     "expected": "valid",
     "actual": "valid"
+  },
+  {
+    "name": "B0_mapped_values",
+    "layer": "B",
+    "passed": true,
+    "expected": "every mapped value present exactly once",
+    "actual": "ok"
+  },
+  {
+    "name": "B1_holdings_total",
+    "layer": "B",
+    "passed": true,
+    "expected": "sum of holdings market_value + cash = nav_daily.nav",
+    "actual": "792398.00 vs 792398.00"
+  },
+  {
+    "name": "B2_securities_value",
+    "layer": "B",
+    "passed": true,
+    "expected": "sum of holdings market_value = nav_daily.market_value",
+    "actual": "525000.00 vs 525000.00"
+  },
+  {
+    "name": "B3_holding_rows",
+    "layer": "B",
+    "passed": true,
+    "expected": "market_value - cost_value = unrealized_pl on every row",
+    "actual": "ok"
+  },
+  {
+    "name": "B4_same_figure",
+    "layer": "B",
+    "passed": true,
+    "expected": "kpi net_asset_value = holdings Total market_value; kpi cash = holdings CASH market_value",
+    "actual": "net_asset_value 792,398.00 vs 792,398.00; cash 267,398.00 vs 267,398.00"
+  },
+  {
+    "name": "B5_accounting_identity",
+    "layer": "B",
+    "passed": true,
+    "expected": "opening nav + deposits - withdrawals + total_pl = closing nav",
+    "actual": "792398.00 vs 792398.00"
+  },
+  {
+    "name": "B6_pl_parts",
+    "layer": "B",
+    "passed": true,
+    "expected": "capital_gain + dividend + unrealized_change = total_pl",
+    "actual": "27398.00 vs 27398.00"
+  },
+  {
+    "name": "B7_dividends",
+    "layer": "B",
+    "passed": true,
+    "expected": "sum of DIVIDEND amount = performance.dividend",
+    "actual": "3600.00 vs 3600.00"
+  },
+  {
+    "name": "B7_realized_capital_gain",
+    "layer": "B",
+    "passed": true,
+    "expected": "sum of SELL realized_pl = performance.capital_gain",
+    "actual": "14798.00 vs 14798.00"
+  },
+  {
+    "name": "B8_narrative_numbers",
+    "layer": "B",
+    "passed": true,
+    "expected": "every money or percent value appears in report.json",
+    "actual": "ok"
+  },
+  {
+    "name": "W1_banned_phrases",
+    "layer": "B",
+    "passed": true,
+    "expected": "no banned phrase",
+    "actual": "ok"
+  },
+  {
+    "name": "W2_no_negative_gain",
+    "layer": "B",
+    "passed": true,
+    "expected": "no 'gain of -'",
+    "actual": "ok"
+  },
+  {
+    "name": "W3_sentence_openers",
+    "layer": "B",
+    "passed": true,
+    "expected": "no two consecutive sentences start with the same word",
+    "actual": "ok"
+  },
+  {
+    "name": "W4_length",
+    "layer": "B",
+    "passed": true,
+    "expected": "2-4 paragraphs, under 180 words",
+    "actual": "4 paragraphs, 154 words"
+  },
+  {
+    "name": "W5_forecast_words",
+    "layer": "B",
+    "passed": true,
+    "expected": "no forecast or recommendation words",
+    "actual": "ok"
   }
 ]
