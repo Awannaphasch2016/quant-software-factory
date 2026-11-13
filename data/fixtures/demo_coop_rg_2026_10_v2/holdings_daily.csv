@@ -1,0 +1,3 @@
+date,account_no,instrument,volume,avg_cost,cost_value,market_price,market_value,unrealized_pl
+2026-10-30,DEMO-0001,AAA,9000,49.00,441000.00,52.00,468000.00,27000.00
+2026-10-30,DEMO-0001,BBB,3000,20.00,60000.00,19.00,57000.00,-3000.00
