@@ -87,6 +87,80 @@ exits 0. When any check fails, it writes only `checks.json`, removes stale
 nothing is built and the Layer B checks are reported as `"not run: Layer A
 failed"`. Two runs on the same input produce byte-identical files.
 
+## Private data boundary prototype
+
+Report code is developed without ever seeing private data. The prototype splits
+the work into three zones:
+
+- **Agent zone**: the repository, issues, pull requests and coding agents. It
+  holds code, specs, the schema registry and synthetic fixtures only.
+- **Trusted zone**: an operator's machine outside the repository working tree.
+  The operator runs the repository's code against a private database. The
+  database and every private output stay here.
+- **Boundary**: the only thing that leaves the trusted zone is a sanitized
+  result file with the check names and their pass/fail flags.
+
+In this prototype the private database is a local SQLite file built from
+synthetic data. `SqliteSource(path)` implements `DataSource` on it: one TEXT
+table per dataset, named as the dataset, opened read-only, with the same
+filtering and errors as `FixtureSource`.
+
+Build a database from dataset CSV files (it refuses to overwrite an existing
+file). `--scale K` multiplies every money field by `K` (not
+`performance.return_pct`, quantities or dates); `--account` and
+`--client-name` replace the account number and client name:
+
+```bash
+mkdir -p /tmp/private
+python -m quant_software_factory.reporting.make_private_db \
+    data/fixtures/demo_coop_rg_2026_10_v2 /tmp/private/private.db \
+    --scale 3 --account PRIV-0001 --client-name PRIVATE-CLIENT
+```
+
+Run the report in the trusted zone:
+
+```bash
+python -m quant_software_factory.reporting.private_run \
+    --db /tmp/private/private.db --private-out /tmp/private/report \
+    --result /tmp/boundary/result.json \
+    --account PRIV-0001 --opening 2026-09-30 --as-of 2026-10-30
+```
+
+It reads the database only through `SqliteSource` and `load(...)`, runs the
+same checks and report builder as `returns_transactions`, and writes
+`report.md`, `report.json`, `narrative.md` and `checks.json` to
+`--private-out` (the folder name is the report ID). Only `--result` may be
+shared:
+
+```json
+{
+  "status": "passed",
+  "checks_total": 29,
+  "checks_failed": 0,
+  "checks": [{"name": "A1_freshness_nav_daily", "layer": "A", "passed": true}]
+}
+```
+
+`checks` lists every report check sorted by name with exactly `name`, `layer`
+and `passed`. There are no expected or actual values, account, client name,
+dates, figures or paths. Before writing the result, a `boundary_leak_check`
+rejects text that contains the account ID, the client name, or any number with
+a decimal point or thousands separator. That check is recorded only in the
+private `checks.json`.
+
+Exit codes: 0 when every report check passes; 1 when any report check fails
+(the result is still written, with status `"failed"`); 2 when `--private-out`
+or `--result` resolves inside the repository working tree, including through
+a symlink (nothing is written); 3 when the leak check fails (no result is
+written, an existing one is removed, and the private folder keeps only
+`checks.json`).
+
+Design decisions: the private folder is not encrypted. Protecting it (disk
+encryption, file permissions, retention) is the trusted zone's
+responsibility and out of scope here, as are production data sources and any
+network access. `*.db` and `*.sqlite` files are git-ignored; never commit a
+private database or private output.
+
 ## Development
 
 ```bash
