@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.0 | 19 พ.ย. 2569 | Current |
+| v1.1 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 3.3 กลุ่ม PD (Private Data) และ AC-07 ตาม feedback 19 พ.ย. 2569 เปลี่ยนช่องทางแชตใน HR-05 และ AC-05 เป็น Discord เพิ่มคำศัพท์ Agent zone, Trusted zone และสมมติฐานเรื่อง Private Data |
 | v1.0 | 19 พ.ย. 2569 | ย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version แก้ลิงก์ และเรียกเอกสารฉบับที่ 4 ว่า Software Design |
 
 ## สารบัญ
@@ -25,7 +26,9 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 ## 1. Introduction
 
-เอกสารนี้ขยายข้อกำหนดระดับสูงใน TOR [1] เป็นข้อกำหนดที่ตรวจได้ของ Report Spec Structure และการใช้งานกับ Software Factory ข้อกำหนดกลุ่ม HR ว่าด้วยการเชื่อมกับ harness และโรงงาน กลุ่ม FR ว่าด้วยตัวโครงสร้าง Spec และผลลัพธ์ที่โรงงานต้องสร้าง การออกแบบและหลักฐานอยู่ใน Software Design [2] ทุกข้อมีสถานะ Demonstrated หรือ Intended ตามหลักฐานของ Iteration 1
+เอกสารนี้ขยายข้อกำหนดระดับสูงใน TOR [1] เป็นข้อกำหนดที่ตรวจได้ของ Report Spec Structure และการใช้งานกับ Software Factory ข้อกำหนดกลุ่ม HR ว่าด้วยการเชื่อมกับ harness และโรงงาน กลุ่ม FR ว่าด้วยตัวโครงสร้าง Spec และผลลัพธ์ที่โรงงานต้องสร้าง การออกแบบและหลักฐานอยู่ใน Software Design [2] ทุกข้อมีสถานะ Demonstrated หรือ Intended ตามหลักฐานที่มี
+
+ตั้งแต่ v1.1 การทำงานกับ Private Data โดยข้อมูลไม่รั่วเป็น Core Requirement ของโครงการ (กลุ่ม PD ข้อ 3.3) ข้อกำหนดกลุ่มอื่นต้องไม่ขัดกับกลุ่มนี้
 
 ## 2. Scope
 
@@ -46,6 +49,10 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | Number Checks | ตัวเช็คตัวเลข ชั้น A (ข้อมูล) และชั้น B (รายงาน) |
 | Foreman / eve-forman[bot] | Software Factory ของพี่ Anak และบัญชี bot ที่รายงานผลใน Issue |
 | Demonstrated / Intended | มีหลักฐานแล้ว / เป็นข้อกำหนดหรือทิศทางที่ยังไม่มีหลักฐาน |
+| Private Data | ข้อมูลลูกค้าและข้อมูลลับของบริษัท รวมตัวเลขในรายงาน เลขบัญชี และชื่อลูกค้า |
+| Agent zone | ส่วนที่ agent และบริการภายนอก (รวมผู้ให้บริการโมเดล) ทำงาน ต้องไม่ได้รับ Private Data |
+| Trusted zone | environment ที่บริษัทควบคุมและเก็บ Private Data โค้ดที่ agent เขียนรันกับข้อมูลจริงได้ที่นี่เท่านั้น |
+| Result | ไฟล์เดียวที่ส่งจาก Trusted zone กลับไป Agent zone มีแค่ชื่อตัวเช็คและผ่าน/ไม่ผ่าน |
 
 ### 2.2 ประเภทรายงานที่ต้องรองรับ
 
@@ -69,7 +76,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | HR-02 | ผู้ติด label ต้องเป็นบัญชีคนที่มีสิทธิ์ triage ขึ้นไป บัญชีชนิด Bot จะถูกโรงงานข้าม | Demonstrated เฉพาะกรณีบัญชีคน (Josh-Bear, Issue #4, #6, #7, #9) ส่วนกรณีบัญชี Bot มาจากโค้ดใน template ยังไม่ได้ทดสอบ |
 | HR-03 | Output ของโรงงานต้องเป็น draft PR การ merge เป็นของคน | Demonstrated (PR #5, #8, #10 เป็น draft และคนเป็นผู้ merge PR #2, #8, #10) |
 | HR-04 | Spec ต้องระบุ base branch และ Issue ที่ต้องทำก่อน (`Depends on`) ได้ | Demonstrated (Issue #6, #7, #9 แตก branch จาก `main` ตาม Spec และ Issue #9 ใช้ data layer จาก #7 ที่ merge แล้ว) |
-| HR-05 | ต้องสั่งงานโรงงานและรับรายงานกลับผ่านช่องทางแชต (Grokbot หรือ Slack) โดยไม่ต้องเข้า repository | Intended |
+| HR-05 | ต้องสั่งงานและรับรายงานกลับผ่านช่องทางแชต (Discord ตามที่ทีม Quant ใช้) โดยไม่ต้องเข้า repository และช่องทางแชตต้องไม่ส่ง Private Data ออกนอก Trusted zone | Intended |
 
 ### 3.2 ระดับ Spec Structure
 
@@ -86,6 +93,19 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | FR-09 | Spec ต้องมีหัวข้อ Open Items ที่รวมสิ่งที่ยังไม่มีข้อมูล | Demonstrated (Example v0.2) Report Spec ของ Run #4 ไม่มีหัวข้อนี้เพราะไม่มีสิ่งที่ขาด Spec Structure v0.3 จึงบังคับให้เขียน "None" แล้ว ([`appendix/report-spec-structure.md`](appendix/report-spec-structure.md) ข้อ 3) แต่ยังไม่ได้ทดสอบกับโรงงาน |
 | FR-10 | Spec 1 ใบต้องมีขนาดที่โรงงานทำจบได้ใน 1 session ตามกติกาการแตก Spec | ผ่านบางส่วน: Platform Spec จบใน 1 session (Run #3) ส่วน Report Spec ชนเพดานหลังขั้น implement และต้องอนุมัติ 1 ครั้ง (Run #4) Run #1 และ #2 ไม่ผ่าน |
 
+### 3.3 ระดับ Private Data (Core Requirement ตั้งแต่ v1.1)
+
+| ID | ข้อกำหนด | สถานะ |
+|---|---|---|
+| PD-01 | Agent และบริการภายนอก (รวมผู้ให้บริการโมเดล) ต้องไม่ได้รับ Private Data | Demonstrated ใน prototype (Issue #12 → PR #13: โรงงานเขียนโค้ดจาก Spec, schema และข้อมูลปลอมเท่านั้น) |
+| PD-02 | โค้ดที่ agent เขียนต้องรันกับข้อมูลจริงใน Trusted zone เท่านั้น ด้วยสิทธิ์อ่านอย่างเดียว | Demonstrated ใน prototype (`SqliteSource` เปิดแบบอ่านอย่างเดียว, SHA-256 ของ database เท่าเดิมหลังรัน) Trusted zone จริงในเครือข่ายบริษัทเป็น Intended |
+| PD-03 | สิ่งที่ส่งกลับจาก Trusted zone มีได้แค่ชื่อตัวเช็ค ผ่าน/ไม่ผ่าน และจำนวนรวม ไม่มีตัวเลข ชื่อ หรือเลขบัญชี | Demonstrated ใน prototype (`result.json` มี 4 key และไม่มีค่าจาก private database) |
+| PD-04 | ต้องมี leak check ที่หยุดการส่งกลับถ้าพบค่าจาก Private Data | Demonstrated ใน prototype (exit 3 เมื่อพบตัวเลข เลขบัญชี หรือชื่อลูกค้า มี test) |
+| PD-05 | รายงานที่มี Private Data ต้องเก็บใน Trusted zone เท่านั้น ห้าม commit เข้า repository | Demonstrated บางส่วน (ปฏิเสธ output ใน repo exit 2) ตัวกันนี้ทำงานเฉพาะการติดตั้งแบบ editable การกำหนดสิทธิ์ผู้อ่านเป็น Intended |
+| PD-06 | repository เก็บได้แค่โค้ด schema และข้อมูลปลอม และต้องมีกลไกกัน commit ข้อมูลจริง | Demonstrated บางส่วน (`.gitignore` สำหรับ `*.db` และ `*.sqlite`) secret scanning และ push protection เป็น Intended |
+
+การออกแบบที่ตอบกลุ่มนี้อยู่ใน Software Design ข้อ 2
+
 ## 4. Nonfunctional Requirements
 
 | ID | ข้อกำหนด | สถานะ |
@@ -101,7 +121,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 ## 5. Acceptance Criteria
 
-AC ระดับระบบ ตรงกับ Acceptance Criteria ของ requirement_1
+AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptance Criteria ของ requirement_1 และ AC-07 มาจาก feedback วันที่ 19 พ.ย. 2569
 
 | ID | เกณฑ์ | อ้าง | สถานะ |
 |---|---|---|---|
@@ -109,8 +129,9 @@ AC ระดับระบบ ตรงกับ Acceptance Criteria ของ 
 | AC-02 | มี Spec ตัวอย่างที่กรอกแล้วอย่างน้อย 1 ใบ | FR-01, FR-05, FR-09 | Demonstrated (4 ใบ: v0.1, v0.2, Platform Spec v0.3, Report Spec v0.3) |
 | AC-03 | มีการรันผ่านโรงงานสำเร็จอย่างน้อย 1 ครั้ง: Issue เชื่อมกับ draft PR, Output ตรง Expected Values ทุกค่า, CI ผ่าน, reviewer ไม่เหลือ blocking issue | HR-01, HR-03, FR-05, FR-06, FR-07, NFR-04 | Demonstrated 2 ครั้ง (Issue #4 → PR #5 และ Issue #9 → PR #10 ที่ merge แล้ว) |
 | AC-04 | มี Progress Report | | Demonstrated |
-| AC-05 | สั่งงานผ่าน Grokbot หรือ Slack ได้ | HR-05 | Intended |
+| AC-05 | สั่งงานผ่าน Discord ได้ | HR-05 | Intended |
 | AC-06 | มีข้อเสนอ Natural Writing ครอบคลุม Spec, Writing Guidelines และการตรวจ Output | FR-08 | Demonstrated (เอกสารข้อเสนอ, กติกาที่ตรวจได้และตัวเช็ค W1–W5 ใน Run #4, ผลตรวจข้อความ Run #1 และ #4 ด้วย skill พร้อมฉบับแก้) ส่วน narrative facts และ LLM judge เป็น Intended |
+| AC-07 | Agent ทำงานกับ Private Data ได้โดยข้อมูลไม่รั่วออกนอก Trusted zone มีหลักฐานที่ผู้ตรวจรันซ้ำได้ | PD-01 ถึง PD-06 | Demonstrated ระดับ prototype ด้วย private database จำลอง (Issue #12 → PR #13) ยังไม่ได้ทดสอบกับ database และเครือข่ายจริงของบริษัท |
 
 การผ่าน AC-03 หมายถึงโครงสร้าง Spec ทำงานกับโรงงานได้กับรายงาน 1 ประเภทและข้อมูลปลอม ไม่ได้ยืนยันว่าตัวเลขตรงกับนิยามของทีม หรือพร้อมใช้กับข้อมูลจริง
 
@@ -128,6 +149,8 @@ AC ระดับระบบ ตรงกับ Acceptance Criteria ของ 
 - Dataset Catalog ([`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) ข้อ 3) ครอบคลุมชุดข้อมูลที่รายงาน 2 ประเภทแรกใช้ ชื่อคอลัมน์จริงยังไม่ได้ map
 - นิยามตัวเลขใน fixture (average cost, ปันผลแบบ net) เป็นค่าสมมติ ยังไม่ได้ยืนยันกับทีม
 - Foreman ยังชี้ไปที่ repository `quant-software-factory`
+- Private Data อยู่ใน database บน server ภายในเครือข่ายบริษัท และตัวโมเดลรันที่ผู้ให้บริการภายนอก ข้อมูลใดที่อยู่ใน prompt จึงถือว่าออกนอกบริษัท (ข้อมูลจากทีม และ feedback 19 พ.ย. 2569)
+- ยังไม่ได้ยืนยัน policy ของบริษัทเรื่องการส่งข้อมูลให้ผู้ให้บริการโมเดล จึงออกแบบให้ไม่ต้องส่ง
 
 ### 6.3 References
 
@@ -142,6 +165,7 @@ AC ระดับระบบ ตรงกับ Acceptance Criteria ของ 
 | Issue #6 (Run #2) | https://github.com/Awannaphasch2016/quant-software-factory/issues/6 |
 | Issue #7 → PR #8 (Run #3) | https://github.com/Awannaphasch2016/quant-software-factory/issues/7, https://github.com/Awannaphasch2016/quant-software-factory/pull/8 |
 | Issue #9 → PR #10 (Run #4) | https://github.com/Awannaphasch2016/quant-software-factory/issues/9, https://github.com/Awannaphasch2016/quant-software-factory/pull/10 |
+| Issue #12 → PR #13 (prototype Private Data) | https://github.com/Awannaphasch2016/quant-software-factory/issues/12, https://github.com/Awannaphasch2016/quant-software-factory/pull/13 |
 | CI ของ PR #10 | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/43395249810 |
 | Spec Structure v0.3 | [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md), [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) |
 | หลักฐาน End-to-End Run | [`appendix/e2e-run-evidence.md`](appendix/e2e-run-evidence.md), [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) |
