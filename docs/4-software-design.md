@@ -6,29 +6,33 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.0 | 19 พ.ย. 2569 | Current |
+| v1.1 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 2 Private Data Architecture (แนวทางที่ศึกษา, ผล research, architecture ที่เสนอ, คำตอบคำถาม 5 ข้อ, ผล prototype Issue #12 → PR #13, การตัดสินใจ) ตาม feedback 19 พ.ย. 2569 เลื่อนเลขหัวข้อเดิมเป็น 3–10 เพิ่ม PD-01 ถึง PD-06 ใน traceability และปรับข้อจำกัด |
 | v1.0 | 19 พ.ย. 2569 | เปลี่ยนชื่อจาก Design Prototype และย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version และแก้ลิงก์ |
 
 ## สารบัญ
 
 1. Design Overview
-2. Spec Structure ในฐานะ I/O contract ของ Factory
-3. System Architecture (C4)
-4. Agent Workflow และ Sequence
-5. Prototype Usage
-6. Verification Evidence
-7. Traceability
-8. Limitations and Future Direction
-9. Execution Cost
+2. Private Data Architecture
+3. Spec Structure ในฐานะ I/O contract ของ Factory
+4. System Architecture (C4)
+5. Agent Workflow และ Sequence
+6. Prototype Usage
+7. Verification Evidence
+8. Traceability
+9. Limitations and Future Direction
+10. Execution Cost
 
 ## 1. Design Overview
 
 เอกสารนี้อธิบายการออกแบบ Report Spec Structure และวิธีที่มันทำงานร่วมกับ Software Factory (Foreman) ของพี่ Anak พร้อมหลักฐานจากต้นแบบ 4 run ใน Iteration 1 ข้อกำหนดอ้างจาก SRS [1]
+
+ตั้งแต่ v1.1 โจทย์หลักของการออกแบบคือให้ agent ทำงานกับ Private Data ได้โดยข้อมูลไม่รั่วออกนอก security boundary (ข้อ 2) ส่วนข้อ 3–10 เป็นการออกแบบ Spec Structure และหลักฐานจาก Iteration 1 ที่ยังใช้อยู่
 
 แนวคิดหลัก: โรงงานรับ input เป็น GitHub Issue อยู่แล้ว สิ่งที่โครงการนี้ออกแบบคือ**รูปแบบของ Issue** ให้งานรายงานส่งเข้าโรงงานได้ซ้ำๆ แล้วได้ผลที่ตรวจได้ โดยไม่ต้องแก้โรงงาน
 
@@ -39,9 +43,151 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | คุณภาพ | Expected Values, Number Checks ใน `checks.json`, GitHub Actions CI |
 | คน | กรอก Spec, ติด label, อนุมัติเมื่อโรงงานขอ, ตรวจ PR และ merge |
 
-## 2. Spec Structure ในฐานะ I/O contract ของ Factory
+## 2. Private Data Architecture
 
-### 2.1 หัวข้อของ Spec กับสถานีที่ใช้
+ส่วนนี้เพิ่มใน v1.1 ตาม feedback วันที่ 19 พ.ย. 2569 ที่กำหนดให้การทำงานกับ Private Data เป็น Core Requirement ของโครงการ ข้อกำหนดอยู่ใน SRS กลุ่ม PD
+
+### 2.1 โจทย์และข้อจำกัด
+
+โจทย์: ให้ agent ช่วยสร้างรายงานจากข้อมูลลูกค้าจริงได้ โดยข้อมูลส่วนตัวหรือข้อมูลลับไม่รั่วออกนอก security boundary
+
+| ข้อจำกัด | ผลต่อการออกแบบ |
+|---|---|
+| ข้อมูลลูกค้าอยู่ใน database บน server ภายในเครือข่ายบริษัท ไม่ได้อยู่บน cloud | การต่อจาก cloud เข้ามาต้องผ่านเครือข่ายพิเศษ หรือให้ส่วนที่แตะข้อมูลรันในบริษัท |
+| ตัวโมเดล (Claude) รันที่ผู้ให้บริการภายนอก | ข้อมูลใดที่อยู่ใน prompt ถือว่าออกนอกบริษัทแล้ว ไม่ว่า agent runtime จะอยู่ที่ไหน |
+| repository เป็น public | repo เก็บได้แค่โค้ด schema และข้อมูลปลอม |
+| ตัวเลขในรายงานคำนวณไว้แล้วโดย pipeline ของทีม | งานรายงานคือดึง จัดรูป และตรวจตัวเลข ไม่ต้องให้โมเดลตีความค่า |
+
+### 2.2 แนวทางที่ศึกษา
+
+| | A. Bring Data to Agent | B. Bring Agent to Data | C. แยกการคิดออกจากข้อมูล |
+|---|---|---|---|
+| แนวคิด | agent อยู่บน cloud ที่ควบคุมได้ ส่งข้อมูลหรือบางส่วนไปให้ | agent runtime อยู่ในเครือข่ายบริษัท | agent เขียน query หรือโปรแกรมจาก schema และข้อมูลปลอม executor ในบริษัทเป็นผู้รัน แล้วส่งกลับเฉพาะผลที่ผ่านตัวกรอง |
+| ข้อมูลดิบออกนอกบริษัท | ใช่ ไปที่ cloud และผู้ให้บริการโมเดล | ใช่ ถ้าข้อมูลอยู่ใน prompt เพราะโมเดลยังรันข้างนอก | ไม่ |
+| ใช้โครงเดิมได้ไหม | บางส่วน การต่อเครือข่ายภายในบน Vercel ต้องใช้ Secure Compute (Enterprise) และ AWS VPC | ต้องตั้งและดูแล agent runtime เอง | ได้ ฝั่งเขียนโค้ดใช้ Foreman หรือ Eve ตามเดิม เพิ่ม executor ในบริษัท |
+| ความยาก | กลางถึงสูง (เครือข่าย, สัญญากับผู้ให้บริการ) | สูง (server, ความปลอดภัยของ runtime) | กลาง (executor, ตัวกรอง output, leak check) |
+| ข้อจำกัดหลัก | ขึ้นกับสัญญาและ policy ของบริษัท | ยังต้องกันไม่ให้ข้อมูลดิบเข้า prompt | agent ตอบคำถามที่ต้องเห็นค่าจริงไม่ได้ เช่น "ทำไมบัญชีนี้ขาดทุน" |
+
+### 2.3 ข้อค้นพบจาก Research
+
+ค้นจากเอกสารสาธารณะเมื่อ 19 พ.ย. 2569 เงื่อนไขสัญญาจริงของบริษัทยังต้องยืนยันกับฝ่ายที่ดูแล
+
+| Platform | ข้อค้นพบ |
+|---|---|
+| Vercel / Eve | Sandbox ตั้ง firewall ได้ 3 แบบ (allow-all, deny-all ที่บล็อกแม้แต่ DNS, custom ตาม domain และ CIDR) [8] การต่อ private network ต้องใช้ Secure Compute ซึ่งเป็น Enterprise และ peer กับ AWS VPC [9] ตัวอย่าง Eve + database ของ Vercel เองส่งแถวข้อมูลเต็มให้โมเดลสรุป และ trace อาจเก็บแถวข้อมูลไว้ [10] AI Gateway เปิด Zero Data Retention ได้ ถ้าไม่มีผู้ให้บริการที่ผ่านเงื่อนไข request จะ fail [11] |
+| GitHub private repo + self-hosted runner | private repo กันคนนอก แต่ทุกคนที่มีสิทธิ์ใน repo เห็นทุกอย่างที่ commit secret scanning และ push protection สำหรับ org private repo ต้องใช้แผน Team หรือ Enterprise และค่าเริ่มต้นให้คนที่มีสิทธิ์เขียน bypass ได้ [12] self-hosted runner รันงานบนเครื่องของเราเองได้ ข้อแนะนำคือไม่ใช้กับ public repo, จำกัด runner group, ใช้ runner แบบครั้งเดียว และให้คนอนุมัติก่อนรันโค้ดจาก PR [13] |
+| ผู้ให้บริการโมเดล | Claude API ไม่ใช้ข้อมูล train ถ้าไม่ได้อนุญาต Zero Data Retention ต้องขอผ่าน sales และบางโมเดลบังคับเก็บข้อมูล 30 วัน [14] Amazon Bedrock ไม่ใช้ข้อมูล train และเก็บข้อมูลใน region ที่ใช้ แต่บางโมเดลมีการเก็บข้อมูลเพื่อตรวจ abuse และมีรายงานปี 2026 เรื่องการแชร์ข้อมูลบางโมเดลกับ Anthropic [15][16] |
+
+ข้อสรุปจาก research: ZDR, Bedrock และ Secure Compute ลดความเสี่ยงได้ แต่ทุกทางที่ให้โมเดลเห็นข้อมูล ข้อมูลยังออกนอกบริษัทไปที่ผู้ให้บริการ ถ้า policy ไม่อนุญาตให้ข้อมูลลูกค้าออกนอกบริษัท ต้องออกแบบให้โมเดลไม่เห็นข้อมูลดิบ
+
+### 2.4 Architecture ที่เสนอ
+
+เสนอแนวทาง C เป็นหลัก เพราะงานรายงานเป็นการดึงตัวเลขที่ pipeline คำนวณไว้แล้วมาจัดตามรูปแบบที่กำหนด โค้ดทำได้โดยไม่ต้องให้โมเดลเห็นค่า แนวทาง A แบบจำกัด (ZDR และข้อมูลที่ลบตัวตนแล้ว) เก็บไว้สำหรับงานที่จำเป็นต้องให้โมเดลเห็นข้อมูลในอนาคต สถานะ: Demonstrated ในระดับ prototype (ข้อ 2.7) ด้วย private database จำลองบนเครื่องผู้ทดสอบ ยังไม่ได้ทดสอบกับ database และเครือข่ายจริงของบริษัท
+
+```mermaid
+flowchart LR
+  subgraph AZ["โซน Agent (นอกบริษัท)"]
+    AG["Agent: Foreman ใน v1.1<br/>(ต่อไป: Eve agent ตัวเดียว)"]
+  end
+  subgraph REPO["GitHub repository"]
+    CODE["โค้ด, schema,<br/>ข้อมูลปลอม, test"]
+  end
+  subgraph TZ["โซน Trusted (เครือข่ายบริษัท)"]
+    EX["Executor: private_run<br/>สิทธิ์อ่านอย่างเดียว"]
+    DB[("Private database")]
+    OUT["รายงานเต็ม<br/>(ที่เก็บภายใน)"]
+    LC["ตัวกรอง + leak check"]
+  end
+  AG -- "เขียนโค้ดจาก Spec + schema + ข้อมูลปลอม" --> CODE
+  CODE -- "โค้ดที่คนอนุมัติแล้ว" --> EX
+  DB --> EX
+  EX --> OUT
+  EX --> LC
+  LC -- "result: ชื่อตัวเช็ค + ผ่าน/ไม่ผ่าน" --> AG
+```
+
+| ส่วน | หน้าที่ | สิ่งที่ข้ามเส้นได้ |
+|---|---|---|
+| โซน Agent | อ่าน Spec, schema และข้อมูลปลอม แล้วเขียนโค้ดและ test | ส่งออก: โค้ด |
+| Repository | เก็บโค้ด schema และข้อมูลปลอม มีกลไกกัน commit ข้อมูลจริง (`.gitignore`, ตัวเช็ค) | ไม่มีข้อมูลจริง |
+| Executor (โซน Trusted) | รันโค้ดที่คนอนุมัติแล้วกับ private database ด้วยสิทธิ์อ่านอย่างเดียว | รับเข้า: โค้ด |
+| ที่เก็บรายงาน (โซน Trusted) | เก็บรายงานเต็มที่มีข้อมูลจริง กำหนดสิทธิ์ผู้อ่าน | ไม่ออกนอกโซน |
+| ตัวกรองและ leak check | ตัดทุกค่าออกจากผลตรวจ เหลือชื่อตัวเช็คและผ่าน/ไม่ผ่าน และหยุดถ้าพบตัวเลข เลขบัญชี หรือชื่อลูกค้า | ส่งออก: result ที่ผ่านตัวกรอง |
+
+ข้อค้นพบระหว่างออกแบบ: `checks.json` ที่ใช้ตั้งแต่ v1.0 เก็บค่า `expected` และ `actual` ซึ่งเป็นตัวเลขจริง จึงส่งกลับให้ agent ไม่ได้ ต้องผ่านตัวกรองก่อน
+
+### 2.5 Sequence ของการรันใน trusted zone
+
+```mermaid
+sequenceDiagram
+  actor U as ผู้ใช้
+  participant GH as GitHub
+  participant AG as Agent (Foreman)
+  participant EX as Executor (trusted)
+  participant DB as Private DB
+  U->>GH: เปิด Issue (Spec ที่ไม่มีข้อมูลจริง)
+  GH->>AG: webhook
+  AG->>GH: PR (โค้ด + test กับข้อมูลปลอม)
+  U->>GH: ตรวจและ merge
+  U->>EX: สั่งรันโค้ดเวอร์ชันที่ merge แล้ว
+  EX->>DB: อ่าน (สิทธิ์อ่านอย่างเดียว)
+  EX->>EX: สร้างรายงานเต็ม เก็บภายใน
+  EX->>EX: ตัวกรอง + leak check
+  EX-->>U: result (ชื่อตัวเช็ค + ผ่าน/ไม่ผ่าน)
+```
+
+### 2.6 คำตอบคำถาม 5 ข้อ (ณ v1.1)
+
+| คำถาม | คำตอบ | สถานะ |
+|---|---|---|
+| 1. Data Security: private repo ปลอดภัยพอไหม | พอสำหรับเก็บโค้ดและข้อมูลปลอม ไม่พอสำหรับเก็บข้อมูลลูกค้า เพราะทุกคนที่มีสิทธิ์ใน repo เห็นทุกอย่างที่ commit ต้องเพิ่มกลไกกัน commit ข้อมูลจริง, secret scanning, branch protection และจำกัดสิทธิ์ | Research |
+| 2. Data Movement: ข้อมูลออกจาก server หลักได้ไหม | ออกแบบให้ไม่ต้องออก สิ่งที่ข้ามเส้นมีแค่โค้ด (เข้า) และ result ที่ผ่านตัวกรอง (ออก) prototype แสดงว่ารายงานเต็มอยู่แค่ในโฟลเดอร์ปิด และ result ไม่มีตัวเลข เลขบัญชี หรือชื่อลูกค้า | Demonstrated ใน prototype (ข้อ 2.7) |
+| 3. Agent Deployment: deploy ที่ไหน | agent ฝั่งเขียนโค้ดอยู่ที่เดิมได้ (Foreman หรือ Eve บน Vercel) เพราะไม่เห็นข้อมูล แต่ต้องมี execution environment แยกในบริษัท เช่น self-hosted runner หรือเครื่องที่ทีมควบคุม | Research |
+| 4. Execution and Communication: agent สร้างโปรแกรมให้รันในที่ปลอดภัยได้ไหม | ได้ โรงงานเขียน `SqliteSource`, `make_private_db` และ `private_run` จาก Spec ที่ไม่มีข้อมูลจริง (Issue #12) แล้ว executor รันกับ private database ที่ตัวเลข เลขบัญชี และชื่อลูกค้าไม่เคยอยู่ใน repo ได้ผลถูกต้อง และส่งกลับแค่ result | Demonstrated ใน prototype (ข้อ 2.7) |
+| 5. Output Artifacts: รายงานที่มีข้อมูลจริงเก็บที่ไหน | เก็บในโซน Trusted เท่านั้น ห้าม commit และห้ามส่งให้ agent prototype ปฏิเสธการเขียน output ลงใน repo (exit 2) ส่วนการกำหนดสิทธิ์ผู้อ่านและช่องทางส่งถึงผู้ใช้ (เช่น Discord ภายในส่งแค่สถานะหรือลิงก์) ยังต้องออกแบบต่อ | เก็บนอก repo: Demonstrated; สิทธิ์และช่องทางส่ง: Intended |
+
+### 2.7 Prototype: Private data boundary (Issue #12)
+
+| | |
+|---|---|
+| Spec | Issue #12 (Platform Spec ต่อยอดจาก #7 และ #9) |
+| สิ่งที่โรงงานสร้าง | `SqliteSource` (อ่าน private database ผ่าน `load(...)` เดิม แบบอ่านอย่างเดียว), `make_private_db` (สร้าง database จาก CSV พร้อมคูณตัวเลขและเปลี่ยนชื่อ เพื่อให้ได้ข้อมูลที่ไม่มีใน repo), `private_run` (executor ที่เขียนรายงานเต็มนอก repo และส่งกลับแค่ result ที่ผ่าน leak check) |
+| private database ใน prototype | ไฟล์ SQLite บนเครื่องผู้ทดสอบ แทน database จริงในบริษัท |
+| Output | PR #13 merge แล้ว (merge commit `ab61d91`, 19 พ.ย. 2569 07:42 UTC) |
+| เวลาโรงงาน | label 07:24:17 → PR 07:39:23 UTC (15 นาที) ไม่ชนเพดาน token ไม่ต้องกด Approve reviewer ไม่ส่งกลับ |
+| CI | run 44481298874 ผ่าน Python 3.10–3.13, test 235 กรณี (เดิม 149 + ใหม่ 86) |
+
+ผลการตรวจของผู้จัดทำ (รันเองบน commit `357e1f8` เมื่อ 19 พ.ย. 2569):
+
+| ตรวจ | ผล |
+|---|---|
+| สร้าง private database ที่คูณตัวเลข 7 เท่า เปลี่ยนเลขบัญชีและชื่อลูกค้าเป็นค่าที่ไม่มีใน repo | สร้างได้ 6 ตาราง |
+| executor รันกับ database นั้น | `29 checks, 0 failed` exit 0 รายงานเต็มอยู่ในโฟลเดอร์ปิดนอก repo |
+| ตัวเลขในรายงานเต็มหลุดเข้า `result.json` | 0 จาก 34 ตัวเลข เลขบัญชีและชื่อลูกค้าไม่หลุด |
+| key ใน `result.json` | `status`, `checks_total`, `checks_failed`, `checks` (`name`, `layer`, `passed`) เท่านั้น |
+| ค่าจาก private database อยู่ใน repo หรือ PR | ไม่พบ |
+| database หลังรัน | SHA-256 เท่าเดิม (อ่านอย่างเดียว) |
+| สั่งให้เขียน output ลงใน repo | ปฏิเสธ exit 2 ไม่สร้างไฟล์ |
+
+หลัง merge ผู้จัดทำรัน Acceptance Test Walkthrough ส่วน B ของ Delivery Document ซ้ำใน clone ใหม่ของ `main` (commit `ab61d91`) ได้ผลตรงทุกขั้น
+
+ข้อจำกัดที่พบ (design gap สำหรับรอบหน้า):
+- ตัวกันเขียนลง repo หาตำแหน่ง repo จาก `pyproject.toml` ถ้าติดตั้งแบบไม่ใช่ editable จะไม่กันอะไรเลยโดยไม่แจ้ง ควรเปลี่ยนเป็นปฏิเสธการรัน
+- leak check หยุดทุกครั้งถ้าเลขบัญชีสั้นจนชนกับข้อความอื่นใน result เช่น `29` ปลอดภัยแต่ยังไม่ได้เขียนไว้ใน README
+- `boundary_leak_check` ใช้ layer ชื่อ `"boundary"` ซึ่ง Spec ไม่ได้กำหนด
+
+### 2.8 การตัดสินใจและ trade-off
+
+| การตัดสินใจ | เหตุผล | ข้อเสียที่ยอมรับ |
+|---|---|---|
+| ใช้แนวทาง C เป็นหลัก | ข้อมูลไม่ออกนอกบริษัท ไม่ขึ้นกับสัญญาของผู้ให้บริการโมเดล และเข้ากับหลัก "agent เขียนโค้ด โค้ดคำนวณตัวเลข" ที่ใช้มาตั้งแต่ Iteration 1 | agent ตอบคำถามเชิงวิเคราะห์ที่ต้องเห็นค่าจริงไม่ได้ |
+| ใน v1.1 ใช้ Foreman เป็นโซน Agent | ยังไม่มีที่ deploy Eve agent ตัวเดียว และ boundary ออกแบบให้ไม่ขึ้นกับว่าโซน Agent เป็นอะไร | ซับซ้อนกว่าที่จำเป็น อาจชนเพดาน token และดูค่าใช้จ่ายเองไม่ได้ จะเปลี่ยนเป็น Eve agent ตัวเดียวเมื่อได้สิทธิ์ Vercel |
+| ใช้ SQLite แทน database จริงใน prototype | ไม่ต้องมีสิทธิ์เข้าระบบภายใน และพิสูจน์ boundary ได้ครบ | ยังไม่ได้ทดสอบ driver, เครือข่าย และสิทธิ์ของ database จริง |
+| executor รันเฉพาะโค้ดที่คน merge แล้ว | กันโค้ดที่ยังไม่ผ่านการตรวจเข้าถึงข้อมูลจริง | เพิ่มขั้นตอนของคน |
+
+## 3. Spec Structure ในฐานะ I/O contract ของ Factory
+
+### 3.1 หัวข้อของ Spec กับสถานีที่ใช้
 
 | หัวข้อใน Spec | Classifier | Analyst | Implementer | Reviewer |
 |---|:-:|:-:|:-:|:-:|
@@ -56,7 +202,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 หลักฐาน: ใน Run #1 classifier ตรวจตาราง Expected Values กับ fixture แล้วว่าทุกแถวลงตัว และ reviewer ติ๊ก Acceptance Criteria ครบ 13 ข้อใน PR #5 ใน Run #3 classifier ชี้จุดผิดในนิยามตัวเช็ค (A1 กับ `holdings_daily`) ได้ก่อนเขียนโค้ด
 
-### 2.2 การออกแบบสามรุ่น
+### 3.2 การออกแบบสามรุ่น
 
 | เรื่อง | Template v0.1 (Run #1) | Template v0.2 (Run #2) | เหตุที่เปลี่ยน |
 |---|---|---|---|
@@ -75,13 +221,13 @@ Template v0.3 (Run #3 และ #4) ใช้โครงของ v0.2 แต�
 | ชนิดของ Spec | ใบเดียว หรือแตกตามชั้นงาน 3 ใบ | Platform Spec (ทำครั้งเดียว) + Report Spec (1 ใบต่อรายงาน 1 ฉบับ) | Run #2 ชนเพดาน และการแตก 3 ใบทำให้ "กรอก 1 ใบได้รายงาน 1 ฉบับ" ไม่เป็นจริง |
 | กติกาตัวเช็ค | A2 บังคับทุกชุดข้อมูล, B8 ขัดกับ Writing Rules | ชุดข้อมูลที่ว่างได้, B8 ตรวจเฉพาะเงินและ % และยอมรับค่าสัมบูรณ์ | spec gap จาก Run #2 |
 
-### 2.3 Block และ preset
+### 3.3 Block และ preset
 
 Block มาตรฐานได้จากการแตกรายงานตัวอย่างของทีม 3 ฉบับ (รายละเอียดใน Template v0.1 ภาคผนวก A) preset ของรายงานแต่ละประเภทคือการเลือก block ชุดหนึ่ง รายงาน 3 ประเภทจึงใช้ Spec Structure เดียวกัน ต่างกันแค่ preset, Data Sources และ Expected Values
 
-## 3. System Architecture (C4)
+## 4. System Architecture (C4)
 
-### 3.1 System Context
+### 4.1 System Context
 
 ```mermaid
 flowchart LR
@@ -98,7 +244,7 @@ flowchart LR
   P -. "ข้อมูลจริงผ่าน load()" .-> GH
 ```
 
-### 3.2 Container
+### 4.2 Container
 
 | ส่วน | บทบาท | สิ่งที่สาธิตและจุดตรวจหลักฐาน |
 |---|---|---|
@@ -110,7 +256,7 @@ flowchart LR
 | GitHub Actions | ตรวจคุณภาพภายนอกโรงงาน | CI run 43151748082, 43383851475, 43395249810 |
 | `checks.json` | ผลตัวเช็คตัวเลขขณะรัน | `reports/demo_coop_rg_2026_10/checks.json` ใน PR #5, `reports/demo_coop_rg_2026_10_v2/checks.json` บน `main` |
 
-### 3.3 Component (โค้ดที่ Spec สั่งให้โรงงานสร้าง ตาม Template v0.2 และ v0.3)
+### 4.3 Component (โค้ดที่ Spec สั่งให้โรงงานสร้าง ตาม Template v0.2 และ v0.3)
 
 ```mermaid
 flowchart LR
@@ -135,9 +281,9 @@ flowchart LR
 | Number Checks ชั้น B และตัวเช็คการเขียน | `reporting/report_checks.py` | Report Spec (PR #10) |
 | Narrative | `reporting/narrative.py` | Report Spec (PR #10) |
 
-## 4. Agent Workflow และ Sequence
+## 5. Agent Workflow และ Sequence
 
-### 4.1 Run #1 (Issue #4, 12 พ.ย. 2569, UTC)
+### 5.1 Run #1 (Issue #4, 12 พ.ย. 2569, UTC)
 
 | ขั้น | เวลา | ระยะ | ผล |
 |---|---|---|---|
@@ -152,7 +298,7 @@ flowchart LR
 
 ระยะเวลาคิดจาก timestamp ของคอมเมนต์และ event ใน GitHub ไม่ใช่ log ภายในของโรงงาน
 
-### 4.2 Run #2 (Issue #6)
+### 5.2 Run #2 (Issue #6)
 
 | ขั้น | เวลา (UTC) | ผล |
 |---|---|---|
@@ -163,7 +309,7 @@ flowchart LR
 | Approve | 12 พ.ย. 09:41:51 และ 13 พ.ย. 06:17 | โรงงานไม่ตอบสนอง |
 | ปิด Issue | 13 พ.ย. 06:48:48 | not planned แล้วแตกเป็น Spec v0.3 |
 
-### 4.3 Run #3 และ Run #4 (Issue #7 และ #9, 13 พ.ย. 2569, UTC)
+### 5.3 Run #3 และ Run #4 (Issue #7 และ #9, 13 พ.ย. 2569, UTC)
 
 | ขั้น | Run #3 (Platform Spec) | Run #4 (Report Spec) |
 |---|---|---|
@@ -177,7 +323,7 @@ flowchart LR
 | Merge (คน) | 07:13:08 | 08:43:45 |
 | รวม label ถึง PR | 12 นาที 34 วินาที | 85 นาที 32 วินาที (รอคน 66 นาที 24 วินาที, โรงงานทำงานประมาณ 19 นาที) |
 
-### 4.4 Sequence
+### 5.4 Sequence
 
 ```mermaid
 sequenceDiagram
@@ -199,9 +345,9 @@ sequenceDiagram
   U->>GH: ตรวจ PR แล้วตัดสินใจ merge
 ```
 
-จุดที่คนเกี่ยวข้อง: เขียน Spec, ติด label, อนุมัติเมื่อชนเพดาน, ตรวจและ merge การอนุมัติกลางทางไม่ได้อยู่ในการออกแบบเดิม เป็นผลจากเพดาน token (ดูข้อ 8)
+จุดที่คนเกี่ยวข้อง: เขียน Spec, ติด label, อนุมัติเมื่อชนเพดาน, ตรวจและ merge การอนุมัติกลางทางไม่ได้อยู่ในการออกแบบเดิม เป็นผลจากเพดาน token (ดูข้อ 9)
 
-## 5. Prototype Usage
+## 6. Prototype Usage
 
 0. ถ้า repository ยังไม่มี data layer ให้เปิด Platform Spec ก่อนแล้ว merge (ทำครั้งเดียว ใน Iteration 1 คือ Issue #7) ช่องกรอกอยู่ใน [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) ข้อ 6
 1. คัดลอกช่องกรอกจาก [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md) ข้อ 11 แล้วเลือก preset ของรายงานจากข้อ 7 ของไฟล์เดียวกัน ตัวอย่างที่กรอกแล้วอยู่ใน [`appendix/report-spec.md`](appendix/report-spec.md)
@@ -211,7 +357,7 @@ sequenceDiagram
 5. ติดตามคอมเมนต์ของ `eve-forman[bot]` และตอบ `@eve-forman Approve` ถ้าโรงงานขอ
 6. ตรวจ PR: Expected Values, `checks.json`, `report.md`, CI แล้วตัดสินใจ merge
 
-## 6. Verification Evidence
+## 7. Verification Evidence
 
 | หลักฐาน | ลิงก์ / ค่า | พิสูจน์อะไร |
 |---|---|---|
@@ -238,26 +384,33 @@ sequenceDiagram
 | Review ของ Run #4 | คอมเมนต์ใน Issue #9 เวลา 08:42:00 UTC: อนุมัติ ไม่มี blocking finding | AC-03 |
 | Verification record ของ Run #4 | [`appendix/e2e-run-evidence.md`](appendix/e2e-run-evidence.md): เทียบ Expected Values กับ output ด้วยสคริปต์ 21/21 แถว และสำเนา output 4 ไฟล์จาก commit `4e2129e` ใน [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) | AC-03, FR-05 |
 | ผลตรวจข้อความ Run #1 และ #4 | [`appendix/natural-writing-proposal.md`](appendix/natural-writing-proposal.md) ข้อ 3: คะแนน 6 องค์ประกอบ และฉบับแก้ที่ผ่านตัวเช็ค B8, W3–W5 | AC-06, FR-08 |
+| Spec ของ prototype Private Data | Issue #12: https://github.com/Awannaphasch2016/quant-software-factory/issues/12 | Input ตามแนวทาง C ไม่มีข้อมูลจริง |
+| Output ของ prototype | PR #13: https://github.com/Awannaphasch2016/quant-software-factory/pull/13, merge commit `ab61d91` | PD-01 ถึง PD-06 |
+| CI ของ prototype | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44481298874 ผ่าน 3.10–3.13 (235 tests) | NFR-04 |
+| ผลการรัน prototype ของผู้จัดทำ | ข้อ 2.7 (private database คูณ 7 เท่า, result ไม่มีค่าหลุด, exit 2 เมื่อสั่งเขียนลง repo) | PD-01, PD-03, PD-05 |
 
 ข้อความในตารางสรุปผลที่รันจริง ไม่ได้ยืนยันว่าตัวเลขตรงกับนิยามของทีม เพราะ fixture และ Expected Values เป็นข้อมูลปลอมที่คำนวณตามนิยามสมมติ
 
-## 7. Traceability
+## 8. Traceability
 
-| SRS | Design (ข้อ) | หลักฐาน (ข้อ 6) |
+| SRS | Design (ข้อ) | หลักฐาน (ข้อ 7) |
 |---|---|---|
-| HR-01, HR-02 | 3.1, 4.4 | Issue #4, #6, #7, #9 |
-| HR-03 | 4.4 | PR #5, #8, #10, merge PR #2, #8, #10 |
-| HR-04 | 2.2 | คอมเมนต์ Classify ของ Issue #6, #7, #9 |
-| HR-05 | 3.1 (เส้นประ) | ไม่มี (Intended) |
-| FR-01, FR-02 | 2.1, 2.3 | Issue #4, #9, Template |
-| FR-03, FR-04 | 2.2, 3.3 | PR #8 (data layer), PR #10 (Data Mapping, test ที่ยืนยันว่าอ่านผ่าน `load(...)`) |
-| FR-05, FR-06, FR-07 | 3.3 | PR #5, PR #10, checks.json, test |
-| FR-08 | 3.3 และ Natural Writing Proposal | narrative.md ใน PR #5 และบน `main` (PR #10) |
-| FR-10 | 4.1, 4.2, 4.3, 8 | คอมเมนต์ขออนุมัติใน Issue #4, #6, #9 และ Issue #7 ที่จบโดยไม่ต้องอนุมัติ |
-| NFR-01, NFR-02, NFR-04, NFR-06 | 3.2 | PR #5, PR #10, CI, การรันซ้ำของผู้จัดทำ |
-| NFR-07 | 9 | ไม่มีตัวเลขจริง |
+| HR-01, HR-02 | 4.1, 5.4 | Issue #4, #6, #7, #9 |
+| HR-03 | 5.4 | PR #5, #8, #10, merge PR #2, #8, #10 |
+| HR-04 | 3.2 | คอมเมนต์ Classify ของ Issue #6, #7, #9 |
+| HR-05 | 4.1 (เส้นประ) | ไม่มี (Intended) |
+| FR-01, FR-02 | 3.1, 3.3 | Issue #4, #9, Template |
+| FR-03, FR-04 | 3.2, 4.3 | PR #8 (data layer), PR #10 (Data Mapping, test ที่ยืนยันว่าอ่านผ่าน `load(...)`) |
+| FR-05, FR-06, FR-07 | 4.3 | PR #5, PR #10, checks.json, test |
+| FR-08 | 4.3 และ Natural Writing Proposal | narrative.md ใน PR #5 และบน `main` (PR #10) |
+| FR-10 | 5.1, 5.2, 5.3, 9 | คอมเมนต์ขออนุมัติใน Issue #4, #6, #9 และ Issue #7 ที่จบโดยไม่ต้องอนุมัติ |
+| NFR-01, NFR-02, NFR-04, NFR-06 | 4.2 | PR #5, PR #10, CI, การรันซ้ำของผู้จัดทำ |
+| NFR-07 | 10 | ไม่มีตัวเลขจริง |
+| PD-01, PD-03, PD-04 | 2.4, 2.5, 2.7 | Issue #12 → PR #13, ผลการตรวจในข้อ 2.7 (result ไม่มีค่าจาก private database) |
+| PD-02 | 2.4, 2.7, 2.8 | PR #13 (`SqliteSource` เปิดแบบอ่านอย่างเดียว, SHA-256 ของ database เท่าเดิม) |
+| PD-05, PD-06 | 2.4, 2.6, 2.7 | PR #13 (`.gitignore` สำหรับ `*.db`, ปฏิเสธ output ใน repo) |
 
-## 8. Limitations and Future Direction (ยังไม่ใช่ผลที่สาธิต)
+## 9. Limitations and Future Direction (ยังไม่ใช่ผลที่สาธิต)
 
 | รายการ | แนวทาง |
 |---|---|
@@ -267,10 +420,13 @@ sequenceDiagram
 | ใช้ซ้ำได้พิสูจน์แค่ 1 ประเภทรายงาน | รัน preset `client_pnl` |
 | นิยามและชื่อคอลัมน์จริงยังไม่มี | map ชื่อกลางกับของจริงฝั่งภายใน และทำ `InternalSource` นอก repository สาธารณะ |
 | ข้อความบรรยายจาก template ยังเล่าตามตาราง องค์ประกอบ "ซ้ำ" ได้ 3 คะแนนทั้ง Run #1 และ #4 สาเหตุคือ Writing Rules เรียงหัวข้อตามลำดับตาราง (Run #4 แก้เรื่องค่าติดลบและพหูพจน์ได้แล้ว) | แก้ลำดับหัวข้อใน Writing Rules ให้เริ่มจาก P/L รวมและส่วนประกอบ ตามฉบับแก้ใน Natural Writing Proposal ข้อ 3.2 แล้วรันใหม่ จากนั้นทำขั้น 2 (narrative facts) |
-| ช่องทางแชตยังไม่ได้ทำ | Grokbot ถ้ามี subscription ถ้าไม่มีใช้ Slack ต้องออกแบบให้ติด label ในนามบัญชีคน (HR-02) |
+| ช่องทางแชตยังไม่ได้ทำ | ใช้ Discord ตามที่ทีม Quant ใช้ (feedback สัปดาห์ 16–20 พ.ย. 2569) ช่องทางแชตส่งได้แค่สถานะหรือลิงก์ไปยังที่เก็บรายงานภายใน ไม่ส่งรายงานที่มีข้อมูลจริง (ข้อ 2.6 คำถามที่ 5) |
+| executor ใน prototype เป็นเครื่องผู้ทดสอบ ยังไม่ใช่เครื่องในเครือข่ายบริษัท | ศึกษาการใช้ self-hosted runner หรือเครื่องที่ทีมควบคุมเป็น executor และขอสิทธิ์ database แบบอ่านอย่างเดียวที่ได้รับอนุมัติ |
+| ยังไม่ได้ยืนยัน policy ของบริษัทเรื่องการส่งข้อมูลให้ผู้ให้บริการโมเดล | ถามฝ่ายที่ดูแลก่อนพิจารณาแนวทาง A (ZDR) สำหรับงานที่ต้องให้โมเดลเห็นข้อมูล |
+| โซน Agent ใน v1.1 ยังเป็น Foreman ไม่ใช่ Eve agent ตัวเดียว | เปลี่ยนเมื่อได้สิทธิ์ deploy บน Vercel ข้อ 2.8 |
 | Output เป็น Markdown | PDF เป็น Spec แยก เมื่ออนุมัติ dependency แล้ว |
 
-## 9. Execution Cost
+## 10. Execution Cost
 
 ยังไม่มีตัวเลขจริง ค่าใช้จ่ายอยู่ในบัญชีของพี่ Anak ตารางนี้ประมาณจากต้นทุนของ Issue #1 ที่พี่ Anak วัดไว้ (~$2.30, output 46.6K tokens) โดยใช้อัตราส่วน output token และอัตรา 33.5 บาทต่อดอลลาร์ ใช้เป็นจุดอ้างอิงของ 1 run ไม่ใช่การคาดการณ์
 
@@ -293,3 +449,12 @@ sequenceDiagram
 5. Natural Writing Proposal: [`appendix/natural-writing-proposal.md`](appendix/natural-writing-proposal.md)
 6. Spec Structure และหลักฐาน: [`appendix/`](appendix/) (README, report-spec-structure, platform-spec-structure, e2e-run-evidence, output)
 7. Design Prototype ของโครงการ AI Harness / Software Factory (Anak Wannaphaschaiyong) ข้อ 8 สำหรับต้นทุนอ้างอิง
+8. Vercel Sandbox firewall: https://vercel.com/docs/sandbox/concepts/firewall
+9. Vercel Secure Compute: https://vercel.com/docs/connectivity/secure-compute
+10. Vercel KB, Give eve agent secure access to AWS RDS: https://vercel.com/kb/guide/give-eve-agent-secure-access-to-aws-rds-database
+11. Vercel AI Gateway Zero Data Retention: https://vercel.com/docs/ai-gateway/zero-data-retention
+12. GitHub push protection: https://docs.github.com/en/code-security/concepts/secret-security/push-protection
+13. OpenSSF, runner groups and private repositories: https://best.openssf.org/SCM-BestPractices/github/runner_group/runner_group_can_be_used_by_public_repositories.html
+14. Claude API and data retention: https://platform.claude.com/docs/en/manage-claude/api-and-data-retention
+15. Claude on AWS: https://aws.amazon.com/claude-platform/
+16. InfoQ, Bedrock data sharing (2026): https://infoq.com/news/2026/06/bedrock-fable-5-data-sharing
