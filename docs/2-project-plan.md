@@ -5,12 +5,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.1 | 19 พ.ย. 2569 | Current |
+| v1.2 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.2 | 19 พ.ย. 2569 | เพิ่มการแก้ design gap ของ prototype (Issue #15 → PR #16) ใน Scoreboard และ Progress Indicators |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มรอบสัปดาห์ 16–20 พ.ย. 2569 (Private Data) ใน Scoreboard และ Progress Indicators เพิ่มตัวอย่าง gap จากรอบนี้ ปรับ design freeze และเพิ่มเอกสาร 5 ฉบับใน `docs/` |
 | v1.0 | 19 พ.ย. 2569 | ย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version แก้ลิงก์ และเรียกเอกสารฉบับที่ 4 ว่า Software Design |
 
@@ -126,7 +127,7 @@ Project Plan อธิบายวิธีดำเนินงานให้�
 
 | สัปดาห์ | เป้า | รอบที่เสร็จ | หลักฐาน |
 |---|---|---|---|
-| 16–20 พ.ย. 2569 | 1 | 1 (ณ 19 พ.ย.): Spec กลุ่ม PD → Research 3 แนวทางบน Vercel/Eve, GitHub self-hosted runner, นโยบายผู้ให้บริการโมเดล → Prototype แนวทาง C (Issue #12 → PR #13 merge แล้ว) → gap ใหม่ 3 จุด | Software Design ข้อ 2, SRS ข้อ 3.3, Issue #12, PR #13 |
+| 16–20 พ.ย. 2569 | 1 | 1 (ณ 19 พ.ย.): Spec กลุ่ม PD → Research 3 แนวทางบน Vercel/Eve, GitHub self-hosted runner, นโยบายผู้ให้บริการโมเดล → Prototype แนวทาง C (Issue #12 → PR #13 merge แล้ว) → design gap 3 จุด แก้แล้วใน Issue #15 → PR #16 | Software Design ข้อ 2, SRS ข้อ 3.3, Issue #12, PR #13, Issue #15, PR #16 |
 | 9–13 พ.ย. 2569 | 1 | 3: (1) Template v0.1 → Run #1 สำเร็จ → gap (2) Template v0.2 → Run #2 ค้างที่ implement → gap (3) Template v0.3 → Run #3 และ #4 สำเร็จและ merge แล้ว → gap ใหม่ 3 จุด | Progress Report Iteration 1, Issue #4 → PR #5, Issue #6, Issue #7 → PR #8, Issue #9 → PR #10 |
 
 ### 4.3 Progress Indicators
@@ -134,9 +135,9 @@ Project Plan อธิบายวิธีดำเนินงานให้�
 | ตัวชี้วัด | ค่า ณ 19 พ.ย. 2569 |
 |---|---|
 | รอบที่เสร็จ | 4 (3 รอบในสัปดาห์ 9–13 พ.ย. และ 1 รอบในสัปดาห์ 16–20 พ.ย.) |
-| ความไม่แน่นอนที่คลี่คลาย | agent เขียนโค้ดที่อ่าน private database ได้โดยไม่เห็นข้อมูลจริง และ result ที่ส่งกลับไม่มีค่ารั่ว (PR #13); โรงงานรับ Spec ได้จริง; ตัวเลขคำนวณไว้แล้วใน pipeline; base branch แก้ด้วย merge PR #2; Spec ที่ไม่คำนวณใหม่ (Data Mapping) ได้รายงานที่ตรงกับ Spec (Run #4); Report Spec ใช้ data layer จาก Platform Spec ได้โดยไม่ต้องแก้ (Run #3 → #4) |
+| ความไม่แน่นอนที่คลี่คลาย | agent เขียนโค้ดที่อ่าน private database ได้โดยไม่เห็นข้อมูลจริง และ result ที่ส่งกลับไม่มีค่ารั่ว (PR #13); ตัวกันเขียนลง repo ใช้ได้ทุกวิธีติดตั้ง และเลขบัญชีสั้นไม่ทำให้ leak check หยุดโดยไม่จำเป็น (PR #16); โรงงานรับ Spec ได้จริง; ตัวเลขคำนวณไว้แล้วใน pipeline; base branch แก้ด้วย merge PR #2; Spec ที่ไม่คำนวณใหม่ (Data Mapping) ได้รายงานที่ตรงกับ Spec (Run #4); Report Spec ใช้ data layer จาก Platform Spec ได้โดยไม่ต้องแก้ (Run #3 → #4) |
 | ข้อกำหนดที่ตรวจสอบแล้ว | Demonstrated ในระดับ prototype: PD-01 ถึง PD-04, PD-05 และ PD-06 บางส่วน; Demonstrated: HR-01 ถึง HR-04, FR-01, FR-03 ถึง FR-09, NFR-01 ถึง NFR-06, NFR-08 (FR-04 เฉพาะ fixture) ผ่านบางส่วน: FR-02 (1 จาก 3 ประเภท), FR-10 (ดู SRS) |
-| ช่องว่างสำคัญที่ยังเปิด | Trusted zone จริงในเครือข่ายบริษัทและสิทธิ์ database แบบอ่านอย่างเดียว, policy เรื่องผู้ให้บริการโมเดล, ตัวกันเขียนลง repo ที่ทำงานเฉพาะการติดตั้งแบบ editable, FR-10 (Report Spec ยังต้องอนุมัติ token 1 ครั้ง), FR-02 (อีก 2 ประเภทรายงาน), HR-05 (ช่องทางแชต), spec gap ใหม่ 3 จุดจาก Run #4, นิยามข้อมูลจริง |
+| ช่องว่างสำคัญที่ยังเปิด | Trusted zone จริงในเครือข่ายบริษัทและสิทธิ์ database แบบอ่านอย่างเดียว, policy เรื่องผู้ให้บริการโมเดล, leak check ที่ไม่ค้นในชื่อ key และค่าจำนวนเต็ม, FR-10 (Report Spec ยังต้องอนุมัติ token 1 ครั้ง), FR-02 (อีก 2 ประเภทรายงาน), HR-05 (ช่องทางแชต), spec gap ใหม่ 3 จุดจาก Run #4, นิยามข้อมูลจริง |
 | ความพร้อม freeze | ยังไม่พร้อม (ข้อ 2.6) |
 
 ประเด็นเปิดอาจเพิ่มเมื่อพบปัญหาใหม่ จึงไม่ใช้จำนวนประเด็นที่ลดลงอย่างเดียวแทนความก้าวหน้า
