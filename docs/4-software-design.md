@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.2 | 19 พ.ย. 2569 | Current |
+| v1.3 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.3 | 19 พ.ย. 2569 | แก้ C4 Context (ข้อ 4.1) เป็น Discord และให้ข้อมูลจริงไปที่ executor ใน Trusted zone แทน GitHub ระบุว่าการรันเฉพาะโค้ดที่ merge แล้วยังเป็นขั้นตอนของคน (ข้อ 2.8) ตั้งชื่อ Run #5 และ #6 เพิ่มแถวต้นทุนและสถานะต้นทุนต่อรายงาน (ข้อ 10) |
 | v1.2 | 19 พ.ย. 2569 | ปิด design gap 3 ข้อจากข้อ 2.7 ด้วย Issue #15 → PR #16 (ตัวกันเขียนลง repo ไม่ขึ้นกับวิธีติดตั้ง, leak check จับทั้งคำ, กำหนด layer `"boundary"`) เพิ่มผลตรวจของผู้จัดทำ ข้อจำกัดของ leak check ที่เหลือ หลักฐาน และ traceability |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 2 Private Data Architecture (แนวทางที่ศึกษา, ผล research, architecture ที่เสนอ, คำตอบคำถาม 5 ข้อ, ผล prototype Issue #12 → PR #13, การตัดสินใจ) ตาม feedback 19 พ.ย. 2569 เลื่อนเลขหัวข้อเดิมเป็น 3–10 เพิ่ม PD-01 ถึง PD-06 ใน traceability และปรับข้อจำกัด |
 | v1.0 | 19 พ.ย. 2569 | เปลี่ยนชื่อจาก Design Prototype และย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version และแก้ลิงก์ |
@@ -147,7 +148,7 @@ sequenceDiagram
 | 4. Execution and Communication: agent สร้างโปรแกรมให้รันในที่ปลอดภัยได้ไหม | ได้ โรงงานเขียน `SqliteSource`, `make_private_db` และ `private_run` จาก Spec ที่ไม่มีข้อมูลจริง (Issue #12) แล้ว executor รันกับ private database ที่ตัวเลข เลขบัญชี และชื่อลูกค้าไม่เคยอยู่ใน repo ได้ผลถูกต้อง และส่งกลับแค่ result | Demonstrated ใน prototype (ข้อ 2.7) |
 | 5. Output Artifacts: รายงานที่มีข้อมูลจริงเก็บที่ไหน | เก็บในโซน Trusted เท่านั้น ห้าม commit และห้ามส่งให้ agent prototype ปฏิเสธการเขียน output ลงใน repo (exit 2) ส่วนการกำหนดสิทธิ์ผู้อ่านและช่องทางส่งถึงผู้ใช้ (เช่น Discord ภายในส่งแค่สถานะหรือลิงก์) ยังต้องออกแบบต่อ | เก็บนอก repo: Demonstrated; สิทธิ์และช่องทางส่ง: Intended |
 
-### 2.7 Prototype: Private data boundary (Issue #12)
+### 2.7 Prototype: Private data boundary (Run #5, Issue #12)
 
 | | |
 |---|---|
@@ -172,7 +173,7 @@ sequenceDiagram
 
 หลัง merge ผู้จัดทำรัน Acceptance Test Walkthrough ส่วน B ของ Delivery Document ซ้ำใน clone ใหม่ของ `main` (commit `ab61d91`) ได้ผลตรงทุกขั้น
 
-#### Design gap จาก PR #13 และการแก้ (Issue #15 → PR #16)
+#### Design gap จาก PR #13 และการแก้ (Run #6, Issue #15 → PR #16)
 
 หลัง merge PR #13 พบ design gap 3 ข้อ Spec ยังใช้ได้ แต่ตัว prototype ทำได้ไม่ครบ จึงเปิด Issue #15 ให้โรงงานแก้โดยไม่ลดข้อกำหนด
 
@@ -214,7 +215,7 @@ sequenceDiagram
 | ใช้แนวทาง C เป็นหลัก | ข้อมูลไม่ออกนอกบริษัท ไม่ขึ้นกับสัญญาของผู้ให้บริการโมเดล และเข้ากับหลัก "agent เขียนโค้ด โค้ดคำนวณตัวเลข" ที่ใช้มาตั้งแต่ Iteration 1 | agent ตอบคำถามเชิงวิเคราะห์ที่ต้องเห็นค่าจริงไม่ได้ |
 | ใน v1.1 ใช้ Foreman เป็นโซน Agent | ยังไม่มีที่ deploy Eve agent ตัวเดียว และ boundary ออกแบบให้ไม่ขึ้นกับว่าโซน Agent เป็นอะไร | ซับซ้อนกว่าที่จำเป็น อาจชนเพดาน token และดูค่าใช้จ่ายเองไม่ได้ จะเปลี่ยนเป็น Eve agent ตัวเดียวเมื่อได้สิทธิ์ Vercel |
 | ใช้ SQLite แทน database จริงใน prototype | ไม่ต้องมีสิทธิ์เข้าระบบภายใน และพิสูจน์ boundary ได้ครบ | ยังไม่ได้ทดสอบ driver, เครือข่าย และสิทธิ์ของ database จริง |
-| executor รันเฉพาะโค้ดที่คน merge แล้ว | กันโค้ดที่ยังไม่ผ่านการตรวจเข้าถึงข้อมูลจริง | เพิ่มขั้นตอนของคน |
+| executor รันเฉพาะโค้ดที่คน merge แล้ว | กันโค้ดที่ยังไม่ผ่านการตรวจเข้าถึงข้อมูลจริง | เพิ่มขั้นตอนของคน ใน prototype เป็นขั้นตอนที่คนต้องทำเอง `private_run` ไม่ได้ตรวจว่าโค้ดที่รันมาจาก commit ที่ merge แล้ว การบังคับด้วยระบบ (เช่น runner ที่ checkout เฉพาะ `main`) เป็น Intended |
 
 ## 3. Spec Structure ในฐานะ I/O contract ของ Factory
 
@@ -263,17 +264,24 @@ Block มาตรฐานได้จากการแตกรายงา�
 ```mermaid
 flowchart LR
   U["ผู้ใช้ (ฝ่าย Quant)"]
-  CH["ช่องทางแชต Grokbot / Slack (Intended)"]
-  GH["GitHub repository quant-software-factory<br/>Issue, branch, PR, Actions"]
+  CH["Discord (Intended)"]
+  GH["GitHub repository quant-software-factory<br/>Issue, branch, PR, Actions<br/>(โค้ดและข้อมูลปลอมเท่านั้น)"]
   F["Software Factory (Foreman บน Vercel)<br/>ของพี่ Anak"]
-  P["Pipeline และชุดข้อมูลของทีม<br/>(ภายใน, Intended)"]
+  subgraph TZ["Trusted zone (prototype: เครื่องผู้ทดสอบ)"]
+    EX["Executor: private_run"]
+    P[("Pipeline และชุดข้อมูลของทีม<br/>(ภายใน, Intended)")]
+  end
   U -- "กรอก Spec, ติด label, ตรวจ PR, merge" --> GH
-  U -. "ส่ง Spec / รับรายงาน" .-> CH
+  U -. "สั่งงาน / รับสถานะหรือลิงก์" .-> CH
   CH -. "เปิด Issue + label" .-> GH
   GH -- "webhook (GitHub App eve-forman)" --> F
   F -- "คอมเมนต์, branch, draft PR" --> GH
-  P -. "ข้อมูลจริงผ่าน load()" .-> GH
+  GH -- "โค้ดที่ merge แล้ว" --> EX
+  P -. "ข้อมูลจริงผ่าน load()" .-> EX
+  EX -- "result: ชื่อตัวเช็ค + ผ่าน/ไม่ผ่าน" --> U
 ```
+
+ข้อมูลจริงไม่เข้า GitHub และไม่ผ่านโรงงาน โค้ดจาก repository ถูกนำไปรันใน Trusted zone แล้วส่งกลับแค่ result (ข้อ 2.4) เส้นประคือส่วนที่ยังเป็น Intended
 
 ### 4.2 Container
 
@@ -415,11 +423,11 @@ sequenceDiagram
 | Review ของ Run #4 | คอมเมนต์ใน Issue #9 เวลา 08:42:00 UTC: อนุมัติ ไม่มี blocking finding | AC-03 |
 | Verification record ของ Run #4 | [`appendix/e2e-run-evidence.md`](appendix/e2e-run-evidence.md): เทียบ Expected Values กับ output ด้วยสคริปต์ 21/21 แถว และสำเนา output 4 ไฟล์จาก commit `4e2129e` ใน [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) | AC-03, FR-05 |
 | ผลตรวจข้อความ Run #1 และ #4 | [`appendix/natural-writing-proposal.md`](appendix/natural-writing-proposal.md) ข้อ 3: คะแนน 6 องค์ประกอบ และฉบับแก้ที่ผ่านตัวเช็ค B8, W3–W5 | AC-06, FR-08 |
-| Spec ของ prototype Private Data | Issue #12: https://github.com/Awannaphasch2016/quant-software-factory/issues/12 | Input ตามแนวทาง C ไม่มีข้อมูลจริง |
+| Spec ของ prototype Private Data (Run #5) | Issue #12: https://github.com/Awannaphasch2016/quant-software-factory/issues/12 | Input ตามแนวทาง C ไม่มีข้อมูลจริง |
 | Output ของ prototype | PR #13: https://github.com/Awannaphasch2016/quant-software-factory/pull/13, merge commit `ab61d91` | PD-01 ถึง PD-06 |
 | CI ของ prototype | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44481298874 ผ่าน 3.10–3.13 (235 tests) | NFR-04 |
 | ผลการรัน prototype ของผู้จัดทำ | ข้อ 2.7 (private database คูณ 7 เท่า, result ไม่มีค่าหลุด, exit 2 เมื่อสั่งเขียนลง repo) | PD-01, PD-03, PD-05 |
-| Spec แก้ design gap | Issue #15: https://github.com/Awannaphasch2016/quant-software-factory/issues/15 | design gap 3 ข้อจาก PR #13 |
+| Spec แก้ design gap (Run #6) | Issue #15: https://github.com/Awannaphasch2016/quant-software-factory/issues/15 | design gap 3 ข้อจาก PR #13 |
 | Output แก้ design gap | PR #16: https://github.com/Awannaphasch2016/quant-software-factory/pull/16, merge commit `3a422c5` | PD-04, PD-05 |
 | CI ของการแก้ design gap | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44529767220 (PR) และ https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44532003447 (`main`) ผ่าน 3.10–3.13 (264 tests) | NFR-04 |
 | ผลการรันการแก้ของผู้จัดทำ | ข้อ 2.7 (ติดตั้งแบบไม่ใช่ editable: ก่อนแก้เขียนลง repo ได้ หลังแก้ exit 2; บัญชี `A1`, `29` ผ่าน; walkthrough B ไม่เปลี่ยน) | PD-04, PD-05 |
@@ -473,6 +481,10 @@ sequenceDiagram
 | Run #2 | หยุดที่ 44.9K tokens ไม่ถึง Output | ประมาณไม่ได้ |
 | Run #3 | ไม่ชนเพดาน ไม่ทราบจำนวน output token, โค้ด +879 บรรทัด | ประมาณไม่ได้ |
 | Run #4 | output ≥ 100K tokens, โค้ด +2,012 บรรทัด | ~$4–6 ≈ 135–200 บาท (เทียบกับ Run #1) |
+| Run #5 (Issue #12) | ไม่ชนเพดาน ไม่ทราบจำนวน output token, โค้ด +1,340 บรรทัด | ประมาณไม่ได้ |
+| Run #6 (Issue #15) | ไม่ชนเพดาน ไม่ทราบจำนวน output token, โค้ด +401 บรรทัด | ประมาณไม่ได้ |
+
+ต้นทุนต่อรายงาน 1 ฉบับ ตั้งแต่รับ Spec จนได้รายงานที่พร้อมใช้ ตามที่ weekly report ข้อ 4 ขอ ยังวัดไม่ได้ เพราะต้องดู usage ของโรงงานบน Vercel ผู้จัดทำขอสิทธิ์แล้ว และ ณ 19 พ.ย. 2569 บัญชี Vercel ของผู้จัดทำยังไม่เห็น Team ของโรงงาน
 
 ข้อควรระวัง: ต้นทุนส่วนใหญ่ของ Issue #1 มาจาก cache read ซึ่งขึ้นกับจำนวนรอบที่ agent ทำงาน ไม่ได้ขึ้นกับ output อย่างเดียว ตัวเลขจริงอาจต่างจากนี้มาก
 
