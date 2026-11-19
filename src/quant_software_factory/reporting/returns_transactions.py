@@ -416,7 +416,7 @@ def build_report(inputs: ReportInputs, report_id: str) -> Report:
     """Map the inputs into the report blocks.
 
     Values are formatted strings; values that do not apply are ``None``. The
-    narrative block is left empty for :func:`main` to fill in.
+    narrative block is left empty for :func:`run_report` to fill in.
 
     Args:
         inputs: Parsed inputs from :func:`load_inputs`.
@@ -604,14 +604,34 @@ def _write(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8", newline="\n")
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    """Run all checks, build the report and write the output files.
+@dataclass(frozen=True)
+class ReportRun:
+    """Outcome of :func:`run_report`.
+
+    Attributes:
+        results: Layer A and Layer B check results, sorted by name.
+        report: The built report with its narrative, or ``None`` when it was
+            not built because Layer A or B0 failed.
+    """
+
+    results: list[CheckResult]
+    report: Report | None
+
+
+def run_report(
+    source: DataSource, account: str, opening: date, as_of: date, report_id: str
+) -> ReportRun:
+    """Run all checks and build the report and its narrative.
 
     Args:
-        argv: Command line arguments; defaults to ``sys.argv[1:]``.
+        source: Data source to read through.
+        account: Account number.
+        opening: Opening date of the period.
+        as_of: As-of date of the report.
+        report_id: Report ID shown in the header.
 
     Returns:
-        0 when every check passes, 1 when any check fails.
+        The sorted check results and the report (``None`` if not built).
     """
     # Imported here: both modules import formatting helpers from this module.
     from .narrative import generate_narrative
@@ -624,22 +644,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         number_checks,
     )
 
-    args = _parser().parse_args(argv)
-    out: Path = args.out
-    source = FixtureSource(args.root)
-    layer_a = run_checks(source, args.account, args.opening, args.as_of)
+    layer_a = run_checks(source, account, opening, as_of)
     report: Report | None = None
     layer_b: list[CheckResult]
     if not all(r.passed for r in layer_a):
         layer_b = not_run_results(LAYER_B_CHECK_NAMES, "not run: Layer A failed")
     else:
-        inputs, problems = load_inputs(source, args.account, args.opening, args.as_of)
+        inputs, problems = load_inputs(source, account, opening, as_of)
         b0 = mapped_values_check(problems)
         if inputs is None or not b0.passed:
             rest = [n for n in LAYER_B_CHECK_NAMES if n != B0_NAME]
             layer_b = [b0, *not_run_results(rest, f"not run: {B0_NAME} failed")]
         else:
-            report = build_report(inputs, out.resolve().name)
+            report = build_report(inputs, report_id)
             paragraphs = generate_narrative(report)
             report["narrative"] = paragraphs
             layer_b = [
@@ -649,20 +666,57 @@ def main(argv: Sequence[str] | None = None) -> int:
             ]
 
     results = sorted([*layer_a, *layer_b], key=lambda r: r.name)
+    return ReportRun(results, report)
+
+
+def write_outputs(
+    out: Path, results: Sequence[CheckResult], report: Report | None
+) -> None:
+    """Write ``checks.json`` and, when every check passed, the report files.
+
+    When any check failed or no report was built, stale report files in
+    ``out`` are removed.
+
+    Args:
+        out: Output folder; created if missing.
+        results: Check results in the order they are written.
+        report: The built report, or ``None``.
+    """
     out.mkdir(parents=True, exist_ok=True)
     _write(
         out / CHECKS_FILE, json.dumps([r.to_dict() for r in results], indent=2) + "\n"
     )
-    failed = sum(not r.passed for r in results)
-    if failed == 0 and report is not None:
+    if all(r.passed for r in results) and report is not None:
         _write(out / "report.json", json.dumps(report, indent=2) + "\n")
         _write(out / "report.md", render_markdown(report))
         _write(out / "narrative.md", render_narrative(report["narrative"]))
     else:
         for name in OUTPUT_FILES:
             (out / name).unlink(missing_ok=True)
-    print(f"{len(results)} checks, {failed} failed")
-    return 0 if failed == 0 and report is not None else 1
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    """Run all checks, build the report and write the output files.
+
+    Args:
+        argv: Command line arguments; defaults to ``sys.argv[1:]``.
+
+    Returns:
+        0 when every check passes, 1 when any check fails.
+    """
+    args = _parser().parse_args(argv)
+    out: Path = args.out
+    run = run_report(
+        FixtureSource(args.root),
+        args.account,
+        args.opening,
+        args.as_of,
+        out.resolve().name,
+    )
+    write_outputs(out, run.results, run.report)
+    failed = sum(not r.passed for r in run.results)
+    print(f"{len(run.results)} checks, {failed} failed")
+    return 0 if failed == 0 and run.report is not None else 1
 
 
 if __name__ == "__main__":
