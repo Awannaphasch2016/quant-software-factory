@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.1 | 19 พ.ย. 2569 | Current |
+| v1.2 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.2 | 19 พ.ย. 2569 | ปรับสถานะ PD-04 และ PD-05 หลังแก้ design gap ด้วย Issue #15 → PR #16 เพิ่มลิงก์อ้างอิง |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 3.3 กลุ่ม PD (Private Data) และ AC-07 ตาม feedback 19 พ.ย. 2569 เปลี่ยนช่องทางแชตใน HR-05 และ AC-05 เป็น Discord เพิ่มคำศัพท์ Agent zone, Trusted zone และสมมติฐานเรื่อง Private Data |
 | v1.0 | 19 พ.ย. 2569 | ย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version แก้ลิงก์ และเรียกเอกสารฉบับที่ 4 ว่า Software Design |
 
@@ -100,8 +101,8 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | PD-01 | Agent และบริการภายนอก (รวมผู้ให้บริการโมเดล) ต้องไม่ได้รับ Private Data | Demonstrated ใน prototype (Issue #12 → PR #13: โรงงานเขียนโค้ดจาก Spec, schema และข้อมูลปลอมเท่านั้น) |
 | PD-02 | โค้ดที่ agent เขียนต้องรันกับข้อมูลจริงใน Trusted zone เท่านั้น ด้วยสิทธิ์อ่านอย่างเดียว | Demonstrated ใน prototype (`SqliteSource` เปิดแบบอ่านอย่างเดียว, SHA-256 ของ database เท่าเดิมหลังรัน) Trusted zone จริงในเครือข่ายบริษัทเป็น Intended |
 | PD-03 | สิ่งที่ส่งกลับจาก Trusted zone มีได้แค่ชื่อตัวเช็ค ผ่าน/ไม่ผ่าน และจำนวนรวม ไม่มีตัวเลข ชื่อ หรือเลขบัญชี | Demonstrated ใน prototype (`result.json` มี 4 key และไม่มีค่าจาก private database) |
-| PD-04 | ต้องมี leak check ที่หยุดการส่งกลับถ้าพบค่าจาก Private Data | Demonstrated ใน prototype (exit 3 เมื่อพบตัวเลข เลขบัญชี หรือชื่อลูกค้า มี test) |
-| PD-05 | รายงานที่มี Private Data ต้องเก็บใน Trusted zone เท่านั้น ห้าม commit เข้า repository | Demonstrated บางส่วน (ปฏิเสธ output ใน repo exit 2) ตัวกันนี้ทำงานเฉพาะการติดตั้งแบบ editable การกำหนดสิทธิ์ผู้อ่านเป็น Intended |
+| PD-04 | ต้องมี leak check ที่หยุดการส่งกลับถ้าพบค่าจาก Private Data | Demonstrated ใน prototype (exit 3 เมื่อพบตัวเลข เลขบัญชี หรือชื่อลูกค้า มี test; PR #16 เปลี่ยนเป็นจับเลขบัญชีและชื่อแบบทั้งคำ เลขบัญชีสั้นจึงไม่หยุดโดยไม่จำเป็น) ข้อจำกัดที่เหลือดู Software Design ข้อ 2.7 |
+| PD-05 | รายงานที่มี Private Data ต้องเก็บใน Trusted zone เท่านั้น ห้าม commit เข้า repository | Demonstrated บางส่วน (ปฏิเสธ output ใน repo exit 2 ไม่ว่าจะติดตั้งแบบใด ตั้งแต่ PR #16) การกำหนดสิทธิ์ผู้อ่านเป็น Intended |
 | PD-06 | repository เก็บได้แค่โค้ด schema และข้อมูลปลอม และต้องมีกลไกกัน commit ข้อมูลจริง | Demonstrated บางส่วน (`.gitignore` สำหรับ `*.db` และ `*.sqlite`) secret scanning และ push protection เป็น Intended |
 
 การออกแบบที่ตอบกลุ่มนี้อยู่ใน Software Design ข้อ 2
@@ -166,6 +167,7 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 | Issue #7 → PR #8 (Run #3) | https://github.com/Awannaphasch2016/quant-software-factory/issues/7, https://github.com/Awannaphasch2016/quant-software-factory/pull/8 |
 | Issue #9 → PR #10 (Run #4) | https://github.com/Awannaphasch2016/quant-software-factory/issues/9, https://github.com/Awannaphasch2016/quant-software-factory/pull/10 |
 | Issue #12 → PR #13 (prototype Private Data) | https://github.com/Awannaphasch2016/quant-software-factory/issues/12, https://github.com/Awannaphasch2016/quant-software-factory/pull/13 |
+| Issue #15 → PR #16 (แก้ design gap ของ prototype) | https://github.com/Awannaphasch2016/quant-software-factory/issues/15, https://github.com/Awannaphasch2016/quant-software-factory/pull/16 |
 | CI ของ PR #10 | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/43395249810 |
 | Spec Structure v0.3 | [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md), [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) |
 | หลักฐาน End-to-End Run | [`appendix/e2e-run-evidence.md`](appendix/e2e-run-evidence.md), [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) |

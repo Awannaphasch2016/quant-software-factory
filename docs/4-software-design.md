@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.1 | 19 พ.ย. 2569 | Current |
+| v1.2 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.2 | 19 พ.ย. 2569 | ปิด design gap 3 ข้อจากข้อ 2.7 ด้วย Issue #15 → PR #16 (ตัวกันเขียนลง repo ไม่ขึ้นกับวิธีติดตั้ง, leak check จับทั้งคำ, กำหนด layer `"boundary"`) เพิ่มผลตรวจของผู้จัดทำ ข้อจำกัดของ leak check ที่เหลือ หลักฐาน และ traceability |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 2 Private Data Architecture (แนวทางที่ศึกษา, ผล research, architecture ที่เสนอ, คำตอบคำถาม 5 ข้อ, ผล prototype Issue #12 → PR #13, การตัดสินใจ) ตาม feedback 19 พ.ย. 2569 เลื่อนเลขหัวข้อเดิมเป็น 3–10 เพิ่ม PD-01 ถึง PD-06 ใน traceability และปรับข้อจำกัด |
 | v1.0 | 19 พ.ย. 2569 | เปลี่ยนชื่อจาก Design Prototype และย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version และแก้ลิงก์ |
 
@@ -171,10 +172,40 @@ sequenceDiagram
 
 หลัง merge ผู้จัดทำรัน Acceptance Test Walkthrough ส่วน B ของ Delivery Document ซ้ำใน clone ใหม่ของ `main` (commit `ab61d91`) ได้ผลตรงทุกขั้น
 
-ข้อจำกัดที่พบ (design gap สำหรับรอบหน้า):
-- ตัวกันเขียนลง repo หาตำแหน่ง repo จาก `pyproject.toml` ถ้าติดตั้งแบบไม่ใช่ editable จะไม่กันอะไรเลยโดยไม่แจ้ง ควรเปลี่ยนเป็นปฏิเสธการรัน
-- leak check หยุดทุกครั้งถ้าเลขบัญชีสั้นจนชนกับข้อความอื่นใน result เช่น `29` ปลอดภัยแต่ยังไม่ได้เขียนไว้ใน README
-- `boundary_leak_check` ใช้ layer ชื่อ `"boundary"` ซึ่ง Spec ไม่ได้กำหนด
+#### Design gap จาก PR #13 และการแก้ (Issue #15 → PR #16)
+
+หลัง merge PR #13 พบ design gap 3 ข้อ Spec ยังใช้ได้ แต่ตัว prototype ทำได้ไม่ครบ จึงเปิด Issue #15 ให้โรงงานแก้โดยไม่ลดข้อกำหนด
+
+| Gap ที่พบ | การแก้ใน PR #16 | สถานะ |
+|---|---|---|
+| ตัวกันเขียนลง repo หาตำแหน่ง repo จากที่ติดตั้ง package ถ้าติดตั้งแบบไม่ใช่ editable จะไม่กันอะไรเลยโดยไม่แจ้ง | เช็คเพิ่มจาก path ของ output แต่ละตัว ไล่ขึ้นไปหา `pyproject.toml` ของโปรเจกต์นี้ (ตาม symlink และใช้ได้แม้ path ยังไม่มีอยู่) ปฏิเสธ exit 2 ไม่ว่าจะติดตั้งแบบใด | ปิดแล้ว |
+| leak check ค้นแบบ substring ทั้งข้อความ เลขบัญชีสั้นชนกับข้อความปกติ เช่น `A1` ชนกับ `A1_freshness_nav_daily` และ `29` ชนกับ `"checks_total": 29` ทำให้หยุดทั้งที่ไม่รั่ว | parse result แล้วค้นเลขบัญชีและชื่อลูกค้าแบบทั้งคำ เฉพาะค่าที่เป็นข้อความ กฎเรื่องตัวเลขที่มีจุดหรือจุลภาคใช้กับทั้งข้อความเหมือนเดิม ข้อความที่ไม่ใช่ JSON ไม่ผ่าน (`unparseable`) | ปิดแล้ว |
+| `boundary_leak_check` ใช้ layer `"boundary"` ซึ่ง Spec ไม่ได้กำหนด | README ระบุ layer `"boundary"` ว่าอยู่ใน `checks.json` ฝั่ง private เท่านั้น และไม่อยู่ใน result | ปิดแล้ว |
+
+| | |
+|---|---|
+| Spec | Issue #15 (Platform Spec ต่อยอด #12) |
+| เวลาโรงงาน | label 12:52:42 → PR 13:03:53 UTC (11 นาที) ไม่ชนเพดาน token ไม่ต้องกด Approve reviewer อนุมัติรอบแรก |
+| Output | PR #16 merge แล้ว (merge commit `3a422c5`, 19 พ.ย. 2569 13:17 UTC) แก้ 3 ไฟล์ตามที่ Spec อนุญาต |
+| CI | PR run 44529767220 และ `main` run 44532003447 ผ่าน Python 3.10–3.13, test 264 กรณี |
+
+ผลการตรวจของผู้จัดทำ (รันเองใน clone ใหม่ของ commit `25addde` ติดตั้งแบบไม่ใช่ editable เทียบกับ `main` ก่อนแก้):
+
+| ตรวจ | ก่อนแก้ (`78e8c32`) | หลังแก้ (`25addde`) |
+|---|---|---|
+| `--private-out` อยู่ใน clone ของ repo | exit 0 เขียนรายงาน 4 ไฟล์ลง repo | exit 2 ไม่เขียนอะไร |
+| `--result` อยู่ในโฟลเดอร์ย่อยที่ยังไม่มีใน clone | ไม่ได้ทดสอบ | exit 2 ไม่เขียนอะไร |
+| `--private-out` ผ่าน symlink ที่ชี้เข้า clone | ไม่ได้ทดสอบ | exit 2 |
+| บัญชี `A1` และ `29` | exit 3 | exit 0 |
+| บัญชี `A` (ชื่อเดียวกับ layer) | exit 3 | exit 3 ตามที่ README ระบุ |
+| Walkthrough ส่วน B (คูณ 7 เท่า) | exit 0 | exit 0 ตัวเลขในรายงานเต็มเท่าเดิม `result.json` เหมือนเดิมทุก byte ไม่มีค่าจาก private database |
+
+หลัง merge ผู้จัดทำรัน Acceptance Test Walkthrough ส่วน A และ B ของ Delivery Document ซ้ำใน clone ใหม่ของ `main` (commit `3a422c5`) ได้ผลตรงทุกขั้น
+
+ข้อจำกัดของ leak check ที่ยังเหลือ (ยอมรับไว้ใน Spec ของ Issue #15):
+- ไม่ค้นในชื่อ key ของ JSON ถ้าโค้ดในอนาคตใส่เลขบัญชีเป็น key ตัวเช็คจะไม่จับ ตอนนี้ key ถูกกำหนดตายตัวใน `build_result` จึงยังไม่รั่ว
+- ไม่ค้นในค่าจำนวนเต็ม เลขบัญชีที่เป็นตัวเลขล้วนถ้าไปอยู่ในค่าจำนวนเต็มจะไม่ถูกจับ นี่เป็นราคาของการแก้ปัญหาบัญชี `29`
+- เลขบัญชีหรือชื่อลูกค้าที่ตรงกับชื่อตัวเช็คหรือ layer ทั้งคำ (เช่น `A`) ยังทำให้หยุดด้วย exit 3 ฝั่งปลอดภัย
 
 ### 2.8 การตัดสินใจและ trade-off
 
@@ -388,6 +419,10 @@ sequenceDiagram
 | Output ของ prototype | PR #13: https://github.com/Awannaphasch2016/quant-software-factory/pull/13, merge commit `ab61d91` | PD-01 ถึง PD-06 |
 | CI ของ prototype | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44481298874 ผ่าน 3.10–3.13 (235 tests) | NFR-04 |
 | ผลการรัน prototype ของผู้จัดทำ | ข้อ 2.7 (private database คูณ 7 เท่า, result ไม่มีค่าหลุด, exit 2 เมื่อสั่งเขียนลง repo) | PD-01, PD-03, PD-05 |
+| Spec แก้ design gap | Issue #15: https://github.com/Awannaphasch2016/quant-software-factory/issues/15 | design gap 3 ข้อจาก PR #13 |
+| Output แก้ design gap | PR #16: https://github.com/Awannaphasch2016/quant-software-factory/pull/16, merge commit `3a422c5` | PD-04, PD-05 |
+| CI ของการแก้ design gap | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44529767220 (PR) และ https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44532003447 (`main`) ผ่าน 3.10–3.13 (264 tests) | NFR-04 |
+| ผลการรันการแก้ของผู้จัดทำ | ข้อ 2.7 (ติดตั้งแบบไม่ใช่ editable: ก่อนแก้เขียนลง repo ได้ หลังแก้ exit 2; บัญชี `A1`, `29` ผ่าน; walkthrough B ไม่เปลี่ยน) | PD-04, PD-05 |
 
 ข้อความในตารางสรุปผลที่รันจริง ไม่ได้ยืนยันว่าตัวเลขตรงกับนิยามของทีม เพราะ fixture และ Expected Values เป็นข้อมูลปลอมที่คำนวณตามนิยามสมมติ
 
@@ -406,9 +441,9 @@ sequenceDiagram
 | FR-10 | 5.1, 5.2, 5.3, 9 | คอมเมนต์ขออนุมัติใน Issue #4, #6, #9 และ Issue #7 ที่จบโดยไม่ต้องอนุมัติ |
 | NFR-01, NFR-02, NFR-04, NFR-06 | 4.2 | PR #5, PR #10, CI, การรันซ้ำของผู้จัดทำ |
 | NFR-07 | 10 | ไม่มีตัวเลขจริง |
-| PD-01, PD-03, PD-04 | 2.4, 2.5, 2.7 | Issue #12 → PR #13, ผลการตรวจในข้อ 2.7 (result ไม่มีค่าจาก private database) |
+| PD-01, PD-03, PD-04 | 2.4, 2.5, 2.7 | Issue #12 → PR #13, Issue #15 → PR #16 (leak check จับทั้งคำ), ผลการตรวจในข้อ 2.7 (result ไม่มีค่าจาก private database) |
 | PD-02 | 2.4, 2.7, 2.8 | PR #13 (`SqliteSource` เปิดแบบอ่านอย่างเดียว, SHA-256 ของ database เท่าเดิม) |
-| PD-05, PD-06 | 2.4, 2.6, 2.7 | PR #13 (`.gitignore` สำหรับ `*.db`, ปฏิเสธ output ใน repo) |
+| PD-05, PD-06 | 2.4, 2.6, 2.7 | PR #13 (`.gitignore` สำหรับ `*.db`, ปฏิเสธ output ใน repo), PR #16 (ปฏิเสธได้ไม่ว่าจะติดตั้งแบบใด) |
 
 ## 9. Limitations and Future Direction (ยังไม่ใช่ผลที่สาธิต)
 
@@ -423,6 +458,7 @@ sequenceDiagram
 | ช่องทางแชตยังไม่ได้ทำ | ใช้ Discord ตามที่ทีม Quant ใช้ (feedback สัปดาห์ 16–20 พ.ย. 2569) ช่องทางแชตส่งได้แค่สถานะหรือลิงก์ไปยังที่เก็บรายงานภายใน ไม่ส่งรายงานที่มีข้อมูลจริง (ข้อ 2.6 คำถามที่ 5) |
 | executor ใน prototype เป็นเครื่องผู้ทดสอบ ยังไม่ใช่เครื่องในเครือข่ายบริษัท | ศึกษาการใช้ self-hosted runner หรือเครื่องที่ทีมควบคุมเป็น executor และขอสิทธิ์ database แบบอ่านอย่างเดียวที่ได้รับอนุมัติ |
 | ยังไม่ได้ยืนยัน policy ของบริษัทเรื่องการส่งข้อมูลให้ผู้ให้บริการโมเดล | ถามฝ่ายที่ดูแลก่อนพิจารณาแนวทาง A (ZDR) สำหรับงานที่ต้องให้โมเดลเห็นข้อมูล |
+| leak check ไม่ค้นในชื่อ key ของ JSON และค่าจำนวนเต็ม (ข้อ 2.7) | เพิ่มการค้นใน key เมื่อแก้ `private_run` รอบหน้า และตรวจว่า result มีแค่ key ที่กำหนด และ `checks_total`, `checks_failed` ตรงกับจำนวนใน `checks` เพื่อให้ค่าจำนวนเต็มอื่นเข้ามาไม่ได้ |
 | โซน Agent ใน v1.1 ยังเป็น Foreman ไม่ใช่ Eve agent ตัวเดียว | เปลี่ยนเมื่อได้สิทธิ์ deploy บน Vercel ข้อ 2.8 |
 | Output เป็น Markdown | PDF เป็น Spec แยก เมื่ออนุมัติ dependency แล้ว |
 

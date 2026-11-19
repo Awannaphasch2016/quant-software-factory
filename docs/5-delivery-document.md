@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.1 | 19 พ.ย. 2569 | Current |
+| v1.2 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.2 | 19 พ.ย. 2569 | ปรับ version ที่ส่งมอบเป็น `3a422c5` (PR #16 แก้ตัวกันเขียนลง repo และ leak check) เอาเงื่อนไขติดตั้งแบบ editable ออก และปรับข้อจำกัด |
 | v1.1 | 19 พ.ย. 2569 | เพิ่ม prototype Private Data boundary (PR #13): ส่วนประกอบใหม่ 3 ตัว, วิธีใช้ และ Acceptance Test Walkthrough ส่วน B ปรับ version ที่ส่งมอบและข้อจำกัด |
 | v1.0 | 19 พ.ย. 2569 | ฉบับแรก บันทึกสิ่งที่ส่งมอบได้จริง ณ วันที่นี้ ก่อนเริ่ม Iteration 1 ของสัปดาห์ 16–20 พ.ย. 2569 |
 
@@ -26,7 +27,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | รายงานตัวอย่างจากข้อมูลปลอม | ส่งมอบแล้ว | [`reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) |
 | **`SqliteSource`**: อ่าน private database ผ่าน `load(...)` เดิม แบบอ่านอย่างเดียว | ส่งมอบแล้ว (prototype) | `reporting/sqlite_source.py` (PR #13) |
 | **`make_private_db`**: สร้าง private database จาก CSV คูณตัวเลขเงินและเปลี่ยนเลขบัญชีกับชื่อลูกค้าได้ | ส่งมอบแล้ว (prototype) | `reporting/make_private_db.py` (PR #13) |
-| **`private_run`**: executor ใน trusted zone เขียนรายงานเต็มนอก repo และส่งกลับแค่ result ที่ผ่าน leak check | ส่งมอบแล้ว (prototype) | `reporting/private_run.py` (PR #13) |
+| **`private_run`**: executor ใน trusted zone เขียนรายงานเต็มนอก repo และส่งกลับแค่ result ที่ผ่าน leak check | ส่งมอบแล้ว (prototype) | `reporting/private_run.py` (PR #13, แก้ใน PR #16) |
 | Report Spec และ Spec ของ prototype | ส่งมอบแล้ว | [Issue #9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9), [Issue #12](https://github.com/Awannaphasch2016/quant-software-factory/issues/12) |
 | Spec Structure (Report และ Platform) | ส่งมอบแล้ว | [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md), [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) |
 | Trusted zone จริงในเครือข่ายบริษัทและ database จริง | ยังไม่ส่งมอบ | รอการอนุมัติเรื่องสิทธิ์และ policy |
@@ -35,7 +36,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | ตัวเลขต้นทุนต่อรายงาน 1 ฉบับ | ยังไม่ส่งมอบ | รอตัวเลข usage จาก Vercel |
 | Discord bot | ยังไม่ส่งมอบ | |
 
-Software version ที่ส่งมอบ: commit `ab61d91` บน `main` (merge PR #13 เมื่อ 19 พ.ย. 2569)
+Software version ที่ส่งมอบ: commit `3a422c5` บน `main` (merge PR #16 เมื่อ 19 พ.ย. 2569)
 
 ## 2. Deployment and Server Information
 
@@ -52,7 +53,7 @@ Software version ที่ส่งมอบ: commit `ab61d91` บน `main` (me
 
 - เปิด repository ได้โดยไม่ต้องมีบัญชี เพราะเป็น public
 - เครื่องที่ใช้ทดสอบต้องมี Python 3.10 ขึ้นไป และ `git`
-- ต้องติดตั้งแบบ editable (`pip install -e .`) เพราะตัวกันเขียน output ลงใน repo หาตำแหน่ง repo จาก `pyproject.toml`
+- ติดตั้งด้วย `pip install -e .` ตาม walkthrough ตั้งแต่ PR #16 ติดตั้งแบบปกติ (`pip install .`) ก็ได้ ตัวกันเขียน output ลงใน repo ทำงานทั้งสองแบบ
 - ไม่ต้องใช้ password, API key หรือสิทธิ์พิเศษ
 
 ## 4. User Instructions
@@ -117,11 +118,10 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
 
 ## 6. Delivered Version and Known Limitations
 
-- Version ที่ส่งมอบ: commit `ab61d91` ณ 19 พ.ย. 2569
+- Version ที่ส่งมอบ: commit `3a422c5` ณ 19 พ.ย. 2569
 - ข้อจำกัด:
   - trusted zone ใน prototype คือเครื่องผู้ทดสอบ และ private database เป็น SQLite จากข้อมูลปลอม ยังไม่ได้ทดสอบกับ database, เครือข่าย และสิทธิ์จริงของบริษัท
-  - ตัวกันเขียน output ลงใน repo ทำงานเฉพาะการติดตั้งแบบ editable ถ้าติดตั้งแบบปกติจะไม่กันโดยไม่แจ้ง
-  - leak check หยุดการส่งกลับทุกครั้งถ้าเลขบัญชีสั้นจนชนกับข้อความอื่นใน result เช่น `29`
+  - leak check ไม่ค้นในชื่อ key ของ JSON และในค่าจำนวนเต็ม และยังหยุดด้วย exit 3 ถ้าเลขบัญชีหรือชื่อลูกค้าตรงกับชื่อตัวเช็คหรือ layer ทั้งคำ เช่น `A` (Software Design ข้อ 2.7)
   - โซน Agent ยังเป็น Foreman ไม่ใช่ Eve agent ตัวเดียว
   - ยังไม่มี Discord, PDF และตัวเลขต้นทุนต่อรายงาน
   - ข้อความบรรยายยังไม่มีตัวเลข "NAV เปลี่ยนไปเท่าไร" และยังเล่าซ้ำกับตาราง (ดู [`appendix/natural-writing-proposal.md`](appendix/natural-writing-proposal.md))
