@@ -17,8 +17,9 @@ Exit codes:
 
 - 0: every report check passed; the result is written.
 - 1: a report check failed; the result is written with status ``"failed"``.
-- 2: ``--private-out`` or ``--result`` is inside the repository working tree
-  (or a usage error); nothing is written.
+- 2: ``--private-out`` or ``--result`` is inside the repository working tree,
+  or inside any checkout of this project whatever the install mode (or a
+  usage error); nothing is written.
 - 3: the boundary leak check failed; no result is written and the failure is
   recorded as ``boundary_leak_check`` in the private ``checks.json`` only.
 """
@@ -29,7 +30,7 @@ import argparse
 import json
 import re
 import sys
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -51,18 +52,39 @@ NO_LEAK = "no account id, client name or formatted figure"
 _FIGURE_RE = re.compile(r"\d[.,]\d")
 
 
+def _is_project_dir(directory: Path) -> bool:
+    """Whether ``directory`` holds this project's ``pyproject.toml``."""
+    candidate = directory / "pyproject.toml"
+    try:
+        if not candidate.is_file():
+            return False
+        text = candidate.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    return PROJECT_NAME_LINE in text
+
+
 def find_repo_root() -> Path | None:
     """Return the directory holding this package's ``pyproject.toml``, if any."""
     here = Path(__file__).resolve().parent
     for directory in (here, *here.parents):
-        candidate = directory / "pyproject.toml"
-        if candidate.is_file():
-            try:
-                text = candidate.read_text(encoding="utf-8")
-            except OSError:
-                continue
-            if PROJECT_NAME_LINE in text:
-                return directory
+        if _is_project_dir(directory):
+            return directory
+    return None
+
+
+def find_checkout_root(path: Path) -> Path | None:
+    """Return the nearest ancestor of ``path`` that is a checkout of this project.
+
+    ``path`` is resolved first, following symlinks; it need not exist. The
+    path itself and each of its ancestors are checked for a ``pyproject.toml``
+    naming this project. This does not depend on where the package is
+    installed.
+    """
+    resolved = path.resolve()
+    for directory in (resolved, *resolved.parents):
+        if _is_project_dir(directory):
+            return directory
     return None
 
 
@@ -92,18 +114,50 @@ def render_result(results: Sequence[CheckResult]) -> str:
     return json.dumps(build_result(results), indent=2) + "\n"
 
 
+def _string_values(value: Any) -> Iterator[str]:
+    """Yield every string value in parsed JSON (dict values and list items)."""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _string_values(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _string_values(item)
+
+
+def _token_re(value: str) -> re.Pattern[str]:
+    """Match ``value`` as a whole token: no letter, digit or ``_`` either side."""
+    return re.compile(r"(?<![A-Za-z0-9_])" + re.escape(value) + r"(?![A-Za-z0-9_])")
+
+
 def leak_check(text: str, account: str, client_names: Sequence[str]) -> CheckResult:
     """Check that ``text`` holds no account id, client name or formatted figure.
 
-    The ``actual`` value names only the categories found, never the values.
+    The figure rule applies to the whole text. The account id and client names
+    are matched as whole tokens in the string values of the parsed JSON only;
+    integer values are not searched. Text that is not valid JSON fails with
+    the category ``"unparseable"``. The ``actual`` value names only the
+    categories found, never the values.
     """
     found: list[str] = []
-    if account and account in text:
-        found.append("account id")
-    if any(name and name in text for name in client_names):
+    try:
+        strings = list(_string_values(json.loads(text)))
+        parsed = True
+    except (ValueError, RecursionError):
+        strings = []
+        parsed = False
+    if account:
+        account_re = _token_re(account)
+        if any(account_re.search(s) for s in strings):
+            found.append("account id")
+    client_res = [_token_re(name) for name in client_names if name]
+    if any(r.search(s) for r in client_res for s in strings):
         found.append("client name")
     if _FIGURE_RE.search(text):
         found.append("figure")
+    if not parsed:
+        found.append("unparseable")
     actual = "found: " + ", ".join(found) if found else NO_LEAK
     return CheckResult(LEAK_CHECK_NAME, LEAK_CHECK_LAYER, not found, NO_LEAK, actual)
 
@@ -167,20 +221,22 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     Returns:
         0 when every report check passes, 1 when any fails, 2 when an output
-        path is inside the repository, 3 when the boundary leak check fails.
+        path is inside the repository or any checkout of this project, 3 when
+        the boundary leak check fails.
     """
     args = _parser().parse_args(argv)
     private_out: Path = args.private_out
     result_path: Path = args.result
+    # Looked up at call time so a test can simulate a non-editable install.
     root = find_repo_root()
-    if root is not None:
-        for label, path in (("--private-out", private_out), ("--result", result_path)):
-            if is_inside(path, root):
-                print(
-                    f"error: {label} must be outside the repository working tree",
-                    file=sys.stderr,
-                )
-                return 2
+    for label, path in (("--private-out", private_out), ("--result", result_path)):
+        inside_package_root = root is not None and is_inside(path, root)
+        if inside_package_root or find_checkout_root(path) is not None:
+            print(
+                f"error: {label} must be outside the repository working tree",
+                file=sys.stderr,
+            )
+            return 2
 
     source = SqliteSource(args.db)
     run = run_report(
