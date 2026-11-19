@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.2 | 19 พ.ย. 2569 | Current |
+| v1.3 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.3 | 19 พ.ย. 2569 | แก้ Use case ข้อ 2.3 ให้การรันกับข้อมูลจริงเป็น Intended และรันใน Trusted zone เพิ่ม Progress Report สัปดาห์ 16–20 พ.ย. ใน AC-04 |
 | v1.2 | 19 พ.ย. 2569 | ปรับสถานะ PD-04 และ PD-05 หลังแก้ design gap ด้วย Issue #15 → PR #16 เพิ่มลิงก์อ้างอิง |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 3.3 กลุ่ม PD (Private Data) และ AC-07 ตาม feedback 19 พ.ย. 2569 เปลี่ยนช่องทางแชตใน HR-05 และ AC-05 เป็น Discord เพิ่มคำศัพท์ Agent zone, Trusted zone และสมมติฐานเรื่อง Private Data |
 | v1.0 | 19 พ.ย. 2569 | ย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version แก้ลิงก์ และเรียกเอกสารฉบับที่ 4 ว่า Software Design |
@@ -65,7 +66,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 ### 2.3 Use case
 
-ผู้ใช้กรอก Spec ตาม Template แล้วเปิด GitHub Issue และติด label `factory` (หรือส่งผ่านแชตในอนาคต) โรงงานจัดประเภท วางแผน เขียนโค้ด ตรวจทาน และเปิด draft PR ที่มีโค้ด fixture test และรายงานตัวอย่าง ผู้ใช้ตรวจ PR แล้วตัดสินใจ merge หลัง merge แล้วโค้ดนั้นใช้สร้างรายงานจากข้อมูลจริงได้ทุกรอบ โดยต่อกับระบบข้อมูลของทีมผ่าน interface เดียวกัน
+ผู้ใช้กรอก Spec ตาม Template แล้วเปิด GitHub Issue และติด label `factory` (หรือส่งผ่านแชตในอนาคต) โรงงานจัดประเภท วางแผน เขียนโค้ด ตรวจทาน และเปิด draft PR ที่มีโค้ด fixture test และรายงานตัวอย่าง ผู้ใช้ตรวจ PR แล้วตัดสินใจ merge ในขั้นถัดไป (Intended) โค้ดที่ merge แล้วจะรันใน Trusted zone กับข้อมูลจริงผ่าน interface `load(...)` เดียวกัน และส่งกลับแค่ result (กลุ่ม PD) ปัจจุบันขั้นนี้สาธิตได้กับ private database จำลองเท่านั้น
 
 ## 3. Functional Requirements
 
@@ -129,7 +130,7 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 | AC-01 | มี Reusable Spec Template ที่รองรับรายงาน 3 ประเภท | FR-01, FR-02 | Demonstrated กับ 1 ประเภท |
 | AC-02 | มี Spec ตัวอย่างที่กรอกแล้วอย่างน้อย 1 ใบ | FR-01, FR-05, FR-09 | Demonstrated (4 ใบ: v0.1, v0.2, Platform Spec v0.3, Report Spec v0.3) |
 | AC-03 | มีการรันผ่านโรงงานสำเร็จอย่างน้อย 1 ครั้ง: Issue เชื่อมกับ draft PR, Output ตรง Expected Values ทุกค่า, CI ผ่าน, reviewer ไม่เหลือ blocking issue | HR-01, HR-03, FR-05, FR-06, FR-07, NFR-04 | Demonstrated 2 ครั้ง (Issue #4 → PR #5 และ Issue #9 → PR #10 ที่ merge แล้ว) |
-| AC-04 | มี Progress Report | | Demonstrated |
+| AC-04 | มี Progress Report | | Demonstrated ([Iteration 1](appendix/progress-report-iteration-1.md), [สัปดาห์ 16–20 พ.ย.](appendix/progress-report-2026-11-16.md)) |
 | AC-05 | สั่งงานผ่าน Discord ได้ | HR-05 | Intended |
 | AC-06 | มีข้อเสนอ Natural Writing ครอบคลุม Spec, Writing Guidelines และการตรวจ Output | FR-08 | Demonstrated (เอกสารข้อเสนอ, กติกาที่ตรวจได้และตัวเช็ค W1–W5 ใน Run #4, ผลตรวจข้อความ Run #1 และ #4 ด้วย skill พร้อมฉบับแก้) ส่วน narrative facts และ LLM judge เป็น Intended |
 | AC-07 | Agent ทำงานกับ Private Data ได้โดยข้อมูลไม่รั่วออกนอก Trusted zone มีหลักฐานที่ผู้ตรวจรันซ้ำได้ | PD-01 ถึง PD-06 | Demonstrated ระดับ prototype ด้วย private database จำลอง (Issue #12 → PR #13) ยังไม่ได้ทดสอบกับ database และเครือข่ายจริงของบริษัท |
