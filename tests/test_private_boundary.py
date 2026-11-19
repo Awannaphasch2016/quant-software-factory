@@ -34,9 +34,11 @@ from quant_software_factory.reporting.make_private_db import main as make_db
 from quant_software_factory.reporting.make_private_db import scale_value
 from quant_software_factory.reporting.private_run import (
     build_result,
+    find_checkout_root,
     find_repo_root,
     is_inside,
     leak_check,
+    render_result,
 )
 from quant_software_factory.reporting.private_run import main as private_run
 
@@ -511,8 +513,8 @@ def test_forced_leak(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     ("text", "passed", "category"),
     [
         ('{"checks": []}', True, None),
-        ("x DEMO-0001 x", False, "account id"),
-        ("x DEMO-COOP x", False, "client name"),
+        ('{"status": "x DEMO-0001 x"}', False, "account id"),
+        ('{"status": "x DEMO-COOP x"}', False, "client name"),
         ("1.5", False, "figure"),
         ("1,000", False, "figure"),
         ('{"a": 29,\n "b": 0}', True, None),
@@ -529,7 +531,7 @@ def test_leak_check(text: str, passed: bool, category: str | None) -> None:
 
 
 def test_leak_check_skips_empty_needles() -> None:
-    assert leak_check("anything", "", [""]).passed
+    assert leak_check('{"status": "anything"}', "", [""]).passed
 
 
 def test_build_result_shape() -> None:
@@ -662,3 +664,303 @@ def test_no_hard_coded_private_values(module: str) -> None:
     ):
         assert value not in text
     assert not re.search(r"\d+\.\d+\.\d+\.\d+|https?://|[a-z]+://", text)
+
+
+# --- issue #15: install-independent repo guard -----------------------------
+
+PROJECT_PYPROJECT = '[project]\nname = "quant-software-factory"\nversion = "0.0.0"\n'
+OTHER_PYPROJECT = '[project]\nname = "some-other-project"\nversion = "0.0.0"\n'
+
+
+def _regular_install(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Simulate a non-editable install: the package root is not found."""
+    monkeypatch.setattr(private_run_module, "find_repo_root", lambda: None)
+
+
+def _fake_checkout(tmp_path: Path, pyproject: str = PROJECT_PYPROJECT) -> Path:
+    checkout = tmp_path / "checkout"
+    checkout.mkdir()
+    (checkout / "pyproject.toml").write_text(pyproject, encoding="utf-8")
+    return checkout
+
+
+def _tree(directory: Path) -> list[str]:
+    return sorted(str(p.relative_to(directory)) for p in directory.rglob("*"))
+
+
+def test_find_checkout_root(tmp_path: Path) -> None:
+    checkout = _fake_checkout(tmp_path)
+    assert find_checkout_root(checkout) == checkout
+    assert find_checkout_root(checkout / "a" / "b" / "c.json") == checkout
+    assert find_checkout_root(REPO / "not" / "there") == REPO
+    assert find_checkout_root(tmp_path / "elsewhere") is None
+    other = tmp_path / "other"
+    other.mkdir()
+    (other / "pyproject.toml").write_text(OTHER_PYPROJECT, encoding="utf-8")
+    assert find_checkout_root(other / "x") is None
+
+
+def test_regular_install_private_out_inside_repo(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    db = _make(tmp_path)
+    _regular_install(monkeypatch)
+    out = REPO / "private_out_must_not_exist"
+    result = tmp_path / "result.json"
+    rc, data = _run(db, out, result)
+    assert rc == 2
+    assert data is None
+    assert not out.exists()
+    assert not result.exists()
+    assert (
+        "error: --private-out must be outside the repository working tree"
+        in capsys.readouterr().err
+    )
+
+
+def test_regular_install_result_inside_repo(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    db = _make(tmp_path)
+    _regular_install(monkeypatch)
+    out = tmp_path / "private" / "x"
+    result = REPO / "result_must_not_exist.json"
+    rc, _ = _run(db, out, result)
+    assert rc == 2
+    assert not result.exists()
+    assert not (tmp_path / "private").exists()
+    assert (
+        "error: --result must be outside the repository working tree"
+        in capsys.readouterr().err
+    )
+
+
+def test_private_out_missing_parent_inside_repo(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db = _make(tmp_path)
+    _regular_install(monkeypatch)
+    parent = REPO / "missing_parent_must_not_exist"
+    out = parent / "deeper" / "x"
+    rc, _ = _run(db, out, tmp_path / "result.json")
+    assert rc == 2
+    assert not parent.exists()
+    assert not (tmp_path / "result.json").exists()
+
+
+def test_regular_install_private_out_outside_checkout_runs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db = _make(tmp_path)
+    plain = tmp_path / "plain.json"
+    assert _run(db, tmp_path / "plain" / "x", plain)[0] == 0
+    _regular_install(monkeypatch)
+    out = tmp_path / "private" / "x"
+    result = tmp_path / "boundary" / "result.json"
+    rc, data = _run(db, out, result)
+    assert rc == 0
+    assert data is not None
+    assert result.read_bytes() == plain.read_bytes()
+    assert sorted(p.name for p in out.iterdir()) == PRIVATE_FILES
+
+
+@pytest.mark.parametrize("flag", ["--private-out", "--result"])
+@pytest.mark.parametrize("subpath", [("x",), ("not", "yet", "there")])
+def test_simulated_install_fake_checkout_refused(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    flag: str,
+    subpath: tuple[str, ...],
+) -> None:
+    db = _make(tmp_path)
+    checkout = _fake_checkout(tmp_path)
+    before = _tree(checkout)
+    _regular_install(monkeypatch)
+    inside = checkout.joinpath(*subpath)
+    out = inside if flag == "--private-out" else tmp_path / "private" / "x"
+    result = inside if flag == "--result" else tmp_path / "result.json"
+    rc, data = _run(db, out, result)
+    assert rc == 2
+    assert data is None
+    assert _tree(checkout) == before
+    assert not (tmp_path / "private").exists()
+    assert not (tmp_path / "result.json").exists()
+    err = capsys.readouterr().err
+    assert f"error: {flag} must be outside the repository working tree" in err
+
+
+@pytest.mark.parametrize("flag", ["--private-out", "--result"])
+def test_simulated_install_fake_checkout_via_symlink(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, flag: str
+) -> None:
+    checkout = _fake_checkout(tmp_path)
+    (checkout / "sub").mkdir()
+    link = tmp_path / "link"
+    try:
+        os.symlink(checkout / "sub", link, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        pytest.skip("symlinks not available")
+    db = _make(tmp_path)
+    before = _tree(checkout)
+    _regular_install(monkeypatch)
+    inside = link / "x"
+    out = inside if flag == "--private-out" else tmp_path / "private" / "x"
+    result = inside if flag == "--result" else tmp_path / "result.json"
+    rc, _ = _run(db, out, result)
+    assert rc == 2
+    assert _tree(checkout) == before
+    assert not (tmp_path / "private").exists()
+    assert not (tmp_path / "result.json").exists()
+
+
+def test_other_project_pyproject_not_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    other = _fake_checkout(tmp_path, OTHER_PYPROJECT)
+    db = _make(tmp_path)
+    _regular_install(monkeypatch)
+    out = other / "private" / "x"
+    result = other / "boundary" / "result.json"
+    rc, data = _run(db, out, result)
+    assert rc == 0
+    assert data is not None
+    assert data["status"] == "passed"
+    assert sorted(p.name for p in out.iterdir()) == PRIVATE_FILES
+
+
+# --- issue #15: token-based leak check -------------------------------------
+
+
+def _committed_result_text() -> str:
+    records: list[dict[str, Any]] = json.loads(
+        (COMMITTED / "checks.json").read_text(encoding="utf-8")
+    )
+    results = [
+        CheckResult(r["name"], r["layer"], r["passed"], r["expected"], r["actual"])
+        for r in records
+    ]
+    return render_result(results)
+
+
+def test_leak_check_short_account_a1_passes() -> None:
+    text = _committed_result_text()
+    assert "A1_freshness_nav_daily" in text
+    result = leak_check(text, "A1", [CLIENT])
+    assert result.passed
+    assert result.actual == result.expected
+
+
+def test_leak_check_account_29_passes() -> None:
+    text = _committed_result_text()
+    assert '"checks_total": 29' in text
+    assert leak_check(text, "29", [CLIENT]).passed
+
+
+@pytest.mark.parametrize(
+    "name", [ACCOUNT, f"B1 {ACCOUNT} total", f"B1-{ACCOUNT}-total"]
+)
+def test_leak_check_account_in_check_name(name: str) -> None:
+    text = _committed_result_text().replace('"B1_holdings_total"', json.dumps(name))
+    result = leak_check(text, ACCOUNT, [CLIENT])
+    assert not result.passed
+    assert result.actual == "found: account id"
+    assert ACCOUNT not in result.actual
+
+
+def test_leak_check_client_whole_string_value() -> None:
+    text = _committed_result_text().replace('"passed"', json.dumps(CLIENT), 1)
+    assert json.loads(text)["status"] == CLIENT
+    result = leak_check(text, ACCOUNT, [CLIENT])
+    assert not result.passed
+    assert result.actual == "found: client name"
+    assert CLIENT not in result.actual
+
+
+@pytest.mark.parametrize("figure", ["1.5", "1,000"])
+def test_leak_check_figure_anywhere(figure: str) -> None:
+    text = _committed_result_text()
+    as_string = text.replace('"W4_length"', json.dumps(f"W4 {figure}"))
+    as_key = text.replace('"checks_total"', json.dumps(f"total {figure}"))
+    for leaky in (as_string, as_key):
+        result = leak_check(leaky, ACCOUNT, [CLIENT])
+        assert not result.passed
+        assert result.actual == "found: figure"
+        assert figure not in result.actual
+
+
+@pytest.mark.parametrize("text", ["", "not json", '{"status": "passed"', "[" * 100000])
+def test_leak_check_invalid_json(text: str) -> None:
+    result = leak_check(text, ACCOUNT, [CLIENT])
+    assert not result.passed
+    assert result.actual == "found: unparseable"
+
+
+def test_leak_check_ignores_integers_and_underscore_joined() -> None:
+    text = json.dumps(
+        {
+            "status": "passed",
+            "checks_total": 1234,
+            "checks_failed": 0,
+            "checks": [{"name": "X_DEMO-0001_y", "layer": "B", "passed": True}],
+            "DEMO-0001": "key names are not searched",
+        }
+    )
+    assert leak_check(text, "1234", [CLIENT]).passed
+    assert leak_check(text, ACCOUNT, [CLIENT]).passed
+    assert leak_check(text, "DEMO", ["0001"]).passed
+
+
+@pytest.mark.parametrize("account", ["A1", "29"])
+def test_private_run_short_account_ids_pass(tmp_path: Path, account: str) -> None:
+    default_db = _make(tmp_path)
+    default_result = tmp_path / "default.json"
+    assert _run(default_db, tmp_path / "default" / "x", default_result)[0] == 0
+    db = _make(tmp_path, "short.db", "--account", account)
+    out = tmp_path / "private" / "x"
+    result = tmp_path / "result.json"
+    rc, data = _run(db, out, result, account)
+    assert rc == 0
+    assert data is not None
+    assert result.read_bytes() == default_result.read_bytes()
+    assert _private_checks(out)["boundary_leak_check"]["passed"] is True
+
+
+def test_forced_account_as_whole_check_name(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    db = _make(tmp_path)
+    out = tmp_path / "private" / "x"
+    result = tmp_path / "result.json"
+    result.write_text("stale\n", encoding="utf-8")
+    original = private_run_module.render_result
+
+    def leaky(results: Any) -> str:
+        return original(results).replace(
+            '"A1_freshness_nav_daily"', json.dumps(ACCOUNT)
+        )
+
+    monkeypatch.setattr(private_run_module, "render_result", leaky)
+    rc, data = _run(db, out, result)
+    assert rc == 3
+    assert data is None
+    assert not result.exists()
+    leak = _private_checks(out)["boundary_leak_check"]
+    assert leak["passed"] is False
+    assert leak["layer"] == "boundary"
+    assert "account id" in leak["actual"]
+    assert ACCOUNT not in leak["actual"]
+    assert sorted(p.name for p in out.iterdir()) == ["checks.json"]
+
+
+def test_account_equal_to_layer_collides(tmp_path: Path) -> None:
+    db = _make(tmp_path, "layer.db", "--account", "A")
+    out = tmp_path / "private" / "x"
+    result = tmp_path / "result.json"
+    rc, data = _run(db, out, result, "A")
+    assert rc == 3
+    assert data is None
+    assert not result.exists()
+    leak = _private_checks(out)["boundary_leak_check"]
+    assert leak["actual"] == "found: account id"
+    assert sorted(p.name for p in out.iterdir()) == ["checks.json"]

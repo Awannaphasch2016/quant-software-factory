@@ -144,14 +144,25 @@ shared:
 `checks` lists every report check sorted by name with exactly `name`, `layer`
 and `passed`. There are no expected or actual values, account, client name,
 dates, figures or paths. Before writing the result, a `boundary_leak_check`
-rejects text that contains the account ID, the client name, or any number with
-a decimal point or thousands separator. That check is recorded only in the
-private `checks.json`.
+rejects text that contains any number with a decimal point or thousands
+separator anywhere, or that contains the account ID or the client name as a
+whole token (not preceded or followed by a letter, digit or underscore) in one
+of its string values (`status` and every check `name` and `layer`). Integer
+values such as `checks_total` are not searched for the account ID or client
+name, so a short account such as `A1` or `29` does not collide with
+`A1_freshness_nav_daily` or `"checks_total": 29`. Text that is not valid JSON
+fails the check as `unparseable`. The check's `actual` value names only the
+categories found, never the values. `boundary_leak_check` uses layer
+`"boundary"` (besides the report layers `"A"` and `"B"`); it appears only in
+the private `checks.json` and is never part of the result. A collision can
+still happen when the account ID or client name equals a whole check name or
+layer (for example account `A`); the run then stops with exit 3 and no result
+is written.
 
 Exit codes: 0 when every report check passes; 1 when any report check fails
 (the result is still written, with status `"failed"`); 2 when `--private-out`
-or `--result` resolves inside the repository working tree, including through
-a symlink (nothing is written); 3 when the leak check fails (no result is
+or `--result` resolves inside a checkout of this repository, including through
+a symlink and whatever the install mode (nothing is written); 3 when the leak check fails (no result is
 written, an existing one is removed, and the private folder keeps only
 `checks.json`).
 
