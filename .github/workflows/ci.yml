@@ -32,3 +32,25 @@ jobs:
         run: mypy
       - name: Test
         run: pytest
+
+  report-agent:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: report-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: report-agent/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: pnpm
+          cache-dependency-path: report-agent/pnpm-lock.yaml
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Type check
+        run: pnpm typecheck
+      - name: Test
+        run: pnpm test

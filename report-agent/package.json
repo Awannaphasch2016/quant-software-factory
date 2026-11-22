@@ -11,7 +11,8 @@
     "build": "eve build",
     "dev": "eve dev",
     "start": "eve start",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test": "node --test \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@vercel/connect": "^2.9.5",
