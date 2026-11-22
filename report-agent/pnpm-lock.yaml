@@ -176,7 +176,7 @@ importers:
   .:
     dependencies:
       '@vercel/connect':
-        specifier: ^2.9.3
+        specifier: ^2.9.5
         version: 2.9.5(ai@7.0.173(zod@4.6.7))(eve@1.2.0(ai@7.0.173(zod@4.6.7)))
       ai:
         specifier: 7.0.173
