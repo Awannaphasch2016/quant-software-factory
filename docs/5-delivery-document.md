@@ -160,7 +160,7 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
 ผลที่ได้เมื่อ 22 พ.ย. 2569:
 - C1–C5: ผ่านใน server ทดสอบของผู้จัดทำ ไฟล์แนบมี SHA-256 ตรงกับ `report.md` ใน repo
 - C6: ผ่านกับ deployment ก่อนแก้วิธีส่งรายงาน
-- C7: ผ่านผ่าน eve channel (ไม่ใช่ Discord) ข้อความตามที่ระบุ
+- C7: ทดสอบผ่าน eve channel (ยังไม่ได้ทดสอบใน Discord) ได้ข้อความตามที่ระบุ
 - ยังไม่ได้ทดสอบใน server ของทีม
 
 ## 6. Delivered Version and Known Limitations

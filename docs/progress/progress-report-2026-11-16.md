@@ -9,10 +9,11 @@
 
 สัปดาห์นี้ mentor ส่งงานมา 2 ชุด ชุดแรกคือ weekly report วันที่ 15 พ.ย. ที่ขอ Human Iteration 3 รอบ ชุดที่สองคือ feedback วันที่ 19 พ.ย. ที่ให้การออกแบบ architecture สำหรับ Private Data เป็นโจทย์หลัก
 
-- **รอบ Private Data (19 พ.ย.):** โรงงานเขียน executor ที่รันรายงานกับ private database จำลองได้โดยไม่เคยเห็นค่าข้างใน และส่งกลับแค่ผลตรวจ
-- **Human Iteration 2 (22 พ.ย.):** deploy Report Agent ซึ่งเป็น Eve agent ตัวเดียว ไว้ใน Team Vercel ของพี่ Anak ผู้ใช้ส่ง Spec ทาง Discord ด้วยคำสั่ง `/ask` แล้วได้รายงานกลับในช่องเดิม ตัว tool เป็นผู้ส่งรายงาน ส่วนโมเดลเห็นแค่สถานะ ไฟล์รายงานที่ได้ใน Discord ตรงกับ `report.md` ใน repo ทุก byte
-- **ค่าโมเดลต่อรายงาน:** ประมาณ $0.014 คิดจาก token จริงตามราคาในรายการโมเดล ยังไม่ได้วัดค่า Sandbox และ Function
-- **ข้อมูลจริง:** ยังไม่ได้เชื่อม เส้นทางจาก Discord ไปถึง executor ในบริษัทออกแบบไว้แล้ว (Software Design ข้อ 2.9) แต่ยังต้องได้คำตอบเรื่องสิทธิ์และ policy
+วันที่ 19 พ.ย. ทำรอบ Private Data เสร็จ: โรงงานเขียน executor ที่รันรายงานกับ private database จำลองได้โดยไม่เคยเห็นค่าข้างใน และส่งกลับแค่ผลตรวจ
+
+วันที่ 22 พ.ย. ทำ Human Iteration 2: deploy Report Agent (Eve agent ตัวเดียว) ไว้ใน Team Vercel ของพี่ Anak ผู้ใช้ส่ง Spec ทาง Discord ด้วยคำสั่ง `/ask` แล้วได้รายงานกลับในช่องเดิม tool เป็นผู้ส่งรายงาน โมเดลเห็นแค่สถานะ และไฟล์รายงานที่ได้ใน Discord ตรงกับ `report.md` ใน repo ทุก byte ค่าโมเดลต่อรายงานประมาณ $0.014 คิดจาก token จริงตามราคาในรายการโมเดล ยังไม่ได้วัดค่า Sandbox และ Function
+
+ยังไม่ได้เชื่อมข้อมูลจริง เส้นทางจาก Discord ไปถึง executor ในบริษัทออกแบบไว้แล้ว (Software Design ข้อ 2.9) แต่ต้องได้คำตอบเรื่องสิทธิ์และ policy ก่อน
 
 ## 2. สถานะ Human Iteration ตาม weekly report
 
@@ -46,8 +47,7 @@
 
 - Research 3 แนวทางที่ mentor ให้ศึกษา พร้อมคำตอบคำถาม 5 ข้อ (Software Design ข้อ 2.2–2.6)
 - โรงงานเขียน `SqliteSource`, `make_private_db` และ `private_run` จาก Spec ที่ไม่มีข้อมูลจริง executor รันกับ database ที่คูณตัวเลข 7 เท่าแล้วได้รายงานถูกต้อง ตัวเลข 34 ตัวในรายงานไม่หลุดเข้า `result.json`
-- Report Agent สร้างรายงานจาก Spec ที่ส่งทาง Discord ได้โดยไม่ต้องเข้า GitHub (HR-05 กับข้อมูลปลอม)
-- รายงานถึงผู้ใช้โดยไม่ผ่านโมเดล (HR-06)
+- Report Agent สร้างรายงานจาก Spec ที่ส่งทาง Discord ได้โดยไม่ต้องเข้า GitHub และรายงานถึงผู้ใช้โดยไม่ผ่านโมเดล (HR-05 กับข้อมูลปลอม, HR-06 ผลรายครั้งในข้อ 3.2)
 - ผู้ตรวจรันซ้ำได้ตาม [Delivery Document](../5-delivery-document.md) ข้อ 5:
   - ส่วน A และ B รันบนเครื่องของผู้ตรวจ
   - ส่วน C ทำผ่าน Discord โดยเชิญ bot เข้า server ก่อน
