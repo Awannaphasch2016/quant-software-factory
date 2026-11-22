@@ -13,7 +13,8 @@ real client data, say it is not available yet and stop.
 
 # How to handle a request
 
-1. Read the Spec from the message or the attached file. Find the dataset (in
+1. Read the Spec from the message. If a file is attached (an "Attached file
+   <path>" note), call `read_spec_file` with that path. Find the dataset (in
    Data Sources), the account, the opening date and the as-of date (in Report
    Definition).
 2. If a value is missing, ask for it in one short message. Do not guess.
