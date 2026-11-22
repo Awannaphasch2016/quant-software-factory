@@ -12,7 +12,7 @@
 const API_BASE = "https://discord.com/api/v10";
 
 /** Discord's message limit is 2,000 characters; keep a margin. */
-export const CHUNK_LIMIT = 1900;
+const CHUNK_LIMIT = 1900;
 
 const FENCE = "```";
 const NO_MENTIONS = { parse: [] as string[] };
@@ -70,68 +70,24 @@ export function fenceTables(markdown: string): string {
   return out.join("\n");
 }
 
-/** Splits text that is too long for one message into pieces. */
-function splitLong(segment: string, limit: number): string[] {
-  const fenced = segment.startsWith(FENCE) && segment.endsWith(FENCE);
-  const body = fenced ? segment.slice(FENCE.length + 1, -(FENCE.length + 1)) : segment;
-  const room = fenced ? limit - 2 * (FENCE.length + 1) : limit;
-  const pieces: string[] = [];
-  let current = "";
-  for (const line of body.split("\n")) {
-    for (let start = 0; start < Math.max(line.length, 1); start += room) {
-      const part = line.slice(start, start + room);
-      if (current && current.length + 1 + part.length > room) {
-        pieces.push(current);
-        current = part;
-      } else {
-        current = current ? `${current}\n${part}` : part;
-      }
-    }
-  }
-  if (current) pieces.push(current);
-  return fenced ? pieces.map((p) => `${FENCE}\n${p}\n${FENCE}`) : pieces;
-}
-
 /**
- * Splits formatted text into messages of at most `limit` characters, at
- * blank lines, never inside a code block unless a block alone is too long.
+ * Splits formatted text into messages of at most `limit` characters, at blank
+ * lines. A fenced table from {@link fenceTables} has no blank lines, so it is
+ * never cut. A single block longer than `limit` is an error: the caller
+ * reports it, and `report.md` has already been attached by then.
  */
 export function splitForDiscord(text: string, limit = CHUNK_LIMIT): string[] {
-  const segments: string[] = [];
-  let open: string[] | null = null;
-  let plain: string[] = [];
-  const flushPlain = () => {
-    const joined = plain.join("\n").trim();
-    if (joined) segments.push(joined);
-    plain = [];
-  };
-  for (const line of text.split("\n")) {
-    if (open) {
-      open.push(line);
-      if (line === FENCE) {
-        segments.push(open.join("\n"));
-        open = null;
-      }
-    } else if (line === FENCE) {
-      flushPlain();
-      open = [line];
-    } else if (line.trim() === "") {
-      flushPlain();
-    } else {
-      plain.push(line);
-    }
-  }
-  if (open) segments.push(open.join("\n"));
-  flushPlain();
-
   const messages: string[] = [];
   let current = "";
-  for (const segment of segments.flatMap((s) => (s.length > limit ? splitLong(s, limit) : [s]))) {
-    if (current && current.length + 2 + segment.length > limit) {
+  for (const block of text.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean)) {
+    if (block.length > limit) {
+      throw new Error(`A report block is ${block.length} characters, over the ${limit}-character Discord limit`);
+    }
+    if (current && current.length + 2 + block.length > limit) {
       messages.push(current);
-      current = segment;
+      current = block;
     } else {
-      current = current ? `${current}\n\n${segment}` : segment;
+      current = current ? `${current}\n\n${block}` : block;
     }
   }
   if (current) messages.push(current);
@@ -145,6 +101,7 @@ export interface PostReportOptions {
   readonly summary: string;
   readonly markdown: string;
   readonly filename: string;
+  /** For tests; defaults to the global `fetch`. */
   readonly fetchImpl?: typeof fetch;
 }
 
@@ -171,7 +128,7 @@ async function send(
  * Posts the summary with `report.md` attached, then the report text with
  * tables fenced, split into as many messages as needed.
  */
-export async function postReport(options: PostReportOptions): Promise<number> {
+export async function postReport(options: PostReportOptions): Promise<void> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const url = `${API_BASE}/channels/${encodeURIComponent(options.channelId)}/messages`;
   const auth = { authorization: `Bot ${options.botToken}` };
@@ -202,5 +159,4 @@ export async function postReport(options: PostReportOptions): Promise<number> {
       method: "POST",
     }));
   }
-  return 1 + chunks.length;
 }

@@ -1,4 +1,4 @@
-import { defineTool } from "eve/tools";
+import { defineTool, type ToolContext } from "eve/tools";
 import { z } from "zod";
 import { discordCredentials } from "../discord-credentials.js";
 import { postReport } from "../lib/discord-report.js";
@@ -48,6 +48,61 @@ function discordChannelId(channel: { kind: string; metadata: Readonly<Record<str
   return channel.kind.endsWith("discord") && typeof id === "string" ? id : null;
 }
 
+/** Fields every result starts from; each path overrides only what it knows. */
+const EMPTY: Omit<Output, "exit_code" | "status"> = {
+  checks_failed: [],
+  checks_total: 0,
+  delivered_to_chat: false,
+  delivery_error: null,
+  error: null,
+  report_markdown: null,
+};
+
+type Sandbox = Awaited<ReturnType<ToolContext["getSandbox"]>>;
+
+/**
+ * Runs the report command in the sandbox and reads its output. `report` is
+ * set only when every check passed.
+ */
+async function buildReport(
+  sandbox: Sandbox,
+  input: { account: string; as_of: string; dataset: string; opening: string }
+): Promise<{ result: Output; report: string | null }> {
+  // The report code uses the output folder's name as the Report ID, so the
+  // folder is named after the dataset, inside a unique work folder.
+  const work = `/tmp/report-${crypto.randomUUID()}`;
+  const out = `${work}/${input.dataset}`;
+  try {
+    const run = await sandbox.run({
+      command: `python3 -m quant_software_factory.reporting.returns_transactions data/fixtures/${input.dataset} ${out} --account '${input.account}' --opening ${input.opening} --as-of ${input.as_of}`,
+      env: { PYTHONPATH: "src" },
+      workingDirectory: REPO_DIR,
+    });
+    const [checksText, reportText] = await Promise.all([
+      sandbox.readTextFile({ path: `${out}/checks.json` }),
+      sandbox.readTextFile({ path: `${out}/report.md` }),
+    ]);
+    if (checksText === null) {
+      const error = (run.stderr || run.stdout).trim().slice(0, 2000);
+      return { report: null, result: { ...EMPTY, error, exit_code: run.exitCode, status: "error" } };
+    }
+    const checks = checksSchema.parse(JSON.parse(checksText));
+    const report = run.exitCode === 0 ? reportText : null;
+    return {
+      report,
+      result: {
+        ...EMPTY,
+        checks_failed: checks.filter((c) => !c.passed).map((c) => c.name),
+        checks_total: checks.length,
+        exit_code: run.exitCode,
+        status: report === null ? "failed" : "passed",
+      },
+    };
+  } finally {
+    await sandbox.removePath({ force: true, path: work, recursive: true });
+  }
+}
+
 /**
  * Builds the Returns & Transactions report from mock data in the sandbox.
  *
@@ -91,76 +146,28 @@ export default defineTool({
     },
   }),
   async execute(input, ctx): Promise<Output> {
-    const sandbox = await ctx.getSandbox(environment);
-    // The report code uses the output folder's name as the Report ID, so the
-    // folder is named after the dataset, inside a unique work folder.
-    const work = `/tmp/report-${crypto.randomUUID()}`;
-    const out = `${work}/${input.dataset}`;
-    let report: string | null = null;
-    let result: Output;
-    try {
-      const run = await sandbox.run({
-        command: [
-          `cd ${REPO_DIR}`,
-          `PYTHONPATH=src python3 -m quant_software_factory.reporting.returns_transactions data/fixtures/${input.dataset} ${out} --account '${input.account}' --opening ${input.opening} --as-of ${input.as_of}`,
-        ].join(" && "),
-      });
-
-      const checksFile = await sandbox.run({ command: `cat ${out}/checks.json` });
-      if (checksFile.exitCode !== 0) {
-        return {
-          checks_failed: [],
-          checks_total: 0,
-          delivered_to_chat: false,
-          delivery_error: null,
-          error: String(run.stderr || run.stdout).trim().slice(0, 2000),
-          exit_code: run.exitCode,
-          report_markdown: null,
-          status: "error",
-        };
-      }
-      const checks = checksSchema.parse(JSON.parse(String(checksFile.stdout)));
-      const failed = checks.filter((c) => !c.passed).map((c) => c.name);
-
-      if (run.exitCode === 0) {
-        const reportFile = await sandbox.run({ command: `cat ${out}/report.md` });
-        report = reportFile.exitCode === 0 ? String(reportFile.stdout) : null;
-      }
-      result = {
-        checks_failed: failed,
-        checks_total: checks.length,
-        delivered_to_chat: false,
-        delivery_error: null,
-        error: null,
-        exit_code: run.exitCode,
-        report_markdown: null,
-        status: run.exitCode === 0 && report !== null ? "passed" : "failed",
-      };
-    } finally {
-      await sandbox.run({ command: `rm -rf ${work}` });
-    }
-
-    if (result.status !== "passed" || report === null) return result;
+    const built = await buildReport(await ctx.getSandbox(environment), input);
+    if (built.report === null) return built.result;
 
     const channelId = discordChannelId(ctx.channel);
     if (channelId === null) {
       // Dev channel (eve TUI or remote): no chat to post to, so the report
       // stays in the tool output, which the model does not see.
-      return { ...result, report_markdown: report };
+      return { ...built.result, report_markdown: built.report };
     }
     try {
-      const passed = result.checks_total - result.checks_failed.length;
+      const { checks_failed, checks_total } = built.result;
       await postReport({
         botToken: await botToken(),
         channelId,
         filename: `${input.dataset}.md`,
-        markdown: report,
-        summary: `Report for ${input.account}, ${input.opening} to ${input.as_of}: ${passed} of ${result.checks_total} checks passed. The full report is attached and follows below.`,
+        markdown: built.report,
+        summary: `Report for ${input.account}, ${input.opening} to ${input.as_of}: ${checks_total - checks_failed.length} of ${checks_total} checks passed. The full report is attached and follows below.`,
       });
-      return { ...result, delivered_to_chat: true };
+      return { ...built.result, delivered_to_chat: true };
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      return { ...result, delivery_error: message.slice(0, 500) };
+      return { ...built.result, delivery_error: message.slice(0, 500) };
     }
   },
 });

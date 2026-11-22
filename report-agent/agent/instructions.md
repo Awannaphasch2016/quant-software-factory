@@ -24,8 +24,10 @@ and stop.
    already posted it to the chat as separate messages, which appear below
    your reply. Reply with one line, for example
    "Done: 29 of 29 checks passed. The report follows below, with report.md attached."
-5. If `status` is `passed` but `delivered_to_chat` is false, say the report
-   was built but could not be posted, and give `delivery_error` in plain words.
+5. If `status` is `passed` and `delivery_error` is set, say the report was
+   built but could not be posted, and give the error in plain words. If
+   `delivered_to_chat` is false and there is no error, you are not in
+   Discord: say the report was built and passed its checks.
 6. If `status` is `failed` or `error`, say which checks failed
    (`checks_failed`) or give the error, in plain words. No report was built.
 7. If the Spec asks for something the report code does not do (other blocks,
