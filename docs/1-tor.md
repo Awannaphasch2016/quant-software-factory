@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.2 | 19 พ.ย. 2569 | Current |
+| v1.3 | 22 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.3 | 22 พ.ย. 2569 | เพิ่ม Report Agent (Eve agent ตัวเดียวสำหรับ Discord) ในสิ่งส่งมอบข้อ 4.1 และค่าใช้จ่ายของ agent ในข้อ 5.1 เลื่อนกำหนดส่งสัปดาห์ที่ 2 เป็น 23 พ.ย. 2569 ในข้อ 5.2 |
 | v1.2 | 19 พ.ย. 2569 | เพิ่ม Private Data ในเกณฑ์ยอมรับข้อ 4.3 และกำหนดส่งงานสัปดาห์ที่ 2 (20 พ.ย. 2569) ในข้อ 5.2 ตามผลรีวิวเอกสาร |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มการทำงานกับ Private Data เป็นวัตถุประสงค์หลักตาม feedback ของ mentor วันที่ 19 พ.ย. 2569 (ข้อ 2.1–2.3, 3.1, 3.3, 5.1) เปลี่ยนช่องทางแชตเป็น Discord และเพิ่ม Delivery Document ในรายการเอกสาร |
 | v1.0 | 19 พ.ย. 2569 | ย้ายเข้า `docs/` ใน repo จากฉบับที่ส่งเมื่อ 13 พ.ย. 2569 เนื้อหาเดิม เพิ่มหัว version แก้ลิงก์ และเรียกเอกสารฉบับที่ 4 ว่า Software Design |
@@ -99,6 +100,8 @@ Project Plan, SRS และ Software Design เป็นเอกสารปล
 
 Spec Structure (Report Spec Template), Spec ตัวอย่าง และผลการรันผ่านโรงงาน อธิบายและอ้างอิงหลักฐานใน Software Design [3] โค้ดที่โรงงานสร้างอยู่ใน repository `quant-software-factory` [4] ไม่ใช่สิ่งส่งมอบแยก
 
+ตั้งแต่ Human Iteration 2 มีสิ่งส่งมอบที่เป็น software ที่ deploy แล้ว คือ Report Agent ที่รับ Spec ทาง Discord และส่งรายงานกลับ ตำแหน่งที่ deploy วิธีใช้ และวิธีทดสอบอยู่ใน Delivery Document
+
 ### 4.2 Documentation Deliverables
 
 | เอกสาร | หน้าที่ |
@@ -123,7 +126,7 @@ Spec Structure (Report Spec Template), Spec ตัวอย่าง และ�
 - ใช้ Software Factory ของพี่ Anak (Eve / Foreman บน Vercel, GitHub App `eve-forman`) ไม่ได้ควบคุมการตั้งค่า เวอร์ชัน และ budget ของโรงงานเอง
 - Repository `quant-software-factory` เป็นสาธารณะ ห้ามใส่ข้อมูลลูกค้าจริง ชื่อ server ชื่อ database ชื่อตาราง หรือ URL ภายใน ใช้ข้อมูลปลอมและชื่อกลางแทน
 - ผู้จัดทำยังไม่มีสิทธิ์เข้าระบบข้อมูลของทีมโดยตรง ข้อมูลที่ใช้ต้องขอผ่านทีม
-- ค่าใช้จ่ายของโรงงานอยู่ในบัญชีของพี่ Anak การรันแต่ละครั้งต้องคำนึงถึง quota
+- ค่าใช้จ่ายของโรงงานและของ Report Agent อยู่ในบัญชีของพี่ Anak การรันแต่ละครั้งต้องคำนึงถึง quota
 - ช่องทางแชตใช้ Discord ตามที่ทีม Quant ใช้
 - Private Data อยู่ใน database ภายในเครือข่ายบริษัท และตัวโมเดลรันที่ผู้ให้บริการภายนอก การเข้าถึงข้อมูลจริงต้องได้รับอนุมัติจากผู้มีอำนาจก่อน
 
@@ -133,7 +136,7 @@ Spec Structure (Report Spec Template), Spec ตัวอย่าง และ�
 |---|---|
 | เริ่มงาน | 9 พ.ย. 2569 |
 | ส่งงานรอบแรก | 13 พ.ย. 2569 เวลา 18:00 น. |
-| ส่งงานสัปดาห์ที่ 2 (Human Iteration 3 รอบตาม weekly report และ Private Data ตาม feedback 19 พ.ย. 2569) | 20 พ.ย. 2569 เวลา 18:00 น. |
+| ส่งงานสัปดาห์ที่ 2 (Human Iteration 3 รอบตาม weekly report และ Private Data ตาม feedback 19 พ.ย. 2569) | เดิม 20 พ.ย. 2569 เลื่อนเป็น 23 พ.ย. 2569 เวลา 18:00 น. |
 | สิ้นสุดช่วงฝึกงาน | 30 พ.ย. 2569 |
 | จังหวะดำเนินงาน | specification, research และ prototype หนึ่งรอบต่อสัปดาห์ |
 | Design freeze | พิจารณาจากหลักฐาน ไม่กำหนดวันหรือจำนวนรอบตายตัว |
