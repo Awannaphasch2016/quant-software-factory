@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.3 | 19 พ.ย. 2569 | Current |
+| v1.4 | 22 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.4 | 22 พ.ย. 2569 | Human Iteration 2: HR-05 และ AC-05 เป็น Demonstrated กับข้อมูลปลอม (Report Agent ผ่าน Discord) เพิ่ม HR-06 (โมเดลไม่เห็นและไม่เขียนตัวเลขในรายงาน) เพิ่มคำศัพท์ Report Agent ปรับ Use case, FR-04 (Spec Structure v0.4) และ NFR-07 (ต้นทุนต่อรายงาน) |
 | v1.3 | 19 พ.ย. 2569 | แก้ Use case ข้อ 2.3 ให้การรันกับข้อมูลจริงเป็น Intended และรันใน Trusted zone เพิ่ม Progress Report สัปดาห์ 16–20 พ.ย. ใน AC-04 |
 | v1.2 | 19 พ.ย. 2569 | ปรับสถานะ PD-04 และ PD-05 หลังแก้ design gap ด้วย Issue #15 → PR #16 เพิ่มลิงก์อ้างอิง |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 3.3 กลุ่ม PD (Private Data) และ AC-07 ตาม feedback 19 พ.ย. 2569 เปลี่ยนช่องทางแชตใน HR-05 และ AC-05 เป็น Discord เพิ่มคำศัพท์ Agent zone, Trusted zone และสมมติฐานเรื่อง Private Data |
@@ -50,6 +51,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | Expected Values | คำตอบที่ถูกของ fixture ที่ใช้ตรวจผล |
 | Number Checks | ตัวเช็คตัวเลข ชั้น A (ข้อมูล) และชั้น B (รายงาน) |
 | Foreman / eve-forman[bot] | Software Factory ของพี่ Anak และบัญชี bot ที่รายงานผลใน Issue |
+| Report Agent | Eve agent ตัวเดียวใน `report-agent/` รับ Spec ทาง Discord แล้วรันโค้ดรายงานที่ merge แล้ว ไม่เขียนโค้ดใหม่ |
 | Demonstrated / Intended | มีหลักฐานแล้ว / เป็นข้อกำหนดหรือทิศทางที่ยังไม่มีหลักฐาน |
 | Private Data | ข้อมูลลูกค้าและข้อมูลลับของบริษัท รวมตัวเลขในรายงาน เลขบัญชี และชื่อลูกค้า |
 | Agent zone | ส่วนที่ agent และบริการภายนอก (รวมผู้ให้บริการโมเดล) ทำงาน ต้องไม่ได้รับ Private Data |
@@ -66,7 +68,9 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 ### 2.3 Use case
 
-ผู้ใช้กรอก Spec ตาม Template แล้วเปิด GitHub Issue และติด label `factory` (หรือส่งผ่านแชตในอนาคต) โรงงานจัดประเภท วางแผน เขียนโค้ด ตรวจทาน และเปิด draft PR ที่มีโค้ด fixture test และรายงานตัวอย่าง ผู้ใช้ตรวจ PR แล้วตัดสินใจ merge ในขั้นถัดไป (Intended) โค้ดที่ merge แล้วจะรันใน Trusted zone กับข้อมูลจริงผ่าน interface `load(...)` เดียวกัน และส่งกลับแค่ result (กลุ่ม PD) ปัจจุบันขั้นนี้สาธิตได้กับ private database จำลองเท่านั้น
+ผู้ใช้กรอก Spec ตาม Template แล้วเปิด GitHub Issue และติด label `factory` โรงงานจัดประเภท วางแผน เขียนโค้ด ตรวจทาน และเปิด draft PR ที่มีโค้ด fixture test และรายงานตัวอย่าง ผู้ใช้ตรวจ PR แล้วตัดสินใจ merge ในขั้นถัดไป (Intended) โค้ดที่ merge แล้วจะรันใน Trusted zone กับข้อมูลจริงผ่าน interface `load(...)` เดียวกัน และส่งกลับแค่ result (กลุ่ม PD) ปัจจุบันขั้นนี้สาธิตได้กับ private database จำลองเท่านั้น
+
+ตั้งแต่ v1.4 มีเส้นทางที่สองสำหรับรายงานที่โค้ดมีอยู่แล้ว: ผู้ใช้ส่ง Spec ทาง Discord ด้วยคำสั่ง `/ask` แล้ว Report Agent รันโค้ดรายงานและส่งรายงานกลับในช่องแชตเดิม ไม่ต้องเข้า GitHub ปัจจุบันใช้กับข้อมูลปลอมเท่านั้น การต่อกับข้อมูลจริงออกแบบไว้ใน Software Design ข้อ 2.9 (Intended)
 
 ## 3. Functional Requirements
 
@@ -78,7 +82,8 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | HR-02 | ผู้ติด label ต้องเป็นบัญชีคนที่มีสิทธิ์ triage ขึ้นไป บัญชีชนิด Bot จะถูกโรงงานข้าม | Demonstrated เฉพาะกรณีบัญชีคน (Josh-Bear, Issue #4, #6, #7, #9) ส่วนกรณีบัญชี Bot มาจากโค้ดใน template ยังไม่ได้ทดสอบ |
 | HR-03 | Output ของโรงงานต้องเป็น draft PR การ merge เป็นของคน | Demonstrated (PR #5, #8, #10 เป็น draft และคนเป็นผู้ merge PR #2, #8, #10) |
 | HR-04 | Spec ต้องระบุ base branch และ Issue ที่ต้องทำก่อน (`Depends on`) ได้ | Demonstrated (Issue #6, #7, #9 แตก branch จาก `main` ตาม Spec และ Issue #9 ใช้ data layer จาก #7 ที่ merge แล้ว) |
-| HR-05 | ต้องสั่งงานและรับรายงานกลับผ่านช่องทางแชต (Discord ตามที่ทีม Quant ใช้) โดยไม่ต้องเข้า repository และช่องทางแชตต้องไม่ส่ง Private Data ออกนอก Trusted zone | Intended |
+| HR-05 | ต้องสั่งงานและรับรายงานกลับผ่านช่องทางแชต (Discord ตามที่ทีม Quant ใช้) โดยไม่ต้องเข้า repository และช่องทางแชตต้องไม่ส่ง Private Data ออกนอก Trusted zone | Demonstrated กับข้อมูลปลอม (22 พ.ย. 2569: `/ask` ทั้งแบบพิมพ์และแนบไฟล์ได้รายงาน 29/29 ใน server ทดสอบ, PR #19) ส่วนข้อมูลจริงเป็น Intended (Software Design ข้อ 2.9) |
+| HR-06 | โมเดลต้องไม่ได้รับตัวเลขในรายงานและต้องไม่เขียนตัวเลขเอง รายงานที่ส่งถึงผู้ใช้ต้องมาจากโค้ดโดยตรง | Demonstrated กับข้อมูลปลอม (tool โพสต์รายงานเอง โมเดลเห็นแค่สถานะและชื่อตัวเช็ค ไฟล์ที่ส่งใน Discord มี SHA-256 ตรงกับ `report.md` ใน repo) |
 
 ### 3.2 ระดับ Spec Structure
 
@@ -87,7 +92,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | FR-01 | Template ต้องมีหัวข้อตายตัวที่ทุก Spec ใช้: Background, Report Definition, Data Sources, Data Mapping, Report Blocks, Output Contract, Expected Values, Number Checks, Writing Rules, Constraints, Out of Scope, Open Items, Acceptance Criteria, Definition of Done | Demonstrated v0.1 (Run #1) และ v0.3 (Run #4) ส่วน v0.2 ผ่านแค่ Classify (Run #2) Report Spec ของ Run #4 ไม่มีหัวข้อ Open Items เพราะไม่มีสิ่งที่ขาด (ดู FR-09) |
 | FR-02 | Template ต้องรองรับรายงาน 3 ประเภทด้วย preset ของ block มาตรฐาน | Demonstrated 1 ประเภท, Intended 2 ประเภท |
 | FR-03 | ตัวเลขทุกช่องในรายงานต้องมี Data Mapping ไปยัง dataset.field และโค้ดต้องไม่คำนวณ field ที่ dataset ให้มา | Demonstrated (Run #4: ตามที่ reviewer ตรวจใน PR #10 โค้ดมีการคำนวณแค่ยอดรวมในแถว Total เพื่อแสดงผล ซึ่ง B1 และ B2 ตรวจ และกลับเครื่องหมายเงินถอน) |
-| FR-04 | โค้ดต้องอ่านข้อมูลผ่าน interface เดียว `load(dataset, as_of, accounts)` ที่เปลี่ยนจาก fixture เป็นข้อมูลจริงได้ | Demonstrated กับ fixture (Run #3 สร้าง `DataSource` และ `FixtureSource`, Run #4 มี test ยืนยันว่าอ่านผ่าน `load(...)` เท่านั้น) การต่อกับข้อมูลจริงเป็น Intended |
+| FR-04 | โค้ดต้องอ่านข้อมูลผ่าน interface เดียว `load(dataset, as_of, accounts)` ที่เปลี่ยนจาก fixture เป็นข้อมูลจริงได้ | Demonstrated กับ fixture (Run #3 สร้าง `DataSource` และ `FixtureSource`, Run #4 มี test ยืนยันว่าอ่านผ่าน `load(...)` เท่านั้น) และกับ private database จำลอง (`SqliteSource`, PR #13) Spec Structure v0.4 ให้ Spec ระบุแค่ชื่อกลาง ส่วนที่มาของข้อมูลเลือกตอนรัน (ยังไม่ได้รันกับโรงงาน) การต่อกับข้อมูลจริงเป็น Intended |
 | FR-05 | ทุก Spec ต้องมี Expected Values ที่คำนวณจาก fixture และ test ต้องตรวจทุกแถว | Demonstrated (Run #1: 36 กรณี, Run #3: 11 แถว, Run #4: 21 แถว) |
 | FR-06 | Output ต้องเป็น `report.md` (หรือ pdf ถ้าอนุมัติ dependency), `report.json`, `narrative.md`, `checks.json` ตามกติการูปแบบตัวเลขและค่าว่างใน Template | Demonstrated (Run #1 และ #4, รูปแบบ md) |
 | FR-07 | Number Checks ชั้น A ต้องตรวจความสด ความครบ และ schema ของข้อมูล ชั้น B ต้องตรวจความสอดคล้องของตัวเลขในรายงาน ถ้าไม่ผ่านต้องไม่สร้างไฟล์รายงาน | Demonstrated (Run #4: ชั้น A 14 และชั้น B 15 ผ่าน, ทุกตัวเช็คมี test ที่ทำให้ไม่ผ่าน, ชั้น A ไม่ผ่านแล้วไม่สร้างไฟล์รายงาน) |
@@ -118,7 +123,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | NFR-04 | CI ผ่านบน Python 3.10 ถึง 3.13 (ruff, ruff format, mypy strict, pytest) | Demonstrated (Run #1 CI run 43151748082, Run #3 CI run 43383851475, Run #4 CI run 43395249810) |
 | NFR-05 | ทุกข้ออ้างตรวจย้อนกลับได้ด้วยลิงก์ GitHub หรือ commit SHA | Demonstrated |
 | NFR-06 | ไม่เพิ่ม runtime dependency ถ้า Spec ไม่อนุญาต | Demonstrated (Run #1, #3, #4: `pyproject.toml` ไม่เปลี่ยนใน #3 และ #4) |
-| NFR-07 | ต้นทุนต่อรอบวัดได้และใช้เป็นจุดอ้างอิง | Intended (ยังไม่มีตัวเลขจริงจาก Vercel) |
+| NFR-07 | ต้นทุนต่อรอบวัดได้และใช้เป็นจุดอ้างอิง | Demonstrated บางส่วน: ค่าโมเดลของ Report Agent ต่อรายงาน 1 ฉบับวัดจาก token จริงใน log ของ AI Gateway (Software Design ข้อ 10) ค่า Sandbox, Function และต้นทุนของโรงงานยังวัดไม่ได้ |
 | NFR-08 | ข้อความบรรยายไม่มีการคาดการณ์หรือคำแนะนำการลงทุน | Demonstrated (Run #1 และ #4 ตัวเช็ค W5) |
 
 ## 5. Acceptance Criteria
@@ -130,8 +135,8 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 | AC-01 | มี Reusable Spec Template ที่รองรับรายงาน 3 ประเภท | FR-01, FR-02 | Demonstrated กับ 1 ประเภท |
 | AC-02 | มี Spec ตัวอย่างที่กรอกแล้วอย่างน้อย 1 ใบ | FR-01, FR-05, FR-09 | Demonstrated (4 ใบ: v0.1, v0.2, Platform Spec v0.3, Report Spec v0.3) |
 | AC-03 | มีการรันผ่านโรงงานสำเร็จอย่างน้อย 1 ครั้ง: Issue เชื่อมกับ draft PR, Output ตรง Expected Values ทุกค่า, CI ผ่าน, reviewer ไม่เหลือ blocking issue | HR-01, HR-03, FR-05, FR-06, FR-07, NFR-04 | Demonstrated 2 ครั้ง (Issue #4 → PR #5 และ Issue #9 → PR #10 ที่ merge แล้ว) |
-| AC-04 | มี Progress Report | | Demonstrated ([Iteration 1](progress/progress-report-iteration-1.md), [สัปดาห์ 16–20 พ.ย.](progress/progress-report-2026-11-16.md)) |
-| AC-05 | สั่งงานผ่าน Discord ได้ | HR-05 | Intended |
+| AC-04 | มี Progress Report | | Demonstrated ([Iteration 1](progress/progress-report-iteration-1.md), [สัปดาห์ 16–23 พ.ย.](progress/progress-report-2026-11-16.md)) |
+| AC-05 | สั่งงานผ่าน Discord ได้ | HR-05, HR-06 | Demonstrated กับข้อมูลปลอมใน server ทดสอบของผู้จัดทำ (Delivery Document ส่วน C) ยังไม่ได้ทดสอบใน server ของทีม |
 | AC-06 | มีข้อเสนอ Natural Writing ครอบคลุม Spec, Writing Guidelines และการตรวจ Output | FR-08 | Demonstrated (เอกสารข้อเสนอ, กติกาที่ตรวจได้และตัวเช็ค W1–W5 ใน Run #4, ผลตรวจข้อความ Run #1 และ #4 ด้วย skill พร้อมฉบับแก้) ส่วน narrative facts และ LLM judge เป็น Intended |
 | AC-07 | Agent ทำงานกับ Private Data ได้โดยข้อมูลไม่รั่วออกนอก Trusted zone มีหลักฐานที่ผู้ตรวจรันซ้ำได้ | PD-01 ถึง PD-06 | Demonstrated ระดับ prototype ด้วย private database จำลอง (Issue #12 → PR #13) ยังไม่ได้ทดสอบกับ database และเครือข่ายจริงของบริษัท |
 
@@ -142,6 +147,7 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 ### 6.1 ข้อจำกัด
 
 - พึ่ง GitHub, Software Factory ของพี่ Anak บน Vercel และ budget ของโรงงาน
+- Report Agent รันใน Team Vercel ของพี่ Anak ค่าใช้จ่ายทุกครั้งที่สั่ง `/ask` อยู่ในบัญชีนั้น
 - Repository เป็นสาธารณะ (NFR-03)
 - เพดาน output token ของโรงงานต่อ session (100K ใน Run #1 และ #4, 44.9K ใน Run #2) ไม่ได้อยู่ในการควบคุมของผู้จัดทำ
 
@@ -170,6 +176,7 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 | Issue #12 → PR #13 (prototype Private Data) | https://github.com/Awannaphasch2016/quant-software-factory/issues/12, https://github.com/Awannaphasch2016/quant-software-factory/pull/13 |
 | Issue #15 → PR #16 (แก้ design gap ของ prototype) | https://github.com/Awannaphasch2016/quant-software-factory/issues/15, https://github.com/Awannaphasch2016/quant-software-factory/pull/16 |
 | CI ของ PR #10 | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/43395249810 |
-| Spec Structure v0.3 | [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md), [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) |
+| PR #19 (Report Agent และ Discord) | https://github.com/Awannaphasch2016/quant-software-factory/pull/19 |
+| Spec Structure v0.4 | [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md), [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) |
 | หลักฐาน End-to-End Run | [`evidence/e2e-run-evidence.md`](evidence/e2e-run-evidence.md), [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) |
 | Template v0.1 / v0.2 / v0.3 (ประวัติ) | [`history/report-spec-template.md`](history/report-spec-template.md), [`history/report-spec-template-v0.2.md`](history/report-spec-template-v0.2.md), [`history/report-spec-template-v0.3.md`](history/report-spec-template-v0.3.md) |
