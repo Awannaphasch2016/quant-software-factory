@@ -6,8 +6,8 @@
   - Issue #7 → PR #8 merge แล้ว commit `9455ea3`
   - Issue #9 → PR #10 merge แล้ว commit `4e2129e`
 - Spec ที่ใช้รันจริง (เป็นตัวอย่างการกรอก v0.3):
-  - [`../platform-spec.md`](../platform-spec.md) (Platform Spec, Issue: [#7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7))
-  - [`../report-spec.md`](../report-spec.md) (Report Spec, Issue: [#9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9))
+  - [`../specs/platform-spec.md`](../specs/platform-spec.md) (Platform Spec, Issue: [#7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7))
+  - [`../specs/report-spec.md`](../specs/report-spec.md) (Report Spec, Issue: [#9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9))
 - อีก 2 ประเภท (`client_pnl`, `monthly_team`) ยังเป็น Intended
 
 ## 1. Spec มี 2 ชนิด
