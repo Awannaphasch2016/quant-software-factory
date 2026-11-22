@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.3 | 19 พ.ย. 2569 | Current |
+| v1.4 | 22 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.4 | 22 พ.ย. 2569 | Human Iteration 2: เพิ่มข้อ 4.4 Report Agent และ Discord (ส่วนประกอบ, sequence, การตัดสินใจ, gap ที่พบระหว่างทดสอบ) เพิ่มข้อ 2.9 เส้นทางจาก Discord ถึง executor ในบริษัท (Intended) แก้ C4 Context ให้มี Report Agent ปรับคำตอบคำถามข้อ 3 และ 5 ในข้อ 2.6, Spec Structure v0.4 ในข้อ 3, หลักฐาน, traceability, ข้อจำกัด และต้นทุนต่อรายงานในข้อ 10 |
 | v1.3 | 19 พ.ย. 2569 | แก้ C4 Context (ข้อ 4.1) เป็น Discord และให้ข้อมูลจริงไปที่ executor ใน Trusted zone แทน GitHub ระบุว่าการรันเฉพาะโค้ดที่ merge แล้วยังเป็นขั้นตอนของคน (ข้อ 2.8) ตั้งชื่อ Run #5 และ #6 เพิ่มแถวต้นทุนและสถานะต้นทุนต่อรายงาน (ข้อ 10) |
 | v1.2 | 19 พ.ย. 2569 | ปิด design gap 3 ข้อจากข้อ 2.7 ด้วย Issue #15 → PR #16 (ตัวกันเขียนลง repo ไม่ขึ้นกับวิธีติดตั้ง, leak check จับทั้งคำ, กำหนด layer `"boundary"`) เพิ่มผลตรวจของผู้จัดทำ ข้อจำกัดของ leak check ที่เหลือ หลักฐาน และ traceability |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มข้อ 2 Private Data Architecture (แนวทางที่ศึกษา, ผล research, architecture ที่เสนอ, คำตอบคำถาม 5 ข้อ, ผล prototype Issue #12 → PR #13, การตัดสินใจ) ตาม feedback 19 พ.ย. 2569 เลื่อนเลขหัวข้อเดิมเป็น 3–10 เพิ่ม PD-01 ถึง PD-06 ใน traceability และปรับข้อจำกัด |
@@ -35,6 +36,8 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 เอกสารนี้อธิบายการออกแบบ Report Spec Structure และวิธีที่มันทำงานร่วมกับ Software Factory (Foreman) ของพี่ Anak พร้อมหลักฐานจากต้นแบบ 4 run ใน Iteration 1 ข้อกำหนดอ้างจาก SRS [1]
 
 ตั้งแต่ v1.1 โจทย์หลักของการออกแบบคือให้ agent ทำงานกับ Private Data ได้โดยข้อมูลไม่รั่วออกนอก security boundary (ข้อ 2) ส่วนข้อ 3–10 เป็นการออกแบบ Spec Structure และหลักฐานจาก Iteration 1 ที่ยังใช้อยู่
+
+ตั้งแต่ v1.4 ระบบมี agent 2 ตัวที่ทำงานต่างกัน Foreman เขียนโค้ดรายงานจาก Spec ผ่าน GitHub Issue ส่วน Report Agent (Eve agent ตัวเดียว ข้อ 4.4) รันโค้ดที่ merge แล้วตามคำสั่งจาก Discord ทั้งสองตัวไม่เห็นข้อมูลจริง
 
 แนวคิดหลัก: โรงงานรับ input เป็น GitHub Issue อยู่แล้ว สิ่งที่โครงการนี้ออกแบบคือ**รูปแบบของ Issue** ให้งานรายงานส่งเข้าโรงงานได้ซ้ำๆ แล้วได้ผลที่ตรวจได้ โดยไม่ต้องแก้โรงงาน
 
@@ -89,7 +92,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 ```mermaid
 flowchart LR
   subgraph AZ["โซน Agent (นอกบริษัท)"]
-    AG["Agent: Foreman ใน v1.1<br/>(ต่อไป: Eve agent ตัวเดียว)"]
+    AG["Agent: Foreman (เขียนโค้ด)<br/>Report Agent (รันรายงานจาก Discord ข้อ 4.4)"]
   end
   subgraph REPO["GitHub repository"]
     CODE["โค้ด, schema,<br/>ข้อมูลปลอม, test"]
@@ -144,9 +147,9 @@ sequenceDiagram
 |---|---|---|
 | 1. Data Security: private repo ปลอดภัยพอไหม | พอสำหรับเก็บโค้ดและข้อมูลปลอม ไม่พอสำหรับเก็บข้อมูลลูกค้า เพราะทุกคนที่มีสิทธิ์ใน repo เห็นทุกอย่างที่ commit ต้องเพิ่มกลไกกัน commit ข้อมูลจริง, secret scanning, branch protection และจำกัดสิทธิ์ | Research |
 | 2. Data Movement: ข้อมูลออกจาก server หลักได้ไหม | ออกแบบให้ไม่ต้องออก สิ่งที่ข้ามเส้นมีแค่โค้ด (เข้า) และ result ที่ผ่านตัวกรอง (ออก) prototype แสดงว่ารายงานเต็มอยู่แค่ในโฟลเดอร์ปิด และ result ไม่มีตัวเลข เลขบัญชี หรือชื่อลูกค้า | Demonstrated ใน prototype (ข้อ 2.7) |
-| 3. Agent Deployment: deploy ที่ไหน | agent ฝั่งเขียนโค้ดอยู่ที่เดิมได้ (Foreman หรือ Eve บน Vercel) เพราะไม่เห็นข้อมูล แต่ต้องมี execution environment แยกในบริษัท เช่น self-hosted runner หรือเครื่องที่ทีมควบคุม | Research |
+| 3. Agent Deployment: deploy ที่ไหน | agent อยู่บน Vercel ได้เพราะไม่เห็นข้อมูล Report Agent deploy แล้วใน Team ของพี่ Anak (ข้อ 4.4) แต่ตัวที่แตะข้อมูลจริงต้องเป็น execution environment แยกในบริษัท ข้อ 2.9 เสนอ self-hosted runner ที่ดึงงานจาก GitHub Actions | Report Agent บน Vercel: Demonstrated กับข้อมูลปลอม; executor ในบริษัท: Intended |
 | 4. Execution and Communication: agent สร้างโปรแกรมให้รันในที่ปลอดภัยได้ไหม | ได้ โรงงานเขียน `SqliteSource`, `make_private_db` และ `private_run` จาก Spec ที่ไม่มีข้อมูลจริง (Issue #12) แล้ว executor รันกับ private database ที่ตัวเลข เลขบัญชี และชื่อลูกค้าไม่เคยอยู่ใน repo ได้ผลถูกต้อง และส่งกลับแค่ result | Demonstrated ใน prototype (ข้อ 2.7) |
-| 5. Output Artifacts: รายงานที่มีข้อมูลจริงเก็บที่ไหน | เก็บในโซน Trusted เท่านั้น ห้าม commit และห้ามส่งให้ agent prototype ปฏิเสธการเขียน output ลงใน repo (exit 2) ส่วนการกำหนดสิทธิ์ผู้อ่านและช่องทางส่งถึงผู้ใช้ (เช่น Discord ภายในส่งแค่สถานะหรือลิงก์) ยังต้องออกแบบต่อ | เก็บนอก repo: Demonstrated; สิทธิ์และช่องทางส่ง: Intended |
+| 5. Output Artifacts: รายงานที่มีข้อมูลจริงเก็บที่ไหน | เก็บในโซน Trusted เท่านั้น ห้าม commit และห้ามส่งให้ agent prototype ปฏิเสธการเขียน output ลงใน repo (exit 2) กับข้อมูลปลอม Report Agent ส่งรายงานเข้า Discord ด้วยโค้ดโดยโมเดลไม่เห็น (ข้อ 4.4) กับข้อมูลจริง ค่าเริ่มต้นคือ Discord ได้แค่สถานะและลิงก์ภายใน การส่งเนื้อหาเข้า Discord ต้องรอ policy (ข้อ 2.9) | เก็บนอก repo และโมเดลไม่เห็นรายงาน: Demonstrated; สิทธิ์ผู้อ่านและช่องทางสำหรับข้อมูลจริง: Intended |
 
 ### 2.7 Prototype: Private data boundary (Run #5, Issue #12)
 
@@ -213,7 +216,7 @@ sequenceDiagram
 | การตัดสินใจ | เหตุผล | ข้อเสียที่ยอมรับ |
 |---|---|---|
 | ใช้แนวทาง C เป็นหลัก | ข้อมูลไม่ออกนอกบริษัท ไม่ขึ้นกับสัญญาของผู้ให้บริการโมเดล และเข้ากับหลัก "agent เขียนโค้ด โค้ดคำนวณตัวเลข" ที่ใช้มาตั้งแต่ Iteration 1 | agent ตอบคำถามเชิงวิเคราะห์ที่ต้องเห็นค่าจริงไม่ได้ |
-| ใน v1.1 ใช้ Foreman เป็นโซน Agent | ยังไม่มีที่ deploy Eve agent ตัวเดียว และ boundary ออกแบบให้ไม่ขึ้นกับว่าโซน Agent เป็นอะไร | ซับซ้อนกว่าที่จำเป็น อาจชนเพดาน token และดูค่าใช้จ่ายเองไม่ได้ จะเปลี่ยนเป็น Eve agent ตัวเดียวเมื่อได้สิทธิ์ Vercel |
+| ใน v1.1 ใช้ Foreman เป็นโซน Agent | ยังไม่มีที่ deploy Eve agent ตัวเดียว และ boundary ออกแบบให้ไม่ขึ้นกับว่าโซน Agent เป็นอะไร | ซับซ้อนกว่าที่จำเป็น อาจชนเพดาน token และดูค่าใช้จ่ายเองไม่ได้ ตั้งแต่ v1.4 งานรันรายงานจากแชตย้ายไป Report Agent แล้ว (ข้อ 4.4) Foreman ใช้เฉพาะงานเขียนโค้ด |
 | ใช้ SQLite แทน database จริงใน prototype | ไม่ต้องมีสิทธิ์เข้าระบบภายใน และพิสูจน์ boundary ได้ครบ | ยังไม่ได้ทดสอบ driver, เครือข่าย และสิทธิ์ของ database จริง |
 | executor รันเฉพาะโค้ดที่คน merge แล้ว | กันโค้ดที่ยังไม่ผ่านการตรวจเข้าถึงข้อมูลจริง | เพิ่มขั้นตอนของคน ใน prototype เป็นขั้นตอนที่คนต้องทำเอง `private_run` ไม่ได้ตรวจว่าโค้ดที่รันมาจาก commit ที่ merge แล้ว การบังคับด้วยระบบ (เช่น runner ที่ checkout เฉพาะ `main`) เป็น Intended |
 
@@ -282,7 +285,7 @@ sequenceDiagram
 | หัวข้อใน Spec | Classifier | Analyst | Implementer | Reviewer |
 |---|:-:|:-:|:-:|:-:|
 | Background, Report Definition | ✓ | ✓ | ✓ | |
-| Data Sources (fixture), Data Mapping | | ✓ | ✓ | ✓ |
+| Data Sources (ชื่อกลาง), Data Mapping | | ✓ | ✓ | ✓ |
 | Report Blocks, Output Contract | | ✓ | ✓ | ✓ |
 | Expected Values | ✓ (ตรวจว่าลงตัว) | | ✓ (เขียน test) | ✓ |
 | Number Checks, Writing Rules | | ✓ | ✓ | ✓ |
@@ -311,6 +314,8 @@ Template v0.3 (Run #3 และ #4) ใช้โครงของ v0.2 แต�
 | ชนิดของ Spec | ใบเดียว หรือแตกตามชั้นงาน 3 ใบ | Platform Spec (ทำครั้งเดียว) + Report Spec (1 ใบต่อรายงาน 1 ฉบับ) | Run #2 ชนเพดาน และการแตก 3 ใบทำให้ "กรอก 1 ใบได้รายงาน 1 ฉบับ" ไม่เป็นจริง |
 | กติกาตัวเช็ค | A2 บังคับทุกชุดข้อมูล, B8 ขัดกับ Writing Rules | ชุดข้อมูลที่ว่างได้, B8 ตรวจเฉพาะเงินและ % และยอมรับค่าสัมบูรณ์ | spec gap จาก Run #2 |
 
+v0.4 (22 พ.ย. 2569, ยังไม่ได้รันกับโรงงาน) แก้ spec gap 2 ข้อจาก review เทียบกับแผนผังแหล่งข้อมูลของ pipeline: ช่อง Data Sources ระบุแค่ชื่อกลางและเลือกที่มาของข้อมูลตอนรัน เพื่อให้ใช้ Spec เดิมกับข้อมูลจริงได้ และกฎ standard library ใช้กับโค้ดรายงานเท่านั้น เพื่อให้ adapter ของ database ใน trusted zone ใช้ driver ได้ ฉบับ v0.3 เก็บไว้ที่ [`history/report-spec-structure-v0.3.md`](history/report-spec-structure-v0.3.md)
+
 ### 3.3 Block และ preset
 
 Block มาตรฐานได้จากการแตกรายงานตัวอย่างของทีม 3 ฉบับ (รายละเอียดใน Template v0.1 ภาคผนวก A) preset ของรายงานแต่ละประเภทคือการเลือก block ชุดหนึ่ง รายงาน 3 ประเภทจึงใช้ Spec Structure เดียวกัน ต่างกันแค่ preset, Data Sources และ Expected Values
@@ -322,7 +327,8 @@ Block มาตรฐานได้จากการแตกรายงา�
 ```mermaid
 flowchart LR
   U["ผู้ใช้ (ฝ่าย Quant)"]
-  CH["Discord (Intended)"]
+  CH["Discord: คำสั่ง /ask"]
+  RA["Report Agent (Eve บน Vercel)<br/>+ Vercel Sandbox ข้อมูลปลอม"]
   GH["GitHub repository quant-software-factory<br/>Issue, branch, PR, Actions<br/>(โค้ดและข้อมูลปลอมเท่านั้น)"]
   F["Software Factory (Foreman บน Vercel)<br/>ของพี่ Anak"]
   subgraph TZ["Trusted zone (prototype: เครื่องผู้ทดสอบ)"]
@@ -330,8 +336,11 @@ flowchart LR
     P[("Pipeline และชุดข้อมูลของทีม<br/>(ภายใน, Intended)")]
   end
   U -- "กรอก Spec, ติด label, ตรวจ PR, merge" --> GH
-  U -. "สั่งงาน / รับสถานะหรือลิงก์" .-> CH
-  CH -. "เปิด Issue + label" .-> GH
+  U -- "ส่ง Spec / รับรายงาน (ข้อมูลปลอม)" --> CH
+  CH -- "คำสั่ง" --> RA
+  RA -- "สถานะ + รายงานที่โค้ดสร้าง" --> CH
+  GH -- "โค้ดที่ merge แล้ว (pin commit)" --> RA
+  RA -. "คำสั่งรันกับข้อมูลจริง (ข้อ 2.9)" .-> EX
   GH -- "webhook (GitHub App eve-forman)" --> F
   F -- "คอมเมนต์, branch, draft PR" --> GH
   GH -- "โค้ดที่ merge แล้ว" --> EX
@@ -339,7 +348,7 @@ flowchart LR
   EX -- "result: ชื่อตัวเช็ค + ผ่าน/ไม่ผ่าน" --> U
 ```
 
-ข้อมูลจริงไม่เข้า GitHub และไม่ผ่านโรงงาน โค้ดจาก repository ถูกนำไปรันใน Trusted zone แล้วส่งกลับแค่ result (ข้อ 2.4) เส้นประคือส่วนที่ยังเป็น Intended
+ข้อมูลจริงไม่เข้า GitHub และไม่ผ่านโรงงาน โค้ดจาก repository ถูกนำไปรันใน Trusted zone แล้วส่งกลับแค่ result (ข้อ 2.4) Report Agent ใช้โค้ดชุดเดียวกันกับข้อมูลปลอมใน Vercel Sandbox เส้นประคือส่วนที่ยังเป็น Intended
 
 ### 4.2 Container
 
@@ -377,6 +386,59 @@ flowchart LR
 | Data Mapping → blocks, CLI | `reporting/returns_transactions.py` | Report Spec (PR #10) |
 | Number Checks ชั้น B และตัวเช็คการเขียน | `reporting/report_checks.py` | Report Spec (PR #10) |
 | Narrative | `reporting/narrative.py` | Report Spec (PR #10) |
+
+### 4.4 Report Agent และ Discord (Human Iteration 2)
+
+Report Agent คือ Eve agent ตัวเดียวใน [`report-agent/`](../report-agent/) ที่รับ Spec ทาง Discord แล้วส่งรายงานกลับในช่องเดิม agent ไม่เขียนโค้ดและไม่คำนวณตัวเลข มันอ่านค่าจาก Spec แล้วรันโค้ดรายงานที่ merge แล้วบน `main`
+
+| ส่วน | ไฟล์ | หน้าที่ |
+|---|---|---|
+| Agent | `agent/agent.ts`, `agent/instructions.md` | โมเดล `anthropic/claude-opus-5.5` ผ่าน AI Gateway ปิด tool ที่ eve มีให้ทั้งหมด (bash, ไฟล์, web) เหลือ 2 tool ด้านล่าง หยุด session ที่ใช้เกิน 20K output token |
+| Sandbox | `agent/sandbox.ts` | Vercel Sandbox ตอน build clone repository นี้ที่ commit `a1e147a` เก็บใน snapshot ตอนรันปิด network ทั้งหมด |
+| `generate_report` | `agent/tools/generate_report.ts` | รัน `returns_transactions` ใน sandbox อ่าน `checks.json` และ `report.md` ถ้าผ่านทุกตัวเช็ค โพสต์รายงานเข้า Discord เอง ส่งให้โมเดลแค่สถานะ จำนวน และชื่อตัวเช็คที่ไม่ผ่าน (`toModelOutput`) |
+| `read_spec_file` | `agent/tools/read_spec_file.ts` | อ่านไฟล์ Spec ที่แนบใน Discord ได้เฉพาะไฟล์ข้อความในโฟลเดอร์ไฟล์แนบของ eve ไม่เกิน 50,000 ตัวอักษร |
+| การส่งรายงาน | `agent/lib/discord-report.ts` | ข้อความสรุปพร้อม `report.md` แนบ แล้วตามด้วยรายงานเป็นข้อความ ตารางอยู่ใน code block และเติมช่องว่างให้คอลัมน์ตรง (เปลี่ยนแค่ช่องว่าง มี test ยืนยันว่าทุก cell เหมือนเดิม) |
+| Discord channel | `agent/channels/discord.ts`, `agent/discord-credentials.ts` | slash command `/ask` (ช่อง `message` และ `file`) token อยู่ใน Vercel Connect connector ไม่อยู่ใน repo |
+
+```mermaid
+sequenceDiagram
+  actor U as ผู้ใช้ (Discord)
+  participant D as Discord
+  participant RA as Report Agent (Vercel)
+  participant M as โมเดล (AI Gateway)
+  participant SB as Vercel Sandbox
+  U->>D: /ask + Spec (ข้อความหรือไฟล์)
+  D->>RA: interaction (ผ่าน Vercel Connect)
+  RA->>M: Spec
+  M->>RA: เรียก generate_report(dataset, account, opening, as-of)
+  RA->>SB: รัน returns_transactions (ไม่มี network)
+  SB-->>RA: checks.json + report.md
+  RA->>D: โพสต์สรุป + report.md + รายงาน (โค้ด ไม่ผ่านโมเดล)
+  RA->>M: status + ชื่อตัวเช็คเท่านั้น
+  M->>RA: คำตอบ 1 บรรทัด
+  RA->>D: คำตอบของ agent
+```
+
+การตัดสินใจ:
+
+| การตัดสินใจ | เหตุผล | ข้อเสียที่ยอมรับ |
+|---|---|---|
+| Eve agent ตัวเดียว แทนการส่ง Issue เข้า Foreman จาก Discord | โค้ดรายงานมีอยู่แล้ว การสร้างรายงานจึงเป็นการรันโค้ด ไม่ใช่การเขียนโค้ด agent ตัวเดียวจบใน 15–30 วินาที ไม่ชนเพดาน token และวัดค่าใช้จ่ายต่อรายงานได้ ตามที่ weekly report ข้อ 2 แนะนำให้เริ่มจากระบบที่ง่ายที่สุด | รายงานชนิดใหม่ยังต้องเขียนโค้ดผ่าน Foreman ก่อน แล้วจึงเพิ่มเข้า Report Agent |
+| tool โพสต์รายงานเอง โมเดลเห็นแค่สถานะ | ตัวเลขไม่ผ่านโมเดล (HR-06, เข้ากับแนวทาง C ข้อ 2.4) และไม่มีความเสี่ยงที่โมเดลพิมพ์ตัวเลขผิด ค่าโมเดลต่อรายงานลดจากประมาณ $0.048 เหลือประมาณ $0.014 เพราะโมเดลไม่ต้องพิมพ์รายงานซ้ำ | ถ้าโพสต์ไม่สำเร็จ โมเดลรู้แค่ข้อความ error เนื้อหาไปถึง Discord ซึ่งรับได้กับข้อมูลปลอมเท่านั้น |
+| slash command แทนการ mention bot | ไม่ต้องมี process ที่รันตลอด (โหมด mention ต้องใช้ Vercel Daemon ซึ่งยังเป็น beta) | ผู้ใช้ต้องพิมพ์ `/ask` ไม่ได้คุยต่อในเธรด |
+| pin โค้ดรายงานที่ commit และปิด network ของ sandbox | รายงานรันซ้ำได้และตรวจย้อนได้ว่ามาจากโค้ดเวอร์ชันไหน โค้ดใน sandbox ส่งข้อมูลออกไม่ได้ | แก้โค้ดรายงานแล้วต้องเปลี่ยน commit และ deploy ใหม่ |
+| ไม่มี tool ที่ eve ให้มา (bash, อ่าน/เขียนไฟล์, web) | โมเดลคำนวณหรือแก้ตัวเลขใน sandbox ไม่ได้ ทางเดียวที่ได้รายงานคือ `generate_report` | ต้องเขียน `read_spec_file` เองเพื่ออ่านไฟล์แนบ |
+
+Gap ที่พบระหว่างทดสอบบน Vercel และ Discord (22 พ.ย. 2569):
+
+| Gap | ประเภท | การแก้ | สถานะ |
+|---|---|---|---|
+| Report ID ในรายงานเป็นชื่อโฟลเดอร์สุ่ม เพราะโค้ดรายงานใช้ชื่อโฟลเดอร์ output เป็น Report ID | Design | ตั้งชื่อโฟลเดอร์ตาม dataset ผลรอบถัดไปตรงกับ `report.md` ใน repo ทุก byte | ปิดแล้ว ยังเหลือว่า Report ID ควรมาจากช่อง Report ID ของ Spec |
+| แนบไฟล์ Spec แล้ว agent ตอบว่าเปิดไฟล์ไม่ได้ เพราะปิด tool อ่านไฟล์ไว้ | Design | เพิ่ม `read_spec_file` ที่อ่านได้เฉพาะไฟล์แนบ | ปิดแล้ว รอบถัดไปได้ 29/29 |
+| โมเดลได้รายงานทั้งฉบับแล้วพิมพ์ซ้ำลง Discord ตัวเลขจึงผ่านโมเดลและไม่มีอะไรตรวจสำเนา | Design (จาก review เทียบกับ feedback 19 พ.ย.) | tool โพสต์รายงานเองและซ่อนจากโมเดล | ปิดแล้ว ไฟล์แนบมี SHA-256 ตรงกับ `report.md` |
+| Discord ไม่แสดงตาราง Markdown ตารางขึ้นเป็น `\|` ดิบ | Design | ครอบตารางด้วย code block และเติมช่องว่าง แนบ `report.md` เดิมไว้ด้วย | ปิดแล้ว บนมือถือตารางกว้างต้องเลื่อนข้าง |
+| agent ตอบว่ารายงาน "อยู่ด้านบน" แต่รายงานอยู่ใต้คำตอบ | Design | แก้ข้อความใน instructions | แก้และ deploy แล้ว ยังไม่ได้ดูผลใน Discord |
+| agent อ่านจาก Spec แค่ 4 ค่า ส่วนอื่นของ Spec ไม่มีผล | Specification | บอกผู้ใช้เมื่อ Spec ขอสิ่งที่โค้ดไม่ทำ (instructions ข้อ 7) | ยังเปิด |
 
 ## 5. Agent Workflow และ Sequence
 
@@ -489,6 +551,13 @@ sequenceDiagram
 | Output แก้ design gap | PR #16: https://github.com/Awannaphasch2016/quant-software-factory/pull/16, merge commit `3a422c5` | PD-04, PD-05 |
 | CI ของการแก้ design gap | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44529767220 (PR) และ https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44532003447 (`main`) ผ่าน 3.10–3.13 (264 tests) | NFR-04 |
 | ผลการรันการแก้ของผู้จัดทำ | ข้อ 2.7 (ติดตั้งแบบไม่ใช่ editable: ก่อนแก้เขียนลง repo ได้ หลังแก้ exit 2; บัญชี `A1`, `29` ผ่าน; walkthrough B ไม่เปลี่ยน) | PD-04, PD-05 |
+| โค้ด Report Agent | PR #19: https://github.com/Awannaphasch2016/quant-software-factory/pull/19 | HR-05, HR-06 |
+| Deploy บน Vercel | project `qsf-report-agent` ใน Team ของพี่ Anak, build log: sandbox clone repo ที่ `a1e147a` สำเร็จ, deployment ล่าสุด `qsf-report-agent-avymirle1` (22 พ.ย. 2569) | HR-05 |
+| รายงานจาก agent ที่ deploy แล้ว | eve channel 22 พ.ย. 2569 16:26 น.: ข้อความรายงาน `diff` กับ `reports/demo_coop_rg_2026_10_v2/report.md` ไม่ต่าง | HR-05 |
+| Discord แบบพิมพ์และแบบแนบไฟล์ | server ทดสอบของผู้จัดทำ 16:51 และ 17:00 น.: 29/29 ทั้งสองแบบ ใน log ของ AI Gateway session ที่แนบไฟล์มีการเรียกโมเดล 3 ครั้ง (อ่านไฟล์, รันรายงาน, ตอบ) | HR-05, AC-05 |
+| รายงานไม่ผ่านโมเดล | Discord 17:19 น.: ไฟล์แนบ `demo_coop_rg_2026_10_v2.md` ขนาด 2,612 bytes SHA-256 `4d1aad3d…4ca6` ตรงกับ `report.md` ใน repo คำตอบของ agent ไม่มีจำนวนเงินหรือ % | HR-06 |
+| Spec ผิด | eve channel 18:06 น. บัญชี `DEMO-9999`: agent ตอบว่าตัวเช็คไม่ผ่าน 23 จาก 29 และขอให้ตรวจเลขบัญชี ไม่มีรายงาน | HR-06 |
+| test ของการส่งรายงาน | `report-agent/test/discord-report.test.ts` 6 กรณี และ CI job `report-agent` ใน PR #19 | HR-06 |
 
 ข้อความในตารางสรุปผลที่รันจริง ไม่ได้ยืนยันว่าตัวเลขตรงกับนิยามของทีม เพราะ fixture และ Expected Values เป็นข้อมูลปลอมที่คำนวณตามนิยามสมมติ
 
@@ -499,14 +568,15 @@ sequenceDiagram
 | HR-01, HR-02 | 4.1, 5.4 | Issue #4, #6, #7, #9 |
 | HR-03 | 5.4 | PR #5, #8, #10, merge PR #2, #8, #10 |
 | HR-04 | 3.2 | คอมเมนต์ Classify ของ Issue #6, #7, #9 |
-| HR-05 | 4.1 (เส้นประ) | ไม่มี (Intended) |
+| HR-05 | 4.1, 4.4, 2.9 (ข้อมูลจริง) | PR #19, การรันผ่าน Discord ในข้อ 7 |
+| HR-06 | 4.4 | ไฟล์แนบใน Discord ที่ SHA-256 ตรงกับ `report.md`, test ของ `discord-report.ts` |
 | FR-01, FR-02 | 3.1, 3.3 | Issue #4, #9, Template |
 | FR-03, FR-04 | 3.2, 4.3 | PR #8 (data layer), PR #10 (Data Mapping, test ที่ยืนยันว่าอ่านผ่าน `load(...)`) |
 | FR-05, FR-06, FR-07 | 4.3 | PR #5, PR #10, checks.json, test |
 | FR-08 | 4.3 และ Natural Writing Proposal | narrative.md ใน PR #5 และบน `main` (PR #10) |
 | FR-10 | 5.1, 5.2, 5.3, 9 | คอมเมนต์ขออนุมัติใน Issue #4, #6, #9 และ Issue #7 ที่จบโดยไม่ต้องอนุมัติ |
 | NFR-01, NFR-02, NFR-04, NFR-06 | 4.2 | PR #5, PR #10, CI, การรันซ้ำของผู้จัดทำ |
-| NFR-07 | 10 | ไม่มีตัวเลขจริง |
+| NFR-07 | 10 | token จริงของ Report Agent จาก log ของ AI Gateway |
 | PD-01, PD-03, PD-04 | 2.4, 2.5, 2.7 | Issue #12 → PR #13, Issue #15 → PR #16 (leak check จับทั้งคำ), ผลการตรวจในข้อ 2.7 (result ไม่มีค่าจาก private database) |
 | PD-02 | 2.4, 2.7, 2.8 | PR #13 (`SqliteSource` เปิดแบบอ่านอย่างเดียว, SHA-256 ของ database เท่าเดิม) |
 | PD-05, PD-06 | 2.4, 2.6, 2.7 | PR #13 (`.gitignore` สำหรับ `*.db`, ปฏิเสธ output ใน repo), PR #16 (ปฏิเสธได้ไม่ว่าจะติดตั้งแบบใด) |
@@ -517,18 +587,39 @@ sequenceDiagram
 |---|---|
 | Report Spec (Run #4) ยังชนเพดาน output token และต้องมีคนอนุมัติ 1 ครั้ง ส่วน Platform Spec (Run #3) จบเอง (FR-10 ผ่านบางส่วน) | ถามพี่ Anak เรื่องเพิ่มเพดาน หรือลดขนาด Report Spec แล้ววัดซ้ำ การจบเองจำเป็นต่อการสั่งงานผ่านแชต |
 | Run #2 ไม่ตอบสนองหลังอนุมัติ 2 ครั้ง และเพดานลดจาก 100K เป็น 44.9K | ต้องให้พี่ Anak ตรวจ log และ budget ฝั่ง Vercel |
-| Report Spec v0.3 มี spec gap ใหม่ 3 จุด: ไม่มีตัวเลข NAV เปลี่ยนไปเท่าไรใน Data Mapping, ไม่ได้กำหนดว่าช่วงเวลาคิดจากอะไร, ตัวเช็ค B0 ไม่มีใน Spec | แก้ใน v0.4 |
+| Report Spec v0.3 มี spec gap ใหม่ 3 จุด: ไม่มีตัวเลข NAV เปลี่ยนไปเท่าไรใน Data Mapping, ไม่ได้กำหนดว่าช่วงเวลาคิดจากอะไร, ตัวเช็ค B0 ไม่มีใน Spec | v0.4 ยังไม่ได้แก้ 3 จุดนี้ (v0.4 แก้เรื่องที่มาของข้อมูลและ driver) |
 | ใช้ซ้ำได้พิสูจน์แค่ 1 ประเภทรายงาน | รัน preset `client_pnl` |
 | นิยามและชื่อคอลัมน์จริงยังไม่มี | map ชื่อกลางกับของจริงฝั่งภายใน และทำ `InternalSource` นอก repository สาธารณะ |
 | ข้อความบรรยายจาก template ยังเล่าตามตาราง องค์ประกอบ "ซ้ำ" ได้ 3 คะแนนทั้ง Run #1 และ #4 สาเหตุคือ Writing Rules เรียงหัวข้อตามลำดับตาราง (Run #4 แก้เรื่องค่าติดลบและพหูพจน์ได้แล้ว) | แก้ลำดับหัวข้อใน Writing Rules ให้เริ่มจาก P/L รวมและส่วนประกอบ ตามฉบับแก้ใน Natural Writing Proposal ข้อ 3.2 แล้วรันใหม่ จากนั้นทำขั้น 2 (narrative facts) |
-| ช่องทางแชตยังไม่ได้ทำ | ใช้ Discord ตามที่ทีม Quant ใช้ (feedback สัปดาห์ 16–20 พ.ย. 2569) ช่องทางแชตส่งได้แค่สถานะหรือลิงก์ไปยังที่เก็บรายงานภายใน ไม่ส่งรายงานที่มีข้อมูลจริง (ข้อ 2.6 คำถามที่ 5) |
+| Report Agent ใช้ได้กับข้อมูลปลอมชุดเดียว และยังไม่ต่อกับ executor ในบริษัท | ทำตามข้อ 2.9 เมื่อได้คำตอบเรื่อง policy, เครื่อง runner และสิทธิ์ database |
+| Report ID มาจากชื่อ dataset และ agent ใช้จาก Spec แค่ 4 ค่า | เพิ่ม `report_id` เป็น input ของ tool ที่อ่านจาก Spec และขยายสิ่งที่ agent ส่งต่อเมื่อโค้ดรายงานรองรับ |
+| ทุกคนใน server ที่มี bot สั่ง `/ask` ได้ ค่าใช้จ่ายไปที่ Team ของพี่ Anak | จำกัดตาม role ด้วย `onCommand` ของ discord channel |
+| การส่งรายงานอยู่ใน tool และตรวจว่ามาจาก Discord จากชื่อ channel | ย้ายไปไว้ใน event ของ discord channel ถ้าต้องการรองรับหลายช่องทาง (จาก review /simplify) |
 | executor ใน prototype เป็นเครื่องผู้ทดสอบ ยังไม่ใช่เครื่องในเครือข่ายบริษัท | ศึกษาการใช้ self-hosted runner หรือเครื่องที่ทีมควบคุมเป็น executor และขอสิทธิ์ database แบบอ่านอย่างเดียวที่ได้รับอนุมัติ |
 | ยังไม่ได้ยืนยัน policy ของบริษัทเรื่องการส่งข้อมูลให้ผู้ให้บริการโมเดล | ถามฝ่ายที่ดูแลก่อนพิจารณาแนวทาง A (ZDR) สำหรับงานที่ต้องให้โมเดลเห็นข้อมูล |
 | leak check ไม่ค้นในชื่อ key ของ JSON และค่าจำนวนเต็ม (ข้อ 2.7) | เพิ่มการค้นใน key เมื่อแก้ `private_run` รอบหน้า และตรวจว่า result มีแค่ key ที่กำหนด และ `checks_total`, `checks_failed` ตรงกับจำนวนใน `checks` เพื่อให้ค่าจำนวนเต็มอื่นเข้ามาไม่ได้ |
-| โซน Agent ใน v1.1 ยังเป็น Foreman ไม่ใช่ Eve agent ตัวเดียว | เปลี่ยนเมื่อได้สิทธิ์ deploy บน Vercel ข้อ 2.8 |
 | Output เป็น Markdown | PDF เป็น Spec แยก เมื่ออนุมัติ dependency แล้ว |
 
 ## 10. Execution Cost
+
+### 10.1 Report Agent: ต้นทุนต่อรายงาน 1 ฉบับ (ตามที่ weekly report ข้อ 4 ขอ)
+
+วัดจาก log ของ AI Gateway (`vercel ai-gateway requests list`) ของ project `qsf-report-agent` เมื่อ 22 พ.ย. 2569 คิดเป็นเงินด้วยราคาในรายการโมเดลของ AI Gateway สำหรับ `anthropic/claude-opus-5.5` (input $4, output $20, cache read $0.20, cache write $5 ต่อล้าน token) ใช้เป็นจุดอ้างอิงของ 1 ครั้ง ไม่ใช่การคาดการณ์
+
+| ครั้ง | การเรียกโมเดล | token (cache write / cache read / output) | ราคาตามรายการ |
+|---|---|---|---|
+| ก่อนแก้วิธีส่งรายงาน (eve channel, 16:26 น.) | 2 | 3,444 / 1,833 / 1,521 | ~$0.048 |
+| Discord แนบไฟล์ ก่อนแก้ (17:00 น.) | 3 | 3,983 / 4,042 / 1,601 | ~$0.053 |
+| Discord หลังแก้ tool โพสต์เอง (17:19 น.) | 2 | 2,011 / 1,797 / 175 | ~$0.014 |
+| eve channel หลัง refactor (18:03 น.) | 2 | 2,421 / 2,207 / 226 | ~$0.017 |
+| Spec ผิด ไม่มีรายงาน (18:06 น.) | 2 | 591 / 3,260 / 258 | ~$0.009 |
+
+สิ่งที่ยังไม่รู้:
+- ช่อง cost และ billed cost ของ AI Gateway แสดง $0.0000 ทุก request ตัวเลขข้างบนจึงคำนวณเอง ไม่ใช่ยอดที่ถูกเรียกเก็บ
+- ค่า Vercel Sandbox (เวลาที่ sandbox รัน) และ Function ยังไม่รู้ `vercel billing usage` ตอบว่ายังไม่มีข้อมูลของช่วงนี้ ต้องให้พี่ Anak ดูหน้า Usage ของ Team
+- ค่าใช้จ่ายครั้งเดียวตอน build (สร้าง snapshot) ไม่ได้นับต่อรายงาน
+
+### 10.2 Foreman: ต้นทุนต่อ run
 
 ยังไม่มีตัวเลขจริง ค่าใช้จ่ายอยู่ในบัญชีของพี่ Anak ตารางนี้ประมาณจากต้นทุนของ Issue #1 ที่พี่ Anak วัดไว้ (~$2.30, output 46.6K tokens) โดยใช้อัตราส่วน output token และอัตรา 33.5 บาทต่อดอลลาร์ ใช้เป็นจุดอ้างอิงของ 1 run ไม่ใช่การคาดการณ์
 
@@ -542,7 +633,7 @@ sequenceDiagram
 | Run #5 (Issue #12) | ไม่ชนเพดาน ไม่ทราบจำนวน output token, โค้ด +1,340 บรรทัด | ประมาณไม่ได้ |
 | Run #6 (Issue #15) | ไม่ชนเพดาน ไม่ทราบจำนวน output token, โค้ด +401 บรรทัด | ประมาณไม่ได้ |
 
-ต้นทุนต่อรายงาน 1 ฉบับ ตั้งแต่รับ Spec จนได้รายงานที่พร้อมใช้ ตามที่ weekly report ข้อ 4 ขอ ยังวัดไม่ได้ เพราะต้องดู usage ของโรงงานบน Vercel ผู้จัดทำขอสิทธิ์แล้ว และ ณ 19 พ.ย. 2569 บัญชี Vercel ของผู้จัดทำยังไม่เห็น Team ของโรงงาน
+ต้นทุนของ Foreman ยังวัดไม่ได้ เพราะ log ของโรงงานอยู่ใน project อื่นที่ผู้จัดทำยังไม่ได้ดู (ผู้จัดทำเข้า Team ของพี่ Anak ได้ตั้งแต่ 22 พ.ย. 2569)
 
 ข้อควรระวัง: ต้นทุนส่วนใหญ่ของ Issue #1 มาจาก cache read ซึ่งขึ้นกับจำนวนรอบที่ agent ทำงาน ไม่ได้ขึ้นกับ output อย่างเดียว ตัวเลขจริงอาจต่างจากนี้มาก
 
