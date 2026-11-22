@@ -1,0 +1,30 @@
+{
+  "name": "qsf-report-agent",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Single eve agent that turns a Report Spec into a report from mock data.",
+  "type": "module",
+  "imports": {
+    "#*": "./agent/*"
+  },
+  "scripts": {
+    "build": "eve build",
+    "dev": "eve dev",
+    "start": "eve start",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@vercel/connect": "^2.9.3",
+    "ai": "7.0.173",
+    "eve": "1.2.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "26.x",
+    "typescript": "7.0.2"
+  },
+  "engines": {
+    "node": "26.x"
+  },
+  "packageManager": "pnpm@12.21.0"
+}
