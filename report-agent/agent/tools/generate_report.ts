@@ -63,42 +63,49 @@ export default defineTool({
   outputSchema,
   async execute(input, ctx) {
     const sandbox = await ctx.getSandbox(environment);
-    const out = `/tmp/report-${crypto.randomUUID()}`;
-    const run = await sandbox.run({
-      command: [
-        `cd ${REPO_DIR}`,
-        `PYTHONPATH=src python3 -m quant_software_factory.reporting.returns_transactions data/fixtures/${input.dataset} ${out} --account '${input.account}' --opening ${input.opening} --as-of ${input.as_of}`,
-      ].join(" && "),
-    });
+    // The report code uses the output folder's name as the Report ID, so the
+    // folder is named after the dataset, inside a unique work folder.
+    const work = `/tmp/report-${crypto.randomUUID()}`;
+    const out = `${work}/${input.dataset}`;
+    try {
+      const run = await sandbox.run({
+        command: [
+          `cd ${REPO_DIR}`,
+          `PYTHONPATH=src python3 -m quant_software_factory.reporting.returns_transactions data/fixtures/${input.dataset} ${out} --account '${input.account}' --opening ${input.opening} --as-of ${input.as_of}`,
+        ].join(" && "),
+      });
 
-    const checksFile = await sandbox.run({ command: `cat ${out}/checks.json` });
-    if (checksFile.exitCode !== 0) {
+      const checksFile = await sandbox.run({ command: `cat ${out}/checks.json` });
+      if (checksFile.exitCode !== 0) {
+        return {
+          checks_failed: [],
+          checks_total: 0,
+          error: String(run.stderr || run.stdout).trim().slice(0, 2000),
+          exit_code: run.exitCode,
+          report_markdown: null,
+          status: "error" as const,
+        };
+      }
+      const checks = checksSchema.parse(JSON.parse(String(checksFile.stdout)));
+      const failed = checks.filter((c) => !c.passed).map((c) => c.name);
+
+      let report: string | null = null;
+      if (run.exitCode === 0) {
+        const reportFile = await sandbox.run({ command: `cat ${out}/report.md` });
+        report = reportFile.exitCode === 0 ? String(reportFile.stdout) : null;
+      }
+
       return {
-        checks_failed: [],
-        checks_total: 0,
-        error: String(run.stderr || run.stdout).trim().slice(0, 2000),
+        checks_failed: failed,
+        checks_total: checks.length,
+        error: null,
         exit_code: run.exitCode,
-        report_markdown: null,
-        status: "error" as const,
+        report_markdown: report,
+        status:
+          run.exitCode === 0 && report !== null ? ("passed" as const) : ("failed" as const),
       };
+    } finally {
+      await sandbox.run({ command: `rm -rf ${work}` });
     }
-    const checks = checksSchema.parse(JSON.parse(String(checksFile.stdout)));
-    const failed = checks.filter((c) => !c.passed).map((c) => c.name);
-
-    let report: string | null = null;
-    if (run.exitCode === 0) {
-      const reportFile = await sandbox.run({ command: `cat ${out}/report.md` });
-      report = reportFile.exitCode === 0 ? String(reportFile.stdout) : null;
-    }
-    await sandbox.run({ command: `rm -rf ${out}` });
-
-    return {
-      checks_failed: failed,
-      checks_total: checks.length,
-      error: null,
-      exit_code: run.exitCode,
-      report_markdown: report,
-      status: run.exitCode === 0 && report !== null ? ("passed" as const) : ("failed" as const),
-    };
   },
 });
