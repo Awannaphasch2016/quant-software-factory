@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.2 | 19 พ.ย. 2569 | Current |
+| v1.3 | 19 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.3 | 19 พ.ย. 2569 | เปลี่ยนคำว่า "ค่าจริง" ในส่วน B เป็นค่าจาก private database เพราะเป็นข้อมูลปลอมที่คูณและเปลี่ยนชื่อ |
 | v1.2 | 19 พ.ย. 2569 | ปรับ version ที่ส่งมอบเป็น `3a422c5` (PR #16 แก้ตัวกันเขียนลง repo และ leak check) เอาเงื่อนไขติดตั้งแบบ editable ออก และปรับข้อจำกัด |
 | v1.1 | 19 พ.ย. 2569 | เพิ่ม prototype Private Data boundary (PR #13): ส่วนประกอบใหม่ 3 ตัว, วิธีใช้ และ Acceptance Test Walkthrough ส่วน B ปรับ version ที่ส่งมอบและข้อจำกัด |
 | v1.0 | 19 พ.ย. 2569 | ฉบับแรก บันทึกสิ่งที่ส่งมอบได้จริง ณ วันที่นี้ ก่อนเริ่ม Iteration 1 ของสัปดาห์ 16–20 พ.ย. 2569 |
@@ -108,13 +109,13 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
 | B1 | `mkdir -p ~/qsf-trusted ~/qsf-agent` | ได้โฟลเดอร์ trusted zone และโฟลเดอร์ที่แทนโซน Agent ทั้งสองอยู่นอก repo |
 | B2 | `python -m quant_software_factory.reporting.make_private_db data/fixtures/demo_coop_rg_2026_10_v2 ~/qsf-trusted/private.db --scale 7 --account ZX-9931 --client-name "SECRET HOLDINGS CO"` | แสดง `wrote 6 tables to ...` |
 | B3 | `python -m quant_software_factory.reporting.private_run --db ~/qsf-trusted/private.db --private-out ~/qsf-trusted/out --result ~/qsf-agent/result.json --account ZX-9931 --opening 2026-09-30 --as-of 2026-10-30` | แสดง `29 checks, 0 failed` และ exit code 0 |
-| B4 | เปิด `~/qsf-trusted/out/report.md` | รายงานเต็มที่มีค่าจริง: Client SECRET HOLDINGS CO, Account ZX-9931, Net asset value 5,546,786.00, Total P/L 191,786.00, Period return 3.83% |
+| B4 | เปิด `~/qsf-trusted/out/report.md` | รายงานเต็มที่มีค่าจาก private database: Client SECRET HOLDINGS CO, Account ZX-9931, Net asset value 5,546,786.00, Total P/L 191,786.00, Period return 3.83% |
 | B5 | เปิด `~/qsf-agent/result.json` | มีแค่ `status: "passed"`, `checks_total: 29`, `checks_failed: 0` และรายการตัวเช็คที่มี `name`, `layer`, `passed` ไม่มีตัวเลขเงิน เลขบัญชี หรือชื่อลูกค้า |
 | B6 | `grep -c -e "ZX-9931" -e "SECRET" -e "5,546,786" ~/qsf-agent/result.json` | `0` |
 | B7 | `python -m quant_software_factory.reporting.private_run --db ~/qsf-trusted/private.db --private-out ./leak-out --result ~/qsf-agent/r2.json --account ZX-9931 --opening 2026-09-30 --as-of 2026-10-30` | แสดง `error: --private-out must be outside the repository working tree` exit code 2 และไม่มีโฟลเดอร์ `leak-out` |
 | B8 | `git status --short` | ไม่มีผลลัพธ์ ไม่มี database หรือรายงานจริงเข้า repository |
 
-สิ่งที่ส่วน B แสดง: โค้ดที่โรงงานเขียนโดยไม่เคยเห็นค่าเหล่านี้ อ่าน private database และสร้างรายงานที่ถูกต้องได้ ค่าจริงอยู่แค่ใน `~/qsf-trusted/` ส่วนสิ่งที่ข้ามไป `~/qsf-agent/` มีแค่ผลตรวจ
+สิ่งที่ส่วน B แสดง: โค้ดที่โรงงานเขียนโดยไม่เคยเห็นค่าเหล่านี้ อ่าน private database และสร้างรายงานที่ถูกต้องได้ ค่าจาก private database (ซึ่งเป็นข้อมูลปลอมที่คูณ 7 เท่าและเปลี่ยนชื่อ ไม่ใช่ข้อมูลลูกค้า) อยู่แค่ใน `~/qsf-trusted/` ส่วนสิ่งที่ข้ามไป `~/qsf-agent/` มีแค่ผลตรวจ
 
 ## 6. Delivered Version and Known Limitations
 
