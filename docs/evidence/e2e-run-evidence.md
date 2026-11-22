@@ -1,12 +1,12 @@
 # หลักฐาน Successful End-to-End Run (requirement_1 ข้อ 3)
 
-Report Spec 1 ใบที่กรอกตาม [`report-spec-structure.md`](report-spec-structure.md) ส่งเข้า Software Factory แล้วได้รายงานที่ตรงตาม Spec ทุกค่า
+Report Spec 1 ใบที่กรอกตาม [`../spec-structure/report-spec-structure.md`](../spec-structure/report-spec-structure.md) ส่งเข้า Software Factory แล้วได้รายงานที่ตรงตาม Spec ทุกค่า
 
 ## 1. Input และ Output
 
 | | ไฟล์ใน repo | ต้นฉบับ |
 |---|---|---|
-| Input (Report Spec) | [Issue #9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9) (ร่าง: [`report-spec.md`](report-spec.md)) | Issue #9: https://github.com/Awannaphasch2016/quant-software-factory/issues/9 |
+| Input (Report Spec) | [Issue #9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9) (ร่าง: [`../specs/report-spec.md`](../specs/report-spec.md)) | Issue #9: https://github.com/Awannaphasch2016/quant-software-factory/issues/9 |
 | Output (PR) | | PR #10: https://github.com/Awannaphasch2016/quant-software-factory/pull/10 (merge แล้ว commit `4e2129e`) |
 | รายงาน | [`../../reports/demo_coop_rg_2026_10_v2/report.md`](../../reports/demo_coop_rg_2026_10_v2/report.md) | https://github.com/Awannaphasch2016/quant-software-factory/blob/main/reports/demo_coop_rg_2026_10_v2/report.md |
 | ตัวเลขทุกตัว | [`../../reports/demo_coop_rg_2026_10_v2/report.json`](../../reports/demo_coop_rg_2026_10_v2/report.json) | `reports/demo_coop_rg_2026_10_v2/report.json` บน `main` |
@@ -16,7 +16,7 @@ Report Spec 1 ใบที่กรอกตาม [`report-spec-structure.md`](
 
 ไฟล์ output อยู่ใน [`reports/demo_coop_rg_2026_10_v2/`](../../reports/demo_coop_rg_2026_10_v2/) บน `main` (merge commit `4e2129e`) ข้อมูลทั้งหมดเป็นข้อมูลปลอม (บัญชี DEMO-COOP)
 
-Platform Spec ที่สร้าง data layer ให้รายงานนี้คือ Issue #7 → PR #8 ([Issue #7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7), [`platform-spec.md`](platform-spec.md))
+Platform Spec ที่สร้าง data layer ให้รายงานนี้คือ Issue #7 → PR #8 ([Issue #7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7), [`../specs/platform-spec.md`](../specs/platform-spec.md))
 
 ## 2. ลำดับเหตุการณ์ (13 พ.ย. 2569, UTC)
 
@@ -84,4 +84,4 @@ python -m quant_software_factory.reporting.returns_transactions data/fixtures/de
 
 - พิสูจน์กับรายงาน 1 ประเภท (`returns_transactions`) และข้อมูลปลอม ไม่ได้ยืนยันว่าตัวเลขตรงกับนิยามของทีม หรือพร้อมใช้กับข้อมูลจริง
 - โรงงานหยุดที่เพดาน token 1 ครั้ง ต้องมีคนตอบ Approve ก่อนจะได้ PR
-- ข้อความบรรยายยังไม่พูดถึงตัวเลข "NAV เปลี่ยนไปเท่าไร" ตามที่ Writing Rules ขอ เพราะไม่มีตัวเลขนี้ในชุดข้อมูล โรงงานเลือกไม่คำนวณเองตามหลักห้ามคำนวณใหม่ บันทึกเป็น spec gap ใน [`report-spec-structure.md`](report-spec-structure.md) ข้อ 13
+- ข้อความบรรยายยังไม่พูดถึงตัวเลข "NAV เปลี่ยนไปเท่าไร" ตามที่ Writing Rules ขอ เพราะไม่มีตัวเลขนี้ในชุดข้อมูล โรงงานเลือกไม่คำนวณเองตามหลักห้ามคำนวณใหม่ บันทึกเป็น spec gap ใน [`../spec-structure/report-spec-structure.md`](../spec-structure/report-spec-structure.md) ข้อ 13

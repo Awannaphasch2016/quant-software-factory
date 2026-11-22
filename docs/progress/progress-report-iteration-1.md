@@ -25,23 +25,23 @@ Run #4 เป็นหลักฐานหลักของ Acceptance Criteri
 | งาน | ผลลัพธ์ | ไฟล์ / หลักฐาน |
 |---|---|---|
 | ศึกษาการทำงานของ Foreman จาก Issue #1, PR #2 และโค้ดใน `eve-software-factory-template` | รู้ลำดับสถานี (classify, plan, implement, review, PR) เงื่อนไขการติด label, เพดาน token และโมเดล (ตามค่าใน template ตั้งไว้ที่ Claude Opus 5.5 ทุกสถานี ส่วนตัวที่ deploy อยู่ยังไม่ได้ยืนยัน) | ยังไม่ได้เขียนเป็นเอกสารแยก |
-| เทียบรายงานตัวอย่างของทีม 3 ฉบับ | แตกเป็น block มาตรฐาน และ preset ของรายงาน 3 ประเภท | [`history/report-spec-template.md`](history/report-spec-template.md) ภาคผนวก A |
-| Report Spec Template v0.1 | โครง Spec 13 หัวข้อ, กติกาการแตก Spec, นิยามตัวเลข, Output Contract, ตัวตรวจ 3 ชั้น | [`history/report-spec-template.md`](history/report-spec-template.md) |
-| Example Input v0.1 | Spec ของรายงานผลตอบแทนและรายการลงทุน บัญชีปลอม DEMO-COOP เดือน ต.ค. 2569 ค่าคาดหวัง 25 แถว | [`history/example-input-returns-demo.md`](history/example-input-returns-demo.md), Issue #4 |
+| เทียบรายงานตัวอย่างของทีม 3 ฉบับ | แตกเป็น block มาตรฐาน และ preset ของรายงาน 3 ประเภท | [`../history/report-spec-template.md`](../history/report-spec-template.md) ภาคผนวก A |
+| Report Spec Template v0.1 | โครง Spec 13 หัวข้อ, กติกาการแตก Spec, นิยามตัวเลข, Output Contract, ตัวตรวจ 3 ชั้น | [`../history/report-spec-template.md`](../history/report-spec-template.md) |
+| Example Input v0.1 | Spec ของรายงานผลตอบแทนและรายการลงทุน บัญชีปลอม DEMO-COOP เดือน ต.ค. 2569 ค่าคาดหวัง 25 แถว | [`../history/example-input-returns-demo.md`](../history/example-input-returns-demo.md), Issue #4 |
 | Run #1 | Issue #4 ถึง draft PR #5 | ข้อ 3 |
 | อ่านเอกสารแหล่งข้อมูลของทีม | ตัวเลขในรายงานลูกค้ามาจากชุดข้อมูลที่ pipeline คำนวณไว้แล้ว และ pipeline มีตัวเช็คข้อมูลบางส่วนอยู่แล้ว | เอกสารภายใน ไม่ได้นำขึ้น repo |
-| Report Spec Template v0.2 (โครงเปิด) | Data Mapping แทนสูตร, ชื่อกลางแทนชื่อระบบภายใน, interface `load(...)`, ตัวเช็ค 2 ชั้น, หัวข้อ Open Items | [`history/report-spec-template-v0.2.md`](history/report-spec-template-v0.2.md) |
+| Report Spec Template v0.2 (โครงเปิด) | Data Mapping แทนสูตร, ชื่อกลางแทนชื่อระบบภายใน, interface `load(...)`, ตัวเช็ค 2 ชั้น, หัวข้อ Open Items | [`../history/report-spec-template-v0.2.md`](../history/report-spec-template-v0.2.md) |
 | Merge PR #2 เข้า `main` | `main` มีโครง repo (pyproject, CI) ให้ Issue ต่อจากนี้แตก branch จาก `main` ได้ | commit `e6a0963`, 12 พ.ย. 09:15 UTC |
-| Example Input v0.2 | รายงานเดิม ตัวเลขชุดเดิม แต่ input เป็นชุดข้อมูลที่คำนวณแล้ว 6 ชุด, 6 block, ตัวเช็ค 11 ข้อ | [`history/example-input-v0.2-returns-demo.md`](history/example-input-v0.2-returns-demo.md), Issue #6 |
+| Example Input v0.2 | รายงานเดิม ตัวเลขชุดเดิม แต่ input เป็นชุดข้อมูลที่คำนวณแล้ว 6 ชุด, 6 block, ตัวเช็ค 11 ข้อ | [`../history/example-input-v0.2-returns-demo.md`](../history/example-input-v0.2-returns-demo.md), Issue #6 |
 | Run #2 | Issue #6 ผ่าน Classify และ Analysis แล้วหยุด ปิด Issue เป็น not planned เมื่อ 13 พ.ย. 06:48 UTC | ข้อ 4 |
-| Report Spec Template v0.3 | แยก Platform Spec กับ Report Spec และแก้ spec gap 4 จุดจาก Run #2 | [`history/report-spec-template-v0.3.md`](history/report-spec-template-v0.3.md) |
-| Platform Spec v0.3 | data access, schema registry, fixture 6 ชุด, ตัวเช็คชั้น A 14 ข้อ | [`platform-spec.md`](platform-spec.md), Issue #7 |
+| Report Spec Template v0.3 | แยก Platform Spec กับ Report Spec และแก้ spec gap 4 จุดจาก Run #2 | [`../history/report-spec-template-v0.3.md`](../history/report-spec-template-v0.3.md) |
+| Platform Spec v0.3 | data access, schema registry, fixture 6 ชุด, ตัวเช็คชั้น A 14 ข้อ | [`../specs/platform-spec.md`](../specs/platform-spec.md), Issue #7 |
 | Run #3 | Issue #7 ถึง PR #8 แล้ว merge | ข้อ 5 |
-| Report Spec v0.3 | รายงาน 6 block, Expected Values 21 แถว, ตัวเช็คชั้น B และการเขียน | [`report-spec.md`](report-spec.md), Issue #9 |
+| Report Spec v0.3 | รายงาน 6 block, Expected Values 21 แถว, ตัวเช็คชั้น B และการเขียน | [`../specs/report-spec.md`](../specs/report-spec.md), Issue #9 |
 | Run #4 | Issue #9 ถึง PR #10 แล้ว merge | ข้อ 5 |
-| วิธีวัดผล Spec | Scorecard ด้านผลลัพธ์ กระบวนการ และคุณภาพ พร้อมผลของทั้ง 4 run | [`history/spec-eval-method.md`](history/spec-eval-method.md) |
+| วิธีวัดผล Spec | Scorecard ด้านผลลัพธ์ กระบวนการ และคุณภาพ พร้อมผลของทั้ง 4 run | [`../history/spec-eval-method.md`](../history/spec-eval-method.md) |
 | Skill ตรวจ AI slop | 6 องค์ประกอบจากทอล์กที่พี่ Anak แนบ + กติกาเฉพาะรายงานของฝ่าย Quant | skill `ai-slop-report-review` (อยู่ในเครื่องผู้จัดทำ ไม่ได้อยู่ใน repo) |
-| Natural Writing Proposal | ข้อเสนอ 3 ชั้น (Spec, Writing Guidelines, ตรวจ Output) พร้อมผลตรวจข้อความจาก Run #1 และ Run #4 และฉบับแก้ | [`natural-writing-proposal.md`](natural-writing-proposal.md) |
+| Natural Writing Proposal | ข้อเสนอ 3 ชั้น (Spec, Writing Guidelines, ตรวจ Output) พร้อมผลตรวจข้อความจาก Run #1 และ Run #4 และฉบับแก้ | [`../proposals/natural-writing-proposal.md`](../proposals/natural-writing-proposal.md) |
 
 ข้อมูลใน Spec ทุกใบเป็นข้อมูลปลอม และไม่มีชื่อระบบภายใน เพราะ `quant-software-factory` เป็น public repo รายงานตัวอย่างของทีมใช้แค่ดูโครงสร้าง
 
@@ -102,7 +102,7 @@ Run #4 เป็นหลักฐานหลักของ Acceptance Criteri
 
 ## 5. ผลการทดลอง: Run #3 และ Run #4 (Template v0.3)
 
-v0.3 แยก Spec เป็น 2 ชนิด (รายละเอียดใน [`report-spec-structure.md`](report-spec-structure.md) ข้อ 2 และ [`platform-spec-structure.md`](platform-spec-structure.md))
+v0.3 แยก Spec เป็น 2 ชนิด (รายละเอียดใน [`../spec-structure/report-spec-structure.md`](../spec-structure/report-spec-structure.md) ข้อ 2 และ [`../spec-structure/platform-spec-structure.md`](../spec-structure/platform-spec-structure.md))
 
 - Platform Spec ทำครั้งเดียว: interface `load(...)`, fixture และตัวเช็คชั้น A
 - Report Spec กรอกใบเดียวต่อรายงาน 1 ฉบับ และใช้ data layer ที่ merge แล้ว
@@ -165,12 +165,12 @@ v0.3 แยก Spec เป็น 2 ชนิด (รายละเอียด�
 
 | ข้อ | งาน | สถานะ | หลักฐาน |
 |---|---|---|---|
-| 1 | Reusable Spec Template | Demonstrated กับรายงาน 1 ประเภท (v0.1 ใน Run #1, v0.3 ใน Run #3 และ #4) อีก 2 ประเภทเป็น Intended (มี preset แต่ยังไม่ได้รัน) | [`report-spec-structure.md`](report-spec-structure.md) และ [`platform-spec-structure.md`](platform-spec-structure.md), ประวัติ: [`history/report-spec-template.md`](history/report-spec-template.md), [`history/report-spec-template-v0.2.md`](history/report-spec-template-v0.2.md), [`history/report-spec-template-v0.3.md`](history/report-spec-template-v0.3.md) |
-| 2 | Example Input | Demonstrated (v0.1, v0.2 และ v0.3) | [`history/example-input-returns-demo.md`](history/example-input-returns-demo.md), [`history/example-input-v0.2-returns-demo.md`](history/example-input-v0.2-returns-demo.md), [`platform-spec.md`](platform-spec.md), [`report-spec.md`](report-spec.md) |
-| 3 | Successful End-to-End Run | Demonstrated 2 ครั้ง: Run #1 (v0.1) และ Run #4 (v0.3, merge แล้ว) | Issue #4 → PR #5, CI run 43151748082; Issue #9 → PR #10, CI run 43395249810, commit `4e2129e`; ตารางเทียบ [`e2e-run-evidence.md`](e2e-run-evidence.md), ไฟล์ output ใน [`../../reports/demo_coop_rg_2026_10_v2/`](../../reports/demo_coop_rg_2026_10_v2/) |
+| 1 | Reusable Spec Template | Demonstrated กับรายงาน 1 ประเภท (v0.1 ใน Run #1, v0.3 ใน Run #3 และ #4) อีก 2 ประเภทเป็น Intended (มี preset แต่ยังไม่ได้รัน) | [`../spec-structure/report-spec-structure.md`](../spec-structure/report-spec-structure.md) และ [`../spec-structure/platform-spec-structure.md`](../spec-structure/platform-spec-structure.md), ประวัติ: [`../history/report-spec-template.md`](../history/report-spec-template.md), [`../history/report-spec-template-v0.2.md`](../history/report-spec-template-v0.2.md), [`../history/report-spec-template-v0.3.md`](../history/report-spec-template-v0.3.md) |
+| 2 | Example Input | Demonstrated (v0.1, v0.2 และ v0.3) | [`../history/example-input-returns-demo.md`](../history/example-input-returns-demo.md), [`../history/example-input-v0.2-returns-demo.md`](../history/example-input-v0.2-returns-demo.md), [`../specs/platform-spec.md`](../specs/platform-spec.md), [`../specs/report-spec.md`](../specs/report-spec.md) |
+| 3 | Successful End-to-End Run | Demonstrated 2 ครั้ง: Run #1 (v0.1) และ Run #4 (v0.3, merge แล้ว) | Issue #4 → PR #5, CI run 43151748082; Issue #9 → PR #10, CI run 43395249810, commit `4e2129e`; ตารางเทียบ [`../evidence/e2e-run-evidence.md`](../evidence/e2e-run-evidence.md), ไฟล์ output ใน [`../../reports/demo_coop_rg_2026_10_v2/`](../../reports/demo_coop_rg_2026_10_v2/) |
 | 4 | Progress Report | เอกสารนี้ | |
 | 5 | Grokbot / Slack | ยังไม่เริ่ม (อยู่นอกรายงานนี้) | |
-| 6 | Natural Writing Proposal | ข้อเสนอเสร็จแล้ว ส่วนที่ทดลองได้คือ template ในโค้ดพร้อมกติกาค่าติดลบ เอกพจน์/พหูพจน์ และตัวเช็ค W1–W5 (Run #4) ส่วน narrative facts และ LLM judge เป็น Intended | [`natural-writing-proposal.md`](natural-writing-proposal.md), สรุปในข้อ 8 |
+| 6 | Natural Writing Proposal | ข้อเสนอเสร็จแล้ว ส่วนที่ทดลองได้คือ template ในโค้ดพร้อมกติกาค่าติดลบ เอกพจน์/พหูพจน์ และตัวเช็ค W1–W5 (Run #4) ส่วน narrative facts และ LLM judge เป็น Intended | [`../proposals/natural-writing-proposal.md`](../proposals/natural-writing-proposal.md), สรุปในข้อ 8 |
 
 ## 7. ปัญหาที่พบ
 
@@ -203,7 +203,7 @@ v0.3 แยก Spec เป็น 2 ชนิด (รายละเอียด�
 
 การแตก Spec มีข้อเสีย คือต้องเขียน Spec หลายใบ ต้อง merge ตามลำดับ และทุกใบมีค่าใช้จ่ายคงที่ของ classify, plan และ review แต่ Platform Spec ทำครั้งเดียว รายงานใหม่ต่อจากนี้จึงต้องเขียนแค่ Report Spec
 
-## 8. Natural Writing Proposal (สรุปจาก [`natural-writing-proposal.md`](natural-writing-proposal.md))
+## 8. Natural Writing Proposal (สรุปจาก [`../proposals/natural-writing-proposal.md`](../proposals/natural-writing-proposal.md))
 
 หลักที่คุมทุกข้อ: ตัวเลขในข้อความต้องมาจาก `report.json` และใช้รูปแบบเดียวกับตาราง ข้อความห้ามสร้างหรือแก้ตัวเลข การทำให้อ่านเป็นธรรมชาติจึงทำได้แค่กับการเลือกเรื่องที่จะเล่า ลำดับ และถ้อยคำ
 
@@ -236,7 +236,7 @@ v0.3 แยก Spec เป็น 2 ชนิด (รายละเอียด�
 
 - Run #4 แก้น้ำเสียงได้จริง: "a realized capital gain of -3,037.00 THB" กลายเป็น "a realized loss of 3,037.00 THB" และ "Deposits of" กลายเป็น "a deposit of"
 - การซ้ำไม่ดีขึ้น ตัวเลขทั้ง 12 ตัวในข้อความมีในตารางแล้ว และวลีบอกช่วงเวลา ("for the period", "in the period", "During the period") ใช้รวม 5 ครั้ง สาเหตุอยู่ที่ Spec: Writing Rules สั่งลำดับหัวข้อตามลำดับตาราง และไม่มีข้อไหนสั่งให้บอกว่า P/L รวมมาจากส่วนไหน
-- ผมเขียนฉบับแก้ด้วยมือโดยใช้ตัวเลขเดิม เริ่มจาก P/L รวมแล้วแยกเป็นส่วนประกอบ ผลคือผ่านตัวเช็ค B8, W3, W4 และ W5 และยาว 137 คำ ฉบับแก้นี้ยังสร้างด้วย template ในโค้ดได้ จึงแก้ได้ที่ Writing Rules ไม่ต้องใช้ LLM (ข้อความเต็มอยู่ใน [`natural-writing-proposal.md`](natural-writing-proposal.md) ข้อ 3.2)
+- ผมเขียนฉบับแก้ด้วยมือโดยใช้ตัวเลขเดิม เริ่มจาก P/L รวมแล้วแยกเป็นส่วนประกอบ ผลคือผ่านตัวเช็ค B8, W3, W4 และ W5 และยาว 137 คำ ฉบับแก้นี้ยังสร้างด้วย template ในโค้ดได้ จึงแก้ได้ที่ Writing Rules ไม่ต้องใช้ LLM (ข้อความเต็มอยู่ใน [`../proposals/natural-writing-proposal.md`](../proposals/natural-writing-proposal.md) ข้อ 3.2)
 
 ตัวอย่างย่อหน้าที่ 2 ของฉบับแก้:
 
@@ -284,19 +284,19 @@ v0.3 แยก Spec เป็น 2 ชนิด (รายละเอียด�
 
 | ไฟล์ | เนื้อหา |
 |---|---|
-| [`history/report-spec-template.md`](history/report-spec-template.md) | Report Spec Template v0.1 (ใช้ใน Run #1) |
-| [`history/report-spec-template-v0.2.md`](history/report-spec-template-v0.2.md) | Report Spec Template v0.2 แบบโครงเปิด |
-| [`history/report-spec-template-v0.3.md`](history/report-spec-template-v0.3.md) | ส่วนที่เปลี่ยนใน v0.3 (Platform Spec และ Report Spec) |
-| [`report-spec-structure.md`](report-spec-structure.md) | Report Spec Structure v0.3 (รวม v0.2 กับส่วนที่เปลี่ยนใน v0.3 เฉพาะส่วนรายงาน) |
-| [`platform-spec-structure.md`](platform-spec-structure.md) | Platform Spec Structure v0.3 (ชั้นข้อมูลและตัวเช็คชั้น A) |
-| [`history/example-input-returns-demo.md`](history/example-input-returns-demo.md) | Spec ที่ใช้เปิด Issue #4 |
-| [`history/example-input-v0.2-returns-demo.md`](history/example-input-v0.2-returns-demo.md) | Spec ที่ใช้เปิด Issue #6 |
-| [`platform-spec.md`](platform-spec.md) | Platform Spec ที่ใช้เปิด Issue #7 |
-| [`report-spec.md`](report-spec.md) | Report Spec ที่ใช้เปิด Issue #9 |
+| [`../history/report-spec-template.md`](../history/report-spec-template.md) | Report Spec Template v0.1 (ใช้ใน Run #1) |
+| [`../history/report-spec-template-v0.2.md`](../history/report-spec-template-v0.2.md) | Report Spec Template v0.2 แบบโครงเปิด |
+| [`../history/report-spec-template-v0.3.md`](../history/report-spec-template-v0.3.md) | ส่วนที่เปลี่ยนใน v0.3 (Platform Spec และ Report Spec) |
+| [`../spec-structure/report-spec-structure.md`](../spec-structure/report-spec-structure.md) | Report Spec Structure v0.3 (รวม v0.2 กับส่วนที่เปลี่ยนใน v0.3 เฉพาะส่วนรายงาน) |
+| [`../spec-structure/platform-spec-structure.md`](../spec-structure/platform-spec-structure.md) | Platform Spec Structure v0.3 (ชั้นข้อมูลและตัวเช็คชั้น A) |
+| [`../history/example-input-returns-demo.md`](../history/example-input-returns-demo.md) | Spec ที่ใช้เปิด Issue #4 |
+| [`../history/example-input-v0.2-returns-demo.md`](../history/example-input-v0.2-returns-demo.md) | Spec ที่ใช้เปิด Issue #6 |
+| [`../specs/platform-spec.md`](../specs/platform-spec.md) | Platform Spec ที่ใช้เปิด Issue #7 |
+| [`../specs/report-spec.md`](../specs/report-spec.md) | Report Spec ที่ใช้เปิด Issue #9 |
 | [Issue #7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7), [Issue #9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9) | Spec ที่ส่งจริงบน GitHub |
-| [`e2e-run-evidence.md`](e2e-run-evidence.md), [`../../reports/demo_coop_rg_2026_10_v2/`](../../reports/demo_coop_rg_2026_10_v2/) | หลักฐาน End-to-End Run: ตารางเทียบ Expected Values 21 แถว และไฟล์ output 4 ไฟล์จาก commit `4e2129e` |
+| [`../evidence/e2e-run-evidence.md`](../evidence/e2e-run-evidence.md), [`../../reports/demo_coop_rg_2026_10_v2/`](../../reports/demo_coop_rg_2026_10_v2/) | หลักฐาน End-to-End Run: ตารางเทียบ Expected Values 21 แถว และไฟล์ output 4 ไฟล์จาก commit `4e2129e` |
 | `history/issue-a-project-setup.md` | Spec สร้างโครง repo (ไม่ได้ใช้ เพราะ merge PR #2 แทน) |
-| [`history/spec-eval-method.md`](history/spec-eval-method.md) | วิธีวัดผล Spec และ Scorecard ของ Run #1 ถึง #4 |
-| [`natural-writing-proposal.md`](natural-writing-proposal.md) | Natural Writing Proposal |
+| [`../history/spec-eval-method.md`](../history/spec-eval-method.md) | วิธีวัดผล Spec และ Scorecard ของ Run #1 ถึง #4 |
+| [`../proposals/natural-writing-proposal.md`](../proposals/natural-writing-proposal.md) | Natural Writing Proposal |
 | skill `ai-slop-report-review` (อยู่ในเครื่องผู้จัดทำ ไม่ได้อยู่ใน repo) | Skill ตรวจ AI slop ฉบับฝ่าย Quant |
 | [`progress-report-iteration-1.md`](progress-report-iteration-1.md) | รายงานนี้ |

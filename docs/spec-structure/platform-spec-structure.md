@@ -3,7 +3,7 @@
 โครงสร้าง Spec สำหรับสร้างชั้นข้อมูล (data layer) ที่ Report Spec ทุกใบใช้ร่วมกัน ส่งเข้า Software Factory (Foreman) ผ่าน GitHub Issue ที่ติด label `factory` เหมือน Report Spec
 
 - สถานะ: Demonstrated 1 ครั้ง (Issue #7 → PR #8, merge แล้ว commit `9455ea3`) โรงงานทำจบใน session เดียวโดยไม่ต้อง Approve
-- ตัวอย่างที่กรอกแล้ว: [`platform-spec.md`](platform-spec.md) (Issue: [#7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7))
+- ตัวอย่างที่กรอกแล้ว: [`../specs/platform-spec.md`](../specs/platform-spec.md) (Issue: [#7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7))
 - ใช้คู่กับ [`report-spec-structure.md`](report-spec-structure.md)
 - ส่วนที่ยังไม่มีข้อมูลมีป้าย `[ต้องการข้อมูล: ...]`
 
@@ -83,7 +83,7 @@ def load(
 
 ## 6. ช่องว่างสำหรับกรอก (คัดลอกส่วนนี้ไปเป็น Issue body)
 
-ดูตัวอย่างที่กรอกครบแล้วใน [`platform-spec.md`](platform-spec.md)
+ดูตัวอย่างที่กรอกครบแล้วใน [`../specs/platform-spec.md`](../specs/platform-spec.md)
 
 ````markdown
 Feature: Report data access layer and data checks — precomputed datasets, fixture source

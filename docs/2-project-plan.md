@@ -56,7 +56,7 @@ Project Plan อธิบายวิธีดำเนินงานให้�
 
 ### 2.3 Prototype Feasibility Validation
 
-ต้นแบบใช้ตรวจว่า Spec Structure ทำให้โรงงานสร้างรายงานที่ตรง Spec ได้จริง ไม่ใช่แค่สาธิตว่าโรงงานทำงาน แต่ละ run วัดด้วย Scorecard ใน [`appendix/history/spec-eval-method.md`](appendix/history/spec-eval-method.md) [4]:
+ต้นแบบใช้ตรวจว่า Spec Structure ทำให้โรงงานสร้างรายงานที่ตรง Spec ได้จริง ไม่ใช่แค่สาธิตว่าโรงงานทำงาน แต่ละ run วัดด้วย Scorecard ใน [`history/spec-eval-method.md`](history/spec-eval-method.md) [4]:
 
 - ผลลัพธ์: Expected Values ที่ตรง, Acceptance Criteria ของ Issue, `checks.json`, CI
 - กระบวนการ: ผล Classify, จำนวนจุดที่โรงงานต้องตัดสินใจเอง, รอบที่ reviewer ส่งกลับ, เวลา, ต้นทุน
@@ -77,7 +77,7 @@ Project Plan อธิบายวิธีดำเนินงานให้�
 
 ### 2.5 Iterative Specification and Design Refinement
 
-นำผล Scorecard และ gap กลับไปปรับ Template แต่ละรุ่นเก็บเป็นไฟล์แยก (v0.1, v0.2 และส่วนที่เปลี่ยนใน v0.3 อยู่ใน [`appendix/history/`](appendix/history/)) เพื่อให้ตรวจย้อนได้ว่า run ไหนใช้รุ่นใด ฉบับใช้งานล่าสุดอยู่ใน [`appendix/`](appendix/) เก็บหลักฐานผ่าน GitHub (Issue, PR, CI, commit SHA)
+นำผล Scorecard และ gap กลับไปปรับ Template แต่ละรุ่นเก็บเป็นไฟล์แยก (v0.1, v0.2 และส่วนที่เปลี่ยนใน v0.3 อยู่ใน [`history/`](history/)) เพื่อให้ตรวจย้อนได้ว่า run ไหนใช้รุ่นใด ฉบับใช้งานล่าสุดอยู่ใน [`./`](./) เก็บหลักฐานผ่าน GitHub (Issue, PR, CI, commit SHA)
 
 พิจารณาข้อจำกัดที่ไม่ใช่เทคนิคควบคู่ด้วย ได้แก่ สิทธิ์เข้าถึงข้อมูลของทีม, quota และค่าใช้จ่ายของโรงงานที่เป็นของพี่ Anak และการที่ repository เป็นสาธารณะ
 
@@ -130,7 +130,7 @@ Project Plan อธิบายวิธีดำเนินงานให้�
 
 | สัปดาห์ | เป้า | รอบที่เสร็จ | หลักฐาน |
 |---|---|---|---|
-| 16–20 พ.ย. 2569 | 3 (เฉพาะสัปดาห์นี้ตาม weekly report) | ณ 19 พ.ย.: เสร็จ 1 รอบ คือ Private Data (Spec กลุ่ม PD → Research 3 แนวทาง → Prototype แนวทาง C ด้วย Run #5 และ #6) ซึ่งใช้แทน Human Iteration 3 (ข้อมูลจริง) ตาม feedback 19 พ.ย. ที่ให้ออกแบบ architecture สำหรับ Private Data ก่อน ยังไม่ได้เชื่อมข้อมูลจริง; Human Iteration 1 สิ่งส่งมอบส่วนใหญ่มาจาก Run #4 (Issue #9 → PR #10) ยังขาด Eve agent และต้นทุนต่อรายงาน รอ mentor ยืนยันว่านับได้หรือไม่; Human Iteration 2 (Discord) ยังไม่เริ่ม รอ Discord server และสิทธิ์ Vercel | Software Design ข้อ 2, SRS ข้อ 3.3, Issue #12 → PR #13, Issue #15 → PR #16, [Progress Report 16–20 พ.ย.](appendix/progress-report-2026-11-16.md) |
+| 16–20 พ.ย. 2569 | 3 (เฉพาะสัปดาห์นี้ตาม weekly report) | ณ 19 พ.ย.: เสร็จ 1 รอบ คือ Private Data (Spec กลุ่ม PD → Research 3 แนวทาง → Prototype แนวทาง C ด้วย Run #5 และ #6) ซึ่งใช้แทน Human Iteration 3 (ข้อมูลจริง) ตาม feedback 19 พ.ย. ที่ให้ออกแบบ architecture สำหรับ Private Data ก่อน ยังไม่ได้เชื่อมข้อมูลจริง; Human Iteration 1 สิ่งส่งมอบส่วนใหญ่มาจาก Run #4 (Issue #9 → PR #10) ยังขาด Eve agent และต้นทุนต่อรายงาน รอ mentor ยืนยันว่านับได้หรือไม่; Human Iteration 2 (Discord) ยังไม่เริ่ม รอ Discord server และสิทธิ์ Vercel | Software Design ข้อ 2, SRS ข้อ 3.3, Issue #12 → PR #13, Issue #15 → PR #16, [Progress Report 16–20 พ.ย.](progress/progress-report-2026-11-16.md) |
 | 9–13 พ.ย. 2569 | 1 | 3 (Agent Run #1–#4): (1) Template v0.1 → Run #1 สำเร็จ → gap (2) Template v0.2 → Run #2 ค้างที่ implement → gap (3) Template v0.3 → Run #3 และ #4 สำเร็จและ merge แล้ว → gap ใหม่ 3 จุด | Progress Report Iteration 1, Issue #4 → PR #5, Issue #6, Issue #7 → PR #8, Issue #9 → PR #10 |
 
 ### 4.3 Progress Indicators
@@ -150,6 +150,6 @@ Project Plan อธิบายวิธีดำเนินงานให้�
 1. TOR: [`1-tor.md`](1-tor.md)
 2. SRS: [`3-srs.md`](3-srs.md)
 3. Software Design: [`4-software-design.md`](4-software-design.md)
-4. Progress Report และ Scorecard: [`appendix/progress-report-iteration-1.md`](appendix/progress-report-iteration-1.md), [`appendix/progress-report-2026-11-16.md`](appendix/progress-report-2026-11-16.md), [`appendix/history/spec-eval-method.md`](appendix/history/spec-eval-method.md); หลักฐานรวม: [`appendix/`](appendix/)
+4. Progress Report และ Scorecard: [`progress/progress-report-iteration-1.md`](progress/progress-report-iteration-1.md), [`progress/progress-report-2026-11-16.md`](progress/progress-report-2026-11-16.md), [`history/spec-eval-method.md`](history/spec-eval-method.md); หลักฐานรวม: [`./`](./)
 5. Project Plan ของโครงการ AI Harness / Software Factory (Anak Wannaphaschaiyong)
 6. ISO/IEC 29110-5-1-2:2025: https://www.iso.org/standard/82669.html

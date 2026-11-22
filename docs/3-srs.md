@@ -92,7 +92,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | FR-06 | Output ต้องเป็น `report.md` (หรือ pdf ถ้าอนุมัติ dependency), `report.json`, `narrative.md`, `checks.json` ตามกติการูปแบบตัวเลขและค่าว่างใน Template | Demonstrated (Run #1 และ #4, รูปแบบ md) |
 | FR-07 | Number Checks ชั้น A ต้องตรวจความสด ความครบ และ schema ของข้อมูล ชั้น B ต้องตรวจความสอดคล้องของตัวเลขในรายงาน ถ้าไม่ผ่านต้องไม่สร้างไฟล์รายงาน | Demonstrated (Run #4: ชั้น A 14 และชั้น B 15 ผ่าน, ทุกตัวเช็คมี test ที่ทำให้ไม่ผ่าน, ชั้น A ไม่ผ่านแล้วไม่สร้างไฟล์รายงาน) |
 | FR-08 | Writing Rules ต้องตรวจได้ และตัวเลขในข้อความต้องอยู่ใน `report.json` | Demonstrated (Run #4: ตัวเช็ค B8 และ W1–W5 อยู่ใน `checks.json`) แต่ตัวเช็คอัตโนมัติยังจับปัญหาข้อความที่เล่าตามตารางไม่ได้ |
-| FR-09 | Spec ต้องมีหัวข้อ Open Items ที่รวมสิ่งที่ยังไม่มีข้อมูล | Demonstrated (Example v0.2) Report Spec ของ Run #4 ไม่มีหัวข้อนี้เพราะไม่มีสิ่งที่ขาด Spec Structure v0.3 จึงบังคับให้เขียน "None" แล้ว ([`appendix/report-spec-structure.md`](appendix/report-spec-structure.md) ข้อ 3) แต่ยังไม่ได้ทดสอบกับโรงงาน |
+| FR-09 | Spec ต้องมีหัวข้อ Open Items ที่รวมสิ่งที่ยังไม่มีข้อมูล | Demonstrated (Example v0.2) Report Spec ของ Run #4 ไม่มีหัวข้อนี้เพราะไม่มีสิ่งที่ขาด Spec Structure v0.3 จึงบังคับให้เขียน "None" แล้ว ([`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md) ข้อ 3) แต่ยังไม่ได้ทดสอบกับโรงงาน |
 | FR-10 | Spec 1 ใบต้องมีขนาดที่โรงงานทำจบได้ใน 1 session ตามกติกาการแตก Spec | ผ่านบางส่วน: Platform Spec จบใน 1 session (Run #3) ส่วน Report Spec ชนเพดานหลังขั้น implement และต้องอนุมัติ 1 ครั้ง (Run #4) Run #1 และ #2 ไม่ผ่าน |
 
 ### 3.3 ระดับ Private Data (Core Requirement ตั้งแต่ v1.1)
@@ -130,7 +130,7 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 | AC-01 | มี Reusable Spec Template ที่รองรับรายงาน 3 ประเภท | FR-01, FR-02 | Demonstrated กับ 1 ประเภท |
 | AC-02 | มี Spec ตัวอย่างที่กรอกแล้วอย่างน้อย 1 ใบ | FR-01, FR-05, FR-09 | Demonstrated (4 ใบ: v0.1, v0.2, Platform Spec v0.3, Report Spec v0.3) |
 | AC-03 | มีการรันผ่านโรงงานสำเร็จอย่างน้อย 1 ครั้ง: Issue เชื่อมกับ draft PR, Output ตรง Expected Values ทุกค่า, CI ผ่าน, reviewer ไม่เหลือ blocking issue | HR-01, HR-03, FR-05, FR-06, FR-07, NFR-04 | Demonstrated 2 ครั้ง (Issue #4 → PR #5 และ Issue #9 → PR #10 ที่ merge แล้ว) |
-| AC-04 | มี Progress Report | | Demonstrated ([Iteration 1](appendix/progress-report-iteration-1.md), [สัปดาห์ 16–20 พ.ย.](appendix/progress-report-2026-11-16.md)) |
+| AC-04 | มี Progress Report | | Demonstrated ([Iteration 1](progress/progress-report-iteration-1.md), [สัปดาห์ 16–20 พ.ย.](progress/progress-report-2026-11-16.md)) |
 | AC-05 | สั่งงานผ่าน Discord ได้ | HR-05 | Intended |
 | AC-06 | มีข้อเสนอ Natural Writing ครอบคลุม Spec, Writing Guidelines และการตรวจ Output | FR-08 | Demonstrated (เอกสารข้อเสนอ, กติกาที่ตรวจได้และตัวเช็ค W1–W5 ใน Run #4, ผลตรวจข้อความ Run #1 และ #4 ด้วย skill พร้อมฉบับแก้) ส่วน narrative facts และ LLM judge เป็น Intended |
 | AC-07 | Agent ทำงานกับ Private Data ได้โดยข้อมูลไม่รั่วออกนอก Trusted zone มีหลักฐานที่ผู้ตรวจรันซ้ำได้ | PD-01 ถึง PD-06 | Demonstrated ระดับ prototype ด้วย private database จำลอง (Issue #12 → PR #13) ยังไม่ได้ทดสอบกับ database และเครือข่ายจริงของบริษัท |
@@ -148,7 +148,7 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 ### 6.2 สมมติฐาน
 
 - ตัวเลขในรายงานลูกค้าคำนวณไว้แล้วในชุดข้อมูลของ pipeline (ข้อมูลจากทีม 12 พ.ย. 2569)
-- Dataset Catalog ([`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) ข้อ 3) ครอบคลุมชุดข้อมูลที่รายงาน 2 ประเภทแรกใช้ ชื่อคอลัมน์จริงยังไม่ได้ map
+- Dataset Catalog ([`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) ข้อ 3) ครอบคลุมชุดข้อมูลที่รายงาน 2 ประเภทแรกใช้ ชื่อคอลัมน์จริงยังไม่ได้ map
 - นิยามตัวเลขใน fixture (average cost, ปันผลแบบ net) เป็นค่าสมมติ ยังไม่ได้ยืนยันกับทีม
 - Foreman ยังชี้ไปที่ repository `quant-software-factory`
 - Private Data อยู่ใน database บน server ภายในเครือข่ายบริษัท และตัวโมเดลรันที่ผู้ให้บริการภายนอก ข้อมูลใดที่อยู่ใน prompt จึงถือว่าออกนอกบริษัท (ข้อมูลจากทีม และ feedback 19 พ.ย. 2569)
@@ -170,6 +170,6 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 | Issue #12 → PR #13 (prototype Private Data) | https://github.com/Awannaphasch2016/quant-software-factory/issues/12, https://github.com/Awannaphasch2016/quant-software-factory/pull/13 |
 | Issue #15 → PR #16 (แก้ design gap ของ prototype) | https://github.com/Awannaphasch2016/quant-software-factory/issues/15, https://github.com/Awannaphasch2016/quant-software-factory/pull/16 |
 | CI ของ PR #10 | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/43395249810 |
-| Spec Structure v0.3 | [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md), [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) |
-| หลักฐาน End-to-End Run | [`appendix/e2e-run-evidence.md`](appendix/e2e-run-evidence.md), [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) |
-| Template v0.1 / v0.2 / v0.3 (ประวัติ) | [`appendix/history/report-spec-template.md`](appendix/history/report-spec-template.md), [`appendix/history/report-spec-template-v0.2.md`](appendix/history/report-spec-template-v0.2.md), [`appendix/history/report-spec-template-v0.3.md`](appendix/history/report-spec-template-v0.3.md) |
+| Spec Structure v0.3 | [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md), [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) |
+| หลักฐาน End-to-End Run | [`evidence/e2e-run-evidence.md`](evidence/e2e-run-evidence.md), [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) |
+| Template v0.1 / v0.2 / v0.3 (ประวัติ) | [`history/report-spec-template.md`](history/report-spec-template.md), [`history/report-spec-template-v0.2.md`](history/report-spec-template-v0.2.md), [`history/report-spec-template-v0.3.md`](history/report-spec-template-v0.3.md) |

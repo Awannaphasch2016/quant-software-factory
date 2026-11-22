@@ -12,18 +12,15 @@
 
 วิธีทดสอบสิ่งที่ส่งมอบอยู่ใน Delivery Document ข้อ 5
 
-## ภาคผนวก
+## เอกสารประกอบ
 
-| ไฟล์ | เนื้อหา |
-|---|---|
-| [Report Spec Structure](appendix/report-spec-structure.md) | โครงสร้าง Spec ของรายงาน 1 ฉบับ |
-| [Platform Spec Structure](appendix/platform-spec-structure.md) | โครงสร้าง Spec ของชั้นข้อมูล |
-| [Report Spec ที่กรอกแล้ว](appendix/report-spec.md) | ร่างของ Issue #9 |
-| [Platform Spec ที่กรอกแล้ว](appendix/platform-spec.md) | ร่างของ Issue #7 |
-| [หลักฐาน End-to-End Run](appendix/e2e-run-evidence.md) | Issue #9 → PR #10 พร้อมตารางเทียบ Expected Values |
-| [Progress Report Iteration 1](appendix/progress-report-iteration-1.md) | ผล Run #1–#4 ของสัปดาห์ 9–13 พ.ย. 2569 |
-| [Progress Report สัปดาห์ 16–20 พ.ย.](appendix/progress-report-2026-11-16.md) | สถานะ Human Iteration 1–3 และผล Run #5–#6 (Private Data) |
-| [Natural Writing Proposal](appendix/natural-writing-proposal.md) | ข้อเสนอเรื่องข้อความบรรยาย |
-| [`appendix/history/`](appendix/history/) | Template v0.1–v0.3, ตัวอย่าง Spec v0.1–v0.2, วิธีวัดผล Spec |
+| โฟลเดอร์ | ไฟล์ | เนื้อหา |
+|---|---|---|
+| [`spec-structure/`](spec-structure/) | [Report Spec Structure](spec-structure/report-spec-structure.md), [Platform Spec Structure](spec-structure/platform-spec-structure.md) | โครงสร้าง Spec (template) ของรายงาน 1 ฉบับ และของชั้นข้อมูล |
+| [`specs/`](specs/) | [Report Spec](specs/report-spec.md) (Issue #9), [Platform Spec](specs/platform-spec.md) (Issue #7) | Spec ที่กรอกแล้วและส่งเข้าโรงงานจริง |
+| [`evidence/`](evidence/) | [หลักฐาน End-to-End Run](evidence/e2e-run-evidence.md) | Issue #9 → PR #10 พร้อมตารางเทียบ Expected Values |
+| [`progress/`](progress/) | [Iteration 1](progress/progress-report-iteration-1.md), [สัปดาห์ 16–20 พ.ย.](progress/progress-report-2026-11-16.md) | Progress Report แต่ละรอบ |
+| [`proposals/`](proposals/) | [Natural Writing Proposal](proposals/natural-writing-proposal.md) | ข้อเสนอเรื่องข้อความบรรยาย |
+| [`history/`](history/) | Template v0.1–v0.3, ตัวอย่าง Spec v0.1–v0.2, วิธีวัดผล Spec | ฉบับเก่าที่เก็บไว้เทียบ |
 
 ข้อมูลทุกไฟล์ในโฟลเดอร์นี้เป็นข้อมูลปลอม (บัญชี DEMO-COOP) และไม่มีชื่อระบบหรือข้อมูลภายใน

@@ -30,7 +30,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | **`make_private_db`**: สร้าง private database จาก CSV คูณตัวเลขเงินและเปลี่ยนเลขบัญชีกับชื่อลูกค้าได้ | ส่งมอบแล้ว (prototype) | `reporting/make_private_db.py` (PR #13) |
 | **`private_run`**: executor ใน trusted zone เขียนรายงานเต็มนอก repo และส่งกลับแค่ result ที่ผ่าน leak check | ส่งมอบแล้ว (prototype) | `reporting/private_run.py` (PR #13, แก้ใน PR #16) |
 | Report Spec และ Spec ของ prototype | ส่งมอบแล้ว | [Issue #9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9), [Issue #12](https://github.com/Awannaphasch2016/quant-software-factory/issues/12) |
-| Spec Structure (Report และ Platform) | ส่งมอบแล้ว | [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md), [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) |
+| Spec Structure (Report และ Platform) | ส่งมอบแล้ว | [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md), [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) |
 | Trusted zone จริงในเครือข่ายบริษัทและ database จริง | ยังไม่ส่งมอบ | รอการอนุมัติเรื่องสิทธิ์และ policy |
 | Report Agent (Eve agent ตัวเดียว) | ยังไม่ส่งมอบ | รอสิทธิ์ deploy บน Vercel |
 | รายงานรูปแบบ PDF | ยังไม่ส่งมอบ | |
@@ -125,4 +125,4 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
   - leak check ไม่ค้นในชื่อ key ของ JSON และในค่าจำนวนเต็ม และยังหยุดด้วย exit 3 ถ้าเลขบัญชีหรือชื่อลูกค้าตรงกับชื่อตัวเช็คหรือ layer ทั้งคำ เช่น `A` (Software Design ข้อ 2.7)
   - โซน Agent ยังเป็น Foreman ไม่ใช่ Eve agent ตัวเดียว
   - ยังไม่มี Discord, PDF และตัวเลขต้นทุนต่อรายงาน
-  - ข้อความบรรยายยังไม่มีตัวเลข "NAV เปลี่ยนไปเท่าไร" และยังเล่าซ้ำกับตาราง (ดู [`appendix/natural-writing-proposal.md`](appendix/natural-writing-proposal.md))
+  - ข้อความบรรยายยังไม่มีตัวเลข "NAV เปลี่ยนไปเท่าไร" และยังเล่าซ้ำกับตาราง (ดู [`proposals/natural-writing-proposal.md`](proposals/natural-writing-proposal.md))

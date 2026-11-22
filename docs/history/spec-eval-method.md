@@ -151,7 +151,7 @@ Gap ที่พบใน Run #2:
 ### Run #3: Issue #7, Platform Spec v0.3
 
 - Issue: https://github.com/Awannaphasch2016/quant-software-factory/issues/7
-- Spec: [`../platform-spec.md`](../platform-spec.md) (Issue: [#7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7))
+- Spec: [`../specs/platform-spec.md`](../specs/platform-spec.md) (Issue: [#7](https://github.com/Awannaphasch2016/quant-software-factory/issues/7))
 - ติด label `factory`: 2026-11-13 06:58:00 UTC (โดย Josh-Bear)
 
 | ID | ผล | หลักฐาน |
@@ -173,7 +173,7 @@ Gap ที่พบใน Run #2:
 ### Run #4: Issue #9, Report Spec v0.3
 
 - Issue: https://github.com/Awannaphasch2016/quant-software-factory/issues/9
-- Spec: [`../report-spec.md`](../report-spec.md) (Issue: [#9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9))
+- Spec: [`../specs/report-spec.md`](../specs/report-spec.md) (Issue: [#9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9))
 - ติด label `factory`: 2026-11-13 07:16:19 UTC (โดย Josh-Bear)
 
 | ID | ผล | หลักฐาน |

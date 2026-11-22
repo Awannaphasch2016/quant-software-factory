@@ -246,7 +246,7 @@ sequenceDiagram
 | ข้อมูลหัวรายงาน | ไม่กำหนด (โรงงาน hard-code) | ต้องมาจาก `account_info` | Run #1 |
 | ขนาด | ไม่เกิน ~8 block | ไม่เกิน 5–6 block | Run #1 ชนเพดาน token |
 
-Template v0.3 (Run #3 และ #4) ใช้โครงของ v0.2 แต่เปลี่ยน 2 เรื่อง ฉบับรวมที่ใช้งานได้อยู่ใน [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md) และ [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md)
+Template v0.3 (Run #3 และ #4) ใช้โครงของ v0.2 แต่เปลี่ยน 2 เรื่อง ฉบับรวมที่ใช้งานได้อยู่ใน [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md) และ [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md)
 
 | เรื่อง | v0.2 | v0.3 | เหตุที่เปลี่ยน |
 |---|---|---|---|
@@ -287,7 +287,7 @@ flowchart LR
 
 | ส่วน | บทบาท | สิ่งที่สาธิตและจุดตรวจหลักฐาน |
 |---|---|---|
-| Spec Structure | I/O contract ของงานรายงาน | ฉบับใช้งาน: [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md), [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md); ประวัติ: [`appendix/history/report-spec-template.md`](appendix/history/report-spec-template.md), [`appendix/history/report-spec-template-v0.2.md`](appendix/history/report-spec-template-v0.2.md), [`appendix/history/report-spec-template-v0.3.md`](appendix/history/report-spec-template-v0.3.md) |
+| Spec Structure | I/O contract ของงานรายงาน | ฉบับใช้งาน: [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md), [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md); ประวัติ: [`history/report-spec-template.md`](history/report-spec-template.md), [`history/report-spec-template-v0.2.md`](history/report-spec-template-v0.2.md), [`history/report-spec-template-v0.3.md`](history/report-spec-template-v0.3.md) |
 | GitHub Issue | Spec ที่กรอกแล้ว + trigger | Issue #4, #6, #7, #9 |
 | GitHub App `eve-forman` | connector ระหว่าง repository กับโรงงาน | คอมเมนต์ของ `eve-forman[bot]` ใน Issue #4, #6, #7, #9 |
 | Foreman บน Vercel | ประสาน classifier, analyst, implementer, reviewer (Claude Opus 5.5 ทุกสถานี ตาม `agent/lib/models.ts` ของ template) | ลำดับคอมเมนต์ใน Issue |
@@ -388,8 +388,8 @@ sequenceDiagram
 
 ## 6. Prototype Usage
 
-0. ถ้า repository ยังไม่มี data layer ให้เปิด Platform Spec ก่อนแล้ว merge (ทำครั้งเดียว ใน Iteration 1 คือ Issue #7) ช่องกรอกอยู่ใน [`appendix/platform-spec-structure.md`](appendix/platform-spec-structure.md) ข้อ 6
-1. คัดลอกช่องกรอกจาก [`appendix/report-spec-structure.md`](appendix/report-spec-structure.md) ข้อ 11 แล้วเลือก preset ของรายงานจากข้อ 7 ของไฟล์เดียวกัน ตัวอย่างที่กรอกแล้วอยู่ใน [`appendix/report-spec.md`](appendix/report-spec.md)
+0. ถ้า repository ยังไม่มี data layer ให้เปิด Platform Spec ก่อนแล้ว merge (ทำครั้งเดียว ใน Iteration 1 คือ Issue #7) ช่องกรอกอยู่ใน [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) ข้อ 6
+1. คัดลอกช่องกรอกจาก [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md) ข้อ 11 แล้วเลือก preset ของรายงานจากข้อ 7 ของไฟล์เดียวกัน ตัวอย่างที่กรอกแล้วอยู่ใน [`specs/report-spec.md`](specs/report-spec.md)
 2. กรอก Report Definition, Data Sources (fixture ปลอม), Data Mapping, Report Blocks และ Expected Values ที่คำนวณไว้แล้ว
 3. ตรวจว่าไม่มีข้อมูลจริงหรือชื่อระบบภายใน และ fixture ผ่านตัวเช็คทุกข้อ (ผู้จัดทำตรวจด้วยสคริปต์ก่อนเปิด Issue ทุกรอบ)
 4. เปิด Issue แล้วติด label `factory` ด้วยบัญชีคน
@@ -421,8 +421,8 @@ sequenceDiagram
 | รันซ้ำ Run #4 | ผู้จัดทำรันคำสั่งใน Spec ซ้ำบน commit `7398e04` ได้ 4 ไฟล์ตรงกับที่ commit ทุก byte, pytest 149 ผ่าน | NFR-01 |
 | CI ของ Run #4 | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/43395249810 ผ่าน 3.10–3.13, CI ของ `main` หลัง merge run 43395497605 ผ่าน | NFR-04 |
 | Review ของ Run #4 | คอมเมนต์ใน Issue #9 เวลา 08:42:00 UTC: อนุมัติ ไม่มี blocking finding | AC-03 |
-| Verification record ของ Run #4 | [`appendix/e2e-run-evidence.md`](appendix/e2e-run-evidence.md): เทียบ Expected Values กับ output ด้วยสคริปต์ 21/21 แถว และสำเนา output 4 ไฟล์จาก commit `4e2129e` ใน [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) | AC-03, FR-05 |
-| ผลตรวจข้อความ Run #1 และ #4 | [`appendix/natural-writing-proposal.md`](appendix/natural-writing-proposal.md) ข้อ 3: คะแนน 6 องค์ประกอบ และฉบับแก้ที่ผ่านตัวเช็ค B8, W3–W5 | AC-06, FR-08 |
+| Verification record ของ Run #4 | [`evidence/e2e-run-evidence.md`](evidence/e2e-run-evidence.md): เทียบ Expected Values กับ output ด้วยสคริปต์ 21/21 แถว และสำเนา output 4 ไฟล์จาก commit `4e2129e` ใน [`../reports/demo_coop_rg_2026_10_v2/`](../reports/demo_coop_rg_2026_10_v2/) | AC-03, FR-05 |
+| ผลตรวจข้อความ Run #1 และ #4 | [`proposals/natural-writing-proposal.md`](proposals/natural-writing-proposal.md) ข้อ 3: คะแนน 6 องค์ประกอบ และฉบับแก้ที่ผ่านตัวเช็ค B8, W3–W5 | AC-06, FR-08 |
 | Spec ของ prototype Private Data (Run #5) | Issue #12: https://github.com/Awannaphasch2016/quant-software-factory/issues/12 | Input ตามแนวทาง C ไม่มีข้อมูลจริง |
 | Output ของ prototype | PR #13: https://github.com/Awannaphasch2016/quant-software-factory/pull/13, merge commit `ab61d91` | PD-01 ถึง PD-06 |
 | CI ของ prototype | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44481298874 ผ่าน 3.10–3.13 (235 tests) | NFR-04 |
@@ -492,10 +492,10 @@ sequenceDiagram
 
 1. SRS: [`3-srs.md`](3-srs.md)
 2. TOR: [`1-tor.md`](1-tor.md)
-3. Progress Report Iteration 1: [`appendix/progress-report-iteration-1.md`](appendix/progress-report-iteration-1.md)
-4. Scorecard: [`appendix/history/spec-eval-method.md`](appendix/history/spec-eval-method.md)
-5. Natural Writing Proposal: [`appendix/natural-writing-proposal.md`](appendix/natural-writing-proposal.md)
-6. Spec Structure และหลักฐาน: [`appendix/`](appendix/) (README, report-spec-structure, platform-spec-structure, e2e-run-evidence, output)
+3. Progress Report Iteration 1: [`progress/progress-report-iteration-1.md`](progress/progress-report-iteration-1.md)
+4. Scorecard: [`history/spec-eval-method.md`](history/spec-eval-method.md)
+5. Natural Writing Proposal: [`proposals/natural-writing-proposal.md`](proposals/natural-writing-proposal.md)
+6. Spec Structure และหลักฐาน: [`./`](./) (README, report-spec-structure, platform-spec-structure, e2e-run-evidence, output)
 7. Design Prototype ของโครงการ AI Harness / Software Factory (Anak Wannaphaschaiyong) ข้อ 8 สำหรับต้นทุนอ้างอิง
 8. Vercel Sandbox firewall: https://vercel.com/docs/sandbox/concepts/firewall
 9. Vercel Secure Compute: https://vercel.com/docs/connectivity/secure-compute

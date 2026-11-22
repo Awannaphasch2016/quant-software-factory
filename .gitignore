@@ -1,3 +1,4 @@
+# Python build and tool caches
 __pycache__/
 *.pyc
 *.egg-info/
@@ -7,5 +8,32 @@ __pycache__/
 .ruff_cache/
 build/
 dist/
+
+# Node, Vercel and eve (report-agent/ has its own list too)
+node_modules/
+.vercel/
+.eve/
+
+# Secrets and machine files
+.env
+.env.*
+.DS_Store
+
+# This repository is public. Never commit:
+# - private databases and private report output (see private_run)
 *.db
 *.sqlite
+private-out/
+result.json
+# - real client reports and internal system documentation
+report-examples/
+*.pdf
+README_DATA_SOURCES*
+# - mentor briefs, feedback and the intern's working notes, which live
+#   outside this repository
+feedback*/
+feedback*.txt
+weekly_report*
+requirement_*.txt
+requirement-*/
+deliverable/

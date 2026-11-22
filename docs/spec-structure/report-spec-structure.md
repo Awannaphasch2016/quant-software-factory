@@ -6,9 +6,9 @@
   - Demonstrated กับรายงาน `returns_transactions` ผ่าน Issue #7 → PR #8 และ Issue #9 → PR #10 (merge แล้วทั้งคู่)
   - `client_pnl` มี preset แต่ยังไม่ได้รัน (Intended)
   - `monthly_team` ยังเป็นโครงเปิด (Intended)
-- ตัวอย่างที่กรอกแล้ว: [`report-spec.md`](report-spec.md) (Report Spec) และ [`platform-spec.md`](platform-spec.md) (Platform Spec) ใน folder เดียวกัน
+- ตัวอย่างที่กรอกแล้ว: [`../specs/report-spec.md`](../specs/report-spec.md) (Report Spec) และ [`../specs/platform-spec.md`](../specs/platform-spec.md) (Platform Spec) ใน folder เดียวกัน
 - ส่วนที่ยังไม่มีข้อมูลมีป้าย `[ต้องการข้อมูล: ...]` ใช้กับโรงงานได้ทันทีด้วย fixture ส่วนการต่อกับข้อมูลจริงเป็นงาน Intended
-- ฉบับเดิม (v0.1, v0.2 และส่วนที่เปลี่ยนใน v0.3) เก็บไว้ใน [`history/`](history/) เป็นประวัติ
+- ฉบับเดิม (v0.1, v0.2 และส่วนที่เปลี่ยนใน v0.3) เก็บไว้ใน [`../history/`](../history/) เป็นประวัติ
 
 ---
 
@@ -24,8 +24,8 @@
 
 | ชนิด | ทำเมื่อ | มีอะไร | ตัวอย่าง |
 |---|---|---|---|
-| Platform Spec | ครั้งเดียว หรือเมื่อเพิ่มชุดข้อมูลใหม่ | interface `load(...)`, `DataSource` / `FixtureSource`, schema registry, fixture, ตัวเช็คชั้น A ดู [`platform-spec-structure.md`](platform-spec-structure.md) | [`platform-spec.md`](platform-spec.md) (Issue #7) |
-| Report Spec | ทุกครั้งที่ต้องการรายงานใหม่ | Report Definition, Data Mapping, block, Expected Values, ตัวเช็คชั้น B, Writing Rules | [`report-spec.md`](report-spec.md) (Issue #9) |
+| Platform Spec | ครั้งเดียว หรือเมื่อเพิ่มชุดข้อมูลใหม่ | interface `load(...)`, `DataSource` / `FixtureSource`, schema registry, fixture, ตัวเช็คชั้น A ดู [`platform-spec-structure.md`](platform-spec-structure.md) | [`../specs/platform-spec.md`](../specs/platform-spec.md) (Issue #7) |
+| Report Spec | ทุกครั้งที่ต้องการรายงานใหม่ | Report Definition, Data Mapping, block, Expected Values, ตัวเช็คชั้น B, Writing Rules | [`../specs/report-spec.md`](../specs/report-spec.md) (Issue #9) |
 
 - Report Spec ใช้ data layer จาก Platform Spec ที่ merge แล้ว และห้ามแก้ data layer
 - ข้อความบรรยายอยู่ใน Report Spec ใบเดียวกัน Issue #9 ทำทั้งรายงานและข้อความบรรยายจบในใบเดียว โดยต้อง Approve token 1 ครั้ง
@@ -194,7 +194,7 @@ Report Spec แต่ละใบเลือกตัวเช็คที่�
 
 ## 11. ช่องว่างสำหรับกรอก (คัดลอกส่วนนี้ไปเป็น Issue body)
 
-ดูตัวอย่างที่กรอกครบแล้วใน [`report-spec.md`](report-spec.md)
+ดูตัวอย่างที่กรอกครบแล้วใน [`../specs/report-spec.md`](../specs/report-spec.md)
 
 ````markdown
 Feature: <Report name> from precomputed data — <client>, <period>

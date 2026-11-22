@@ -2,6 +2,15 @@
 
 Reusable quantitative finance utilities for evaluating trading strategies.
 
+| Path | Contents |
+| --- | --- |
+| `src/quant_software_factory/` | Python library: risk metrics and the report builder (`reporting/`) |
+| `tests/` | pytest suite |
+| `data/fixtures/` | Mock datasets (no real client data) |
+| `reports/` | Reports generated from the fixtures |
+| `report-agent/` | eve agent that builds reports from Discord; see its [README](report-agent/README.md) |
+| `docs/` | Project documents (TOR, Project Plan, SRS, Software Design, Delivery Document); index in [docs/README.md](docs/README.md) |
+
 ## Installation
 
 ```bash
