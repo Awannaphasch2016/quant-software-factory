@@ -1,4 +1,4 @@
-# Report Spec Structure (v0.3)
+# Report Spec Structure (v0.4)
 
 โครงสร้าง Spec สำหรับส่งงานสร้างรายงานเข้า Software Factory (Foreman) ผ่าน GitHub Issue ที่ติด label `factory` ไฟล์นี้รวม Template v0.2 (โครงหลัก) กับส่วนที่เปลี่ยนใน v0.3 เฉพาะส่วนของรายงาน ส่วนชั้นข้อมูล (Dataset Catalog, `load(...)`, ตัวเช็คชั้น A) อยู่ใน [`platform-spec-structure.md`](platform-spec-structure.md)
 
@@ -8,7 +8,8 @@
   - `monthly_team` ยังเป็นโครงเปิด (Intended)
 - ตัวอย่างที่กรอกแล้ว: [`../specs/report-spec.md`](../specs/report-spec.md) (Report Spec) และ [`../specs/platform-spec.md`](../specs/platform-spec.md) (Platform Spec) ใน folder เดียวกัน
 - ส่วนที่ยังไม่มีข้อมูลมีป้าย `[ต้องการข้อมูล: ...]` ใช้กับโรงงานได้ทันทีด้วย fixture ส่วนการต่อกับข้อมูลจริงเป็นงาน Intended
-- ฉบับเดิม (v0.1, v0.2 และส่วนที่เปลี่ยนใน v0.3) เก็บไว้ใน [`../history/`](../history/) เป็นประวัติ
+- ฉบับเดิม (v0.1, v0.2, ส่วนที่เปลี่ยนใน v0.3 และ Structure v0.3 ทั้งไฟล์ [`report-spec-structure-v0.3.md`](../history/report-spec-structure-v0.3.md)) เก็บไว้ใน [`history/`](../history/) เป็นประวัติ
+- v0.4 แก้ 2 เรื่องจากการ review เทียบกับแผนผังแหล่งข้อมูลของ pipeline (22 พ.ย. 2569): Data Sources ไม่ผูกกับ fixture และกฎ standard library ใช้กับโค้ดรายงานเท่านั้น ดูข้อ 13 ยังไม่ได้รันกับโรงงาน (Intended) ส่วน [`report-spec.md`](../specs/report-spec.md) ยังเป็นฉบับ v0.3 ที่ส่งเป็น Issue #9 จริง
 
 ---
 
@@ -19,6 +20,7 @@
 3. ทุก Spec มีคำตอบที่ถูกไว้ล่วงหน้า (Expected Values) ที่คำนวณจาก fixture
 4. ไม่ใส่ข้อมูลหรือโครงสร้างระบบภายในใน Issue repo เป็น public ห้ามใส่ข้อมูลลูกค้าจริง, IP, ชื่อ server, ชื่อ database, ชื่อตารางจริง หรือ URL ภายใน ให้ใช้**ชื่อกลาง (logical name)** ตาม Dataset Catalog ใน [`platform-spec-structure.md`](platform-spec-structure.md) แล้วเก็บ mapping ไปยังของจริงไว้ฝั่งภายใน
 5. โรงงานรันกับ fixture เท่านั้น sandbox ของโรงงานเข้าระบบภายในไม่ได้ โค้ดจึงต้องอ่านข้อมูลผ่าน interface ที่เปลี่ยนจาก fixture เป็นของจริงได้โดยไม่แก้ส่วนอื่น
+6. Spec ระบุแค่ชื่อกลางของชุดข้อมูล ไม่ระบุว่าอ่านจากที่ไหน ที่มาของข้อมูล (fixture หรือ private database ใน trusted zone) เลือกตอนรัน Spec ใบเดียวกันจึงใช้ได้ทั้งกับข้อมูลปลอมและข้อมูลจริงโดยไม่ต้องแก้ (Human Iteration 3 ข้อ 3)
 
 ## 2. Spec 2 ชนิด
 
@@ -37,7 +39,7 @@
 |---|---|:-:|---|
 | 1 | Background | ✓ | ทำไมต้องมีรายงานนี้ ใครอ่าน data layer มาจาก Issue ไหน |
 | 2 | Report Definition | ✓ | ประเภท, report ID, บัญชี, งวด, opening date, as-of date, ภาษา, ผู้อ่าน, Output format |
-| 3 | Data Sources | ✓ | ชุดข้อมูลที่ใช้ (ชื่อกลาง) และ fixture ที่มีอยู่แล้ว |
+| 3 | Data Sources | ✓ | ชุดข้อมูลที่ใช้ (ชื่อกลาง) เท่านั้น ที่มาของข้อมูลเลือกตอนรัน (หลักการข้อ 6) |
 | 4 | Data Mapping | ✓ | ช่องในรายงาน → ชุดข้อมูล.field และรูปแบบการแสดงผล |
 | 5 | Report Blocks | ✓ | block ที่ต้องมี เรียงลำดับ พร้อมหมายเหตุของแต่ละ block |
 | 6 | Output Contract | ✓ | คำสั่งรัน, ไฟล์, ลำดับการรันตัวเช็ค, กรณีไม่ผ่าน |
@@ -222,7 +224,9 @@ The data layer already exists on `main` (merged from #<platform spec issue>): `D
 | Output format | md / pdf |
 
 ## Data Sources
-Use the existing fixtures in `data/fixtures/<report_id>/` through `FixtureSource` and `load(...)`. Do not add or change fixtures. Datasets used: <list>.
+Datasets used (logical names): <list>.
+
+Read them only through `load(...)` on a `DataSource`. This Spec does not choose the source: it is set when the report runs. The factory and the chat sandbox use the fixtures in `data/fixtures/<report_id>/` through `FixtureSource`; the trusted zone uses the private database. Build and test against the fixtures only. Do not add or change fixtures.
 
 ## Data Mapping
 | Block | Report field | Dataset.field | Display |
@@ -242,7 +246,7 @@ In this order, one `##` section per block in `report.md`:
 1. `<block_id>`: <columns, sort order, which rows to include, labels>
 
 ## Output Contract
-- Command: `<single command>`
+- Command: `<single command that takes the data source location as an argument>`
 - The report ID is the output folder name.
 - Writes `report.md`, `report.json` (keys are block IDs; numbers are formatted strings; not-applicable values are `null`), `narrative.md`, `checks.json` (Layer A from `run_checks(...)` plus Layer B, `{name, layer, passed, expected, actual}`, sorted by name).
 - If any check fails: exit 1, write `checks.json`, write no other file, and remove stale report files.
@@ -276,8 +280,8 @@ Writing checks, reported in `checks.json` as Layer B: W1 no banned phrase, W2 no
 ## Constraints
 - Base branch: `main`.
 - Depends on: #<platform spec issue> (merged).
-- Standard library only.
-- Put new code under `src/quant_software_factory/reporting/`. Reuse `FixtureSource`, `load(...)`, the schema registry and `run_checks(...)`. Do not change their behavior.
+- Standard library only in the report code and its tests. A source adapter that runs only in the trusted zone (for example one for the team database) may use a database driver; keep it out of the report code, and do not import it from the report builder.
+- Put new code under `src/quant_software_factory/reporting/`. Reuse `DataSource`, `FixtureSource`, `load(...)`, the schema registry and `run_checks(...)`. Do not change their behavior.
 - No hard-coded client, account, strategy or inception values in code.
 - No server names, IP addresses, database or table names, internal URLs, or credentials anywhere.
 
@@ -328,12 +332,13 @@ Open Items ของชั้นข้อมูล (คอลัมน์จร�
 | v0.1 | Spec ให้โรงงานคำนวณตัวเลขเอง (Metric Definitions) | Run #1: Issue #4 → PR #5 |
 | v0.2 | Data Mapping แทนสูตร, ชื่อกลาง, `load(...)`, ตัวเช็ค 2 ชั้น, base branch, Open Items | Run #2: Issue #6 (ไม่ถึง Output) |
 | v0.3 | แยก Platform Spec กับ Report Spec, A2 ให้ชุดข้อมูลรายการว่างได้, B8 ตรวจเฉพาะเงินและ % และยอมรับค่าสัมบูรณ์, เครื่องหมายเงินถอน, ลำดับการรันตัวเช็ค, W1–W5 | Run #3 และ #4: Issue #7 → PR #8, Issue #9 → PR #10 |
+| v0.4 | หลักการข้อ 6 และช่อง Data Sources: ระบุแค่ชื่อกลาง ที่มาของข้อมูลเลือกตอนรัน (เดิมผูกกับ `data/fixtures/` และ `FixtureSource` จึงต้องแก้ Spec เมื่อเปลี่ยนเป็นข้อมูลจริง) / Constraints: กฎ standard library ใช้กับโค้ดรายงาน ส่วน adapter ใน trusted zone ใช้ driver ได้ (เดิมห้ามทั้งหมด จึงต่อ database จริงของทีมไม่ได้) / Output Contract: คำสั่งรับที่มาของข้อมูลเป็น argument | ยังไม่ได้รัน (Intended) ที่มา: review 22 พ.ย. 2569 ข้อ A3, A4 |
 
-Gap ที่พบใน Run #4 และยังไม่ได้แก้ (สำหรับ v0.4):
+Gap ที่พบใน Run #4 และยังไม่ได้แก้ (v0.4 ยังไม่ได้แก้ 4 ข้อนี้):
 
 | ประเภท | จุดที่พบ | แนวทาง |
 |---|---|---|
 | Specification | Writing Rules สั่งให้พูดถึง "การเปลี่ยนแปลงของ NAV" แต่ไม่มีตัวเลขนี้ในชุดข้อมูล | เพิ่ม opening NAV (`nav_daily.nav` ที่ opening date) ใน Data Mapping หรือตัดคำว่า "change" ออก |
 | Specification | ไม่ได้บอกว่างวดของรายงานคิดจาก opening date หรือเดือนของ as-of | ระบุใน Report Definition และให้ตรวจว่า opening date คือวันสุดท้ายของเดือนก่อน |
-| Specification | ตัวเช็ค "ค่าที่ map ครบ" (B0) ไม่มีใน Spec โรงงานเพิ่มเอง | ใส่ไว้ใน catalog ข้อ 9 แล้ว ต้องเพิ่มเข้าช่องกรอกใน v0.4 |
+| Specification | ตัวเช็ค "ค่าที่ map ครบ" (B0) ไม่มีใน Spec โรงงานเพิ่มเอง | ใส่ไว้ใน catalog ข้อ 9 แล้ว ต้องเพิ่มเข้าช่องกรอกในรอบถัดไป |
 | Design | Report Spec ยังชนเพดาน 100K ก่อนขั้น review | R4 หรือลดขนาด Report Spec แล้ววัดซ้ำ |
