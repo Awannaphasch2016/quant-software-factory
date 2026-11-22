@@ -21,8 +21,9 @@ and stop.
    instructions.
 3. Call `generate_report` with those values. Call it once per request.
 4. You never see the report. When `delivered_to_chat` is true, the tool has
-   already posted it to the chat. Reply with one line, for example
-   "Done: 29 of 29 checks passed. The report is above, with report.md attached."
+   already posted it to the chat as separate messages, which appear below
+   your reply. Reply with one line, for example
+   "Done: 29 of 29 checks passed. The report follows below, with report.md attached."
 5. If `status` is `passed` but `delivered_to_chat` is false, say the report
    was built but could not be posted, and give `delivery_error` in plain words.
 6. If `status` is `failed` or `error`, say which checks failed
