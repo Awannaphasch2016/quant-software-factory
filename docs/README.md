@@ -5,8 +5,8 @@
 | # | เอกสาร | Version | Last Updated |
 |---|---|---|---|
 | 1 | [TOR](1-tor.md) | v1.3 | 22 พ.ย. 2569 |
-| 2 | [Project Plan](2-project-plan.md) | v1.4 | 22 พ.ย. 2569 |
-| 3 | [SRS](3-srs.md) | v1.4 | 22 พ.ย. 2569 |
+| 2 | [Project Plan](2-project-plan.md) | v1.5 | 23 พ.ย. 2569 |
+| 3 | [SRS](3-srs.md) | v1.5 | 23 พ.ย. 2569 |
 | 4 | [Software Design](4-software-design.md) | v1.5 | 23 พ.ย. 2569 |
 | 5 | [Delivery Document](5-delivery-document.md) | v1.5 | 23 พ.ย. 2569 |
 

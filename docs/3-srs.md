@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.4 | 22 พ.ย. 2569 | Current |
+| v1.5 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.5 | 23 พ.ย. 2569 | แก้ FR-06 (Specification gap: รายการไฟล์ output ผูกกับรายงาน Returns & Transactions แบบเดียว รายงาน Grid เป็น PDF และ Spec ไม่มี narrative) เพิ่มหลักฐานรายงาน Grid Trade Performance (Issue #23 → PR #26, #28, #30, #32) ใน HR-01, HR-03, FR-06, NFR-01, NFR-04, NFR-06, AC-02, AC-03 |
 | v1.4 | 22 พ.ย. 2569 | Human Iteration 2: HR-05 และ AC-05 เป็น Demonstrated กับข้อมูลปลอม (Report Agent ผ่าน Discord) เพิ่ม HR-06 (โมเดลไม่เห็นและไม่เขียนตัวเลขในรายงาน) เพิ่มคำศัพท์ Report Agent ปรับ Use case, FR-04 (Spec Structure v0.4) และ NFR-07 (ต้นทุนต่อรายงาน) |
 | v1.3 | 19 พ.ย. 2569 | แก้ Use case ข้อ 2.3 ให้การรันกับข้อมูลจริงเป็น Intended และรันใน Trusted zone เพิ่ม Progress Report สัปดาห์ 16–20 พ.ย. ใน AC-04 |
 | v1.2 | 19 พ.ย. 2569 | ปรับสถานะ PD-04 และ PD-05 หลังแก้ design gap ด้วย Issue #15 → PR #16 เพิ่มลิงก์อ้างอิง |
@@ -78,9 +79,9 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 | ID | ข้อกำหนด | สถานะ |
 |---|---|---|
-| HR-01 | Spec ต้องส่งเข้าโรงงานได้ด้วย GitHub Issue ที่ติด label `factory` | Demonstrated (Issue #4, #6, #7, #9) |
+| HR-01 | Spec ต้องส่งเข้าโรงงานได้ด้วย GitHub Issue ที่ติด label `factory` | Demonstrated (Issue #4, #6, #7, #9, #23 และ Issue ย่อย #25, #27, #29, #31) |
 | HR-02 | ผู้ติด label ต้องเป็นบัญชีคนที่มีสิทธิ์ triage ขึ้นไป บัญชีชนิด Bot จะถูกโรงงานข้าม | Demonstrated เฉพาะกรณีบัญชีคน (Josh-Bear, Issue #4, #6, #7, #9) ส่วนกรณีบัญชี Bot มาจากโค้ดใน template ยังไม่ได้ทดสอบ |
-| HR-03 | Output ของโรงงานต้องเป็น draft PR การ merge เป็นของคน | Demonstrated (PR #5, #8, #10 เป็น draft และคนเป็นผู้ merge PR #2, #8, #10) |
+| HR-03 | Output ของโรงงานต้องเป็น draft PR การ merge เป็นของคน | Demonstrated (PR #5, #8, #10, #26, #30, #32 เป็น draft และคนเป็นผู้ merge PR #2, #8, #10, #26, #28, #30, #32; PR #28 คนเปิดจาก branch ของโรงงานเพราะโรงงานหยุดก่อนเปิด PR) |
 | HR-04 | Spec ต้องระบุ base branch และ Issue ที่ต้องทำก่อน (`Depends on`) ได้ | Demonstrated (Issue #6, #7, #9 แตก branch จาก `main` ตาม Spec และ Issue #9 ใช้ data layer จาก #7 ที่ merge แล้ว) |
 | HR-05 | ต้องสั่งงานและรับรายงานกลับผ่านช่องทางแชต (Discord ตามที่ทีม Quant ใช้) โดยไม่ต้องเข้า repository และช่องทางแชตต้องไม่ส่ง Private Data ออกนอก Trusted zone | Demonstrated กับข้อมูลปลอม (22 พ.ย. 2569: `/ask` ทั้งแบบพิมพ์และแนบไฟล์ได้รายงาน 29/29 ใน server ทดสอบ, PR #19) ส่วนข้อมูลจริงเป็น Intended (Software Design ข้อ 2.9) |
 | HR-06 | โมเดลต้องไม่ได้รับตัวเลขในรายงานและต้องไม่เขียนตัวเลขเอง รายงานที่ส่งถึงผู้ใช้ต้องมาจากโค้ดโดยตรง | Demonstrated กับข้อมูลปลอม (tool โพสต์รายงานเอง โมเดลเห็นแค่สถานะและชื่อตัวเช็ค ไฟล์ที่ส่งใน Discord มี SHA-256 ตรงกับ `report.md` ใน repo) |
@@ -94,7 +95,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | FR-03 | ตัวเลขทุกช่องในรายงานต้องมี Data Mapping ไปยัง dataset.field และโค้ดต้องไม่คำนวณ field ที่ dataset ให้มา | Demonstrated (Run #4: ตามที่ reviewer ตรวจใน PR #10 โค้ดมีการคำนวณแค่ยอดรวมในแถว Total เพื่อแสดงผล ซึ่ง B1 และ B2 ตรวจ และกลับเครื่องหมายเงินถอน) |
 | FR-04 | โค้ดต้องอ่านข้อมูลผ่าน interface เดียว `load(dataset, as_of, accounts)` ที่เปลี่ยนจาก fixture เป็นข้อมูลจริงได้ | Demonstrated กับ fixture (Run #3 สร้าง `DataSource` และ `FixtureSource`, Run #4 มี test ยืนยันว่าอ่านผ่าน `load(...)` เท่านั้น) และกับ private database จำลอง (`SqliteSource`, PR #13) Spec Structure v0.4 ให้ Spec ระบุแค่ชื่อกลาง ส่วนที่มาของข้อมูลเลือกตอนรัน (ยังไม่ได้รันกับโรงงาน) การต่อกับข้อมูลจริงเป็น Intended |
 | FR-05 | ทุก Spec ต้องมี Expected Values ที่คำนวณจาก fixture และ test ต้องตรวจทุกแถว | Demonstrated (Run #1: 36 กรณี, Run #3: 11 แถว, Run #4: 21 แถว) |
-| FR-06 | Output ต้องเป็น `report.md` (หรือ pdf ถ้าอนุมัติ dependency), `report.json`, `narrative.md`, `checks.json` ตามกติการูปแบบตัวเลขและค่าว่างใน Template | Demonstrated (Run #1 และ #4, รูปแบบ md) |
+| FR-06 | Output ต้องเป็นไฟล์ตาม Output Contract ใน Spec และต้องมี `report.json` (ทุกค่าที่แสดงในรายงาน) กับ `checks.json` เสมอ รูปแบบรายงานเป็น `report.md` หรือ `report.pdf` (เมื่อ Spec อนุญาต dependency) และมี `narrative.md` เมื่อ Spec มีข้อความบรรยาย ตามกติการูปแบบตัวเลขและค่าว่างใน Template | Demonstrated (Run #1 และ #4 รูปแบบ md พร้อม narrative; Run #7–#10 รูปแบบ PDF ไม่มี narrative ตาม Spec ของ Issue #23) |
 | FR-07 | Number Checks ชั้น A ต้องตรวจความสด ความครบ และ schema ของข้อมูล ชั้น B ต้องตรวจความสอดคล้องของตัวเลขในรายงาน ถ้าไม่ผ่านต้องไม่สร้างไฟล์รายงาน | Demonstrated (Run #4: ชั้น A 14 และชั้น B 15 ผ่าน, ทุกตัวเช็คมี test ที่ทำให้ไม่ผ่าน, ชั้น A ไม่ผ่านแล้วไม่สร้างไฟล์รายงาน) |
 | FR-08 | Writing Rules ต้องตรวจได้ และตัวเลขในข้อความต้องอยู่ใน `report.json` | Demonstrated (Run #4: ตัวเช็ค B8 และ W1–W5 อยู่ใน `checks.json`) แต่ตัวเช็คอัตโนมัติยังจับปัญหาข้อความที่เล่าตามตารางไม่ได้ |
 | FR-09 | Spec ต้องมีหัวข้อ Open Items ที่รวมสิ่งที่ยังไม่มีข้อมูล | Demonstrated (Example v0.2) Report Spec ของ Run #4 ไม่มีหัวข้อนี้เพราะไม่มีสิ่งที่ขาด Spec Structure v0.3 จึงบังคับให้เขียน "None" แล้ว ([`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md) ข้อ 3) แต่ยังไม่ได้ทดสอบกับโรงงาน |
@@ -117,12 +118,12 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 | ID | ข้อกำหนด | สถานะ |
 |---|---|---|
-| NFR-01 | รันซ้ำกับข้อมูลเดิมต้องได้ `report.json` เหมือนเดิมทุกไบต์ | Demonstrated (Run #1 และ #4 ผู้จัดทำรันซ้ำเองใน Run #4 แล้วได้ไฟล์ตรงกับที่ commit) |
+| NFR-01 | รันซ้ำกับข้อมูลเดิมต้องได้ `report.json` เหมือนเดิมทุกไบต์ | Demonstrated (Run #1 และ #4 ผู้จัดทำรันซ้ำเองใน Run #4 แล้วได้ไฟล์ตรงกับที่ commit; รายงาน Grid รันซ้ำบน `main` ได้ `report.pdf`, `report.json`, `checks.json` ตรงทุกไบต์ และผ่าน `SqliteSource` ได้ไฟล์เดียวกัน) |
 | NFR-02 | คำนวณและจัดรูปแบบด้วย Decimal ปัดแบบ half-up ความคลาดเคลื่อนไม่เกิน 0.01 ต่อค่า | Demonstrated (Run #1 และ #4) |
-| NFR-03 | ไม่มีข้อมูลลูกค้าจริง ชื่อ server ชื่อ database ชื่อตาราง URL ภายใน หรือ credential ใน Issue โค้ด หรือเอกสารบน repository สาธารณะ | Demonstrated (ตรวจ Issue #4, #6, #7, #9 และเอกสารแล้ว) |
-| NFR-04 | CI ผ่านบน Python 3.10 ถึง 3.13 (ruff, ruff format, mypy strict, pytest) | Demonstrated (Run #1 CI run 43151748082, Run #3 CI run 43383851475, Run #4 CI run 43395249810) |
+| NFR-03 | ไม่มีข้อมูลลูกค้าจริง ชื่อ server ชื่อ database ชื่อตาราง URL ภายใน หรือ credential ใน Issue โค้ด หรือเอกสารบน repository สาธารณะ | Demonstrated (ตรวจ Issue #4, #6, #7, #9, #23 และ Issue ย่อย, เอกสาร และข้อมูลปลอมของรายงาน Grid ที่ใช้ชื่อสมมติทั้งหมด ไม่มีโลโก้บริษัท) |
+| NFR-04 | CI ผ่านบน Python 3.10 ถึง 3.13 (ruff, ruff format, mypy strict, pytest) | Demonstrated (Run #1 CI run 43151748082, Run #3 CI run 43383851475, Run #4 CI run 43395249810, Run #7–#10 ผ่านใน PR #26, #28, #30, #32) |
 | NFR-05 | ทุกข้ออ้างตรวจย้อนกลับได้ด้วยลิงก์ GitHub หรือ commit SHA | Demonstrated |
-| NFR-06 | ไม่เพิ่ม runtime dependency ถ้า Spec ไม่อนุญาต | Demonstrated (Run #1, #3, #4: `pyproject.toml` ไม่เปลี่ยนใน #3 และ #4) |
+| NFR-06 | ไม่เพิ่ม runtime dependency ถ้า Spec ไม่อนุญาต | Demonstrated (Run #1, #3, #4: `pyproject.toml` ไม่เปลี่ยนใน #3 และ #4; Run #9 เพิ่ม `fpdf2==2.8.9` ตามที่ Spec ของ Issue #23 อนุญาต) |
 | NFR-07 | ต้นทุนต่อรอบวัดได้และใช้เป็นจุดอ้างอิง | Demonstrated บางส่วน: ค่าโมเดลของ Report Agent ต่อรายงาน 1 ฉบับวัดจาก token จริงใน log ของ AI Gateway (Software Design ข้อ 10) ค่า Sandbox, Function และต้นทุนของโรงงานยังวัดไม่ได้ |
 | NFR-08 | ข้อความบรรยายไม่มีการคาดการณ์หรือคำแนะนำการลงทุน | Demonstrated (Run #1 และ #4 ตัวเช็ค W5) |
 
@@ -133,8 +134,8 @@ AC ระดับระบบ AC-01 ถึง AC-06 ตรงกับ Acceptan
 | ID | เกณฑ์ | อ้าง | สถานะ |
 |---|---|---|---|
 | AC-01 | มี Reusable Spec Template ที่รองรับรายงาน 3 ประเภท | FR-01, FR-02 | Demonstrated กับ 1 ประเภท |
-| AC-02 | มี Spec ตัวอย่างที่กรอกแล้วอย่างน้อย 1 ใบ | FR-01, FR-05, FR-09 | Demonstrated (4 ใบ: v0.1, v0.2, Platform Spec v0.3, Report Spec v0.3) |
-| AC-03 | มีการรันผ่านโรงงานสำเร็จอย่างน้อย 1 ครั้ง: Issue เชื่อมกับ draft PR, Output ตรง Expected Values ทุกค่า, CI ผ่าน, reviewer ไม่เหลือ blocking issue | HR-01, HR-03, FR-05, FR-06, FR-07, NFR-04 | Demonstrated 2 ครั้ง (Issue #4 → PR #5 และ Issue #9 → PR #10 ที่ merge แล้ว) |
+| AC-02 | มี Spec ตัวอย่างที่กรอกแล้วอย่างน้อย 1 ใบ | FR-01, FR-05, FR-09 | Demonstrated (5 ใบ: v0.1, v0.2, Platform Spec v0.3, Report Spec v0.3 และ Report Spec ของรายงาน Grid ใน Issue #23 ที่ [`specs/grid-report-spec.md`](specs/grid-report-spec.md)) |
+| AC-03 | มีการรันผ่านโรงงานสำเร็จอย่างน้อย 1 ครั้ง: Issue เชื่อมกับ draft PR, Output ตรง Expected Values ทุกค่า, CI ผ่าน, reviewer ไม่เหลือ blocking issue | HR-01, HR-03, FR-05, FR-06, FR-07, NFR-04 | Demonstrated 3 ครั้ง (Issue #4 → PR #5, Issue #9 → PR #10 และ Issue #23 → PR #26, #28, #30, #32 ที่ merge แล้วและปิด #23 ผลเป็น PDF 5 หน้าตามรูปแบบรายงานของทีม Quant) |
 | AC-04 | มี Progress Report | | Demonstrated ([Iteration 1](progress/progress-report-iteration-1.md), [สัปดาห์ 16–23 พ.ย.](progress/progress-report-2026-11-16.md)) |
 | AC-05 | สั่งงานผ่าน Discord ได้ | HR-05, HR-06 | Demonstrated กับข้อมูลปลอมใน server ทดสอบของผู้จัดทำ (Delivery Document ส่วน C) ยังไม่ได้ทดสอบใน server ของทีม |
 | AC-06 | มีข้อเสนอ Natural Writing ครอบคลุม Spec, Writing Guidelines และการตรวจ Output | FR-08 | Demonstrated (เอกสารข้อเสนอ, กติกาที่ตรวจได้และตัวเช็ค W1–W5 ใน Run #4, ผลตรวจข้อความ Run #1 และ #4 ด้วย skill พร้อมฉบับแก้) ส่วน narrative facts และ LLM judge เป็น Intended |
