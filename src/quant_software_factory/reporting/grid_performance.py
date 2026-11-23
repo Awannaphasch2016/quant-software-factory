@@ -7,9 +7,10 @@ Usage::
 
 Runs the Layer A data checks first, then loads the mapped values, computes every
 figure the report prints and runs the Layer B checks (G0-G9). When every check
-passes it writes ``report.json`` and ``checks.json`` to ``<out>`` and exits 0.
-When any check fails it writes only ``checks.json``, removes a stale
-``report.json`` and exits 1. The report ID is the name of ``<out>``.
+passes it writes ``checks.json``, ``report.json`` and ``report.pdf`` (drawn by
+:mod:`.grid_pdf` from the report) to ``<out>`` and exits 0. When any check fails
+it writes only ``checks.json``, removes a stale ``report.json`` and
+``report.pdf`` and exits 1. The report ID is the name of ``<out>``.
 
 All data is read through :meth:`DataSource.load`. Figures are computed with
 ``Decimal`` and rounded (ROUND_HALF_UP) only when formatted for display; every
@@ -29,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from .checks import CheckResult, run_grid_checks
+from .grid_pdf import render_pdf
 from .returns_transactions import fmt_long_date
 from .schema import GRID_DATASETS, parse_date, parse_decimal
 from .source import DatasetError, DataSource, FixtureSource
@@ -39,6 +41,7 @@ LOT = 100
 TRANSACTION_ROWS = 25
 INSTRUMENT_TRANSACTION_ROWS = 7
 REPORT_FILE = "report.json"
+PDF_FILE = "report.pdf"
 CHECKS_FILE = "checks.json"
 
 SIDE_LABELS: dict[str, str] = {
@@ -762,24 +765,31 @@ def _write(path: Path, text: str) -> None:
 def write_outputs(
     out: Path, results: Sequence[CheckResult], report: Report | None
 ) -> None:
-    """Write ``checks.json`` and, when every check passed, ``report.json``.
+    """Write ``checks.json`` and, when every check passed, the report files.
 
-    When any check failed or no report was built, a stale ``report.json`` in
-    ``out`` is removed.
+    The report files are ``report.json`` and ``report.pdf``. The PDF is drawn
+    before anything is written, so a drawing error leaves ``out`` untouched.
+    When any check failed or no report was built, a stale ``report.json`` and
+    ``report.pdf`` in ``out`` are removed.
 
     Args:
         out: Output folder; created if missing.
         results: Check results in the order they are written.
         report: The built report, or ``None``.
     """
+    pdf: bytes | None = None
+    if report is not None and all(r.passed for r in results):
+        pdf = render_pdf(report)
     out.mkdir(parents=True, exist_ok=True)
     _write(
         out / CHECKS_FILE, json.dumps([r.to_dict() for r in results], indent=2) + "\n"
     )
-    if all(r.passed for r in results) and report is not None:
+    if pdf is not None:
         _write(out / REPORT_FILE, json.dumps(report, indent=2) + "\n")
+        (out / PDF_FILE).write_bytes(pdf)
     else:
         (out / REPORT_FILE).unlink(missing_ok=True)
+        (out / PDF_FILE).unlink(missing_ok=True)
 
 
 def _iso_date(value: str) -> date:
@@ -800,7 +810,10 @@ def _timestamp(value: str) -> str:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m quant_software_factory.reporting.grid_performance",
-        description="Compute the Grid Trade Performance figures and their checks.",
+        description=(
+            "Compute the Grid Trade Performance figures and their checks and "
+            "draw the report PDF."
+        ),
     )
     parser.add_argument("root", type=Path, help="directory holding <dataset>.csv")
     parser.add_argument("out", type=Path, help="output folder; its name is the ID")
