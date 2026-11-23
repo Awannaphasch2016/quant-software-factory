@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test } from "node:test";
-import { alignTable, fenceTables, postReport, splitForDiscord } from "../agent/lib/discord-report.ts";
+import { alignTable, fenceTables, postFile, postReport, splitForDiscord } from "../agent/lib/discord-report.ts";
 
 const REPORT = readFileSync(
   join(import.meta.dirname, "../../reports/demo_coop_rg_2026_10_v2/report.md"),
@@ -99,4 +99,32 @@ test("postReport fails on a non-429 error", async () => {
     }),
     /HTTP 403/
   );
+});
+
+test("postFile attaches the committed Grid PDF byte for byte in one message", async () => {
+  const pdf = new Uint8Array(
+    readFileSync(join(import.meta.dirname, "../../reports/demo_grid_2026_11/report.pdf"))
+  );
+  const bodies: FormData[] = [];
+  const fakeFetch = (async (_url: string | URL | Request, init?: RequestInit) => {
+    bodies.push(init?.body as FormData);
+    return new Response("{}", { status: 200 });
+  }) as typeof fetch;
+  await postFile({
+    botToken: "test",
+    channelId: "1",
+    content: pdf,
+    contentType: "application/pdf",
+    fetchImpl: fakeFetch,
+    filename: "demo_grid_2026_11.pdf",
+    summary: "Grid report",
+  });
+  assert.equal(bodies.length, 1);
+  const file = bodies[0]?.get("files[0]");
+  assert.ok(file instanceof Blob);
+  assert.equal(file.type, "application/pdf");
+  assert.deepEqual(new Uint8Array(await file.arrayBuffer()), pdf);
+  const payload = JSON.parse(String(bodies[0]?.get("payload_json")));
+  assert.deepEqual(payload.attachments, [{ filename: "demo_grid_2026_11.pdf", id: 0 }]);
+  assert.deepEqual(payload.allowed_mentions, { parse: [] });
 });

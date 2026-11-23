@@ -1,7 +1,8 @@
 # report-agent
 
 A single [eve](https://www.npmjs.com/package/eve) agent that turns a Report
-Spec sent in Discord into the Returns & Transactions report. The Python report
+Spec sent in Discord into one of two reports: Returns & Transactions
+(Markdown) or Grid Trade Performance (5-page PDF). The Python report
 code in this repository computes and checks every figure; the model only reads
 the Spec and calls tools.
 
@@ -27,10 +28,12 @@ Software Design section 2.9 in [`../docs/4-software-design.md`](../docs/4-softwa
 | --- | --- |
 | `agent/agent.ts` | Model, no built-in tools (`defaultTools: false`), session usage cap |
 | `agent/instructions.md` | System prompt: read the Spec, call the tool once, never write figures |
-| `agent/sandbox.ts` | Vercel Sandbox: clones this repo at `REPO_REF` at build time, runs with network denied |
-| `agent/tools/generate_report.ts` | Runs the report, posts it to Discord, hides it from the model |
+| `agent/sandbox.ts` | Vercel Sandbox: at build time installs `fpdf2` in a venv and clones this repo at `REPO_REF`; runs with network denied |
+| `agent/tools/generate_report.ts` | Runs the Returns & Transactions report, posts it to Discord, hides it from the model |
+| `agent/tools/generate_grid_report.ts` | Runs the Grid Trade Performance report and posts `report.pdf` to Discord |
 | `agent/tools/read_spec_file.ts` | Reads text files attached in chat, and nothing else |
-| `agent/lib/discord-report.ts` | Table formatting and the Discord REST calls for posting a report |
+| `agent/lib/discord-report.ts` | Table formatting and the Discord REST calls for posting a report or a file |
+| `agent/lib/report-tool.ts` | Input patterns, `checks.json` schema, bot token and channel helpers shared by the two report tools |
 | `agent/discord-credentials.ts` | Bot credentials from the Vercel Connect connector `discord/qsf-report-agent` |
 | `agent/channels/discord.ts` | Discord channel, slash command mode |
 | `agent/channels/eve.ts` | eve's own channel, for the dev TUI and `eve remote` |
@@ -74,7 +77,7 @@ and Attach Files permissions in the channel.
 
 ## Known limits
 
-- One report type and one mock dataset (`demo_coop_rg_2026_10_v2`).
+- Two report types, one mock dataset each (`demo_coop_rg_2026_10_v2`, `demo_grid_2026_11`).
 - The agent reads only dataset, account and dates from the Spec. Other Spec
   sections (blocks, writing rules, language) are not applied.
 - Anyone in a server that has the bot can run `/ask`.
