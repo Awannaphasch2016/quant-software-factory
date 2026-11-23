@@ -5,12 +5,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.4 | 22 พ.ย. 2569 | Current |
+| v1.5 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.5 | 23 พ.ย. 2569 | ปรับ Scoreboard และ Progress Indicators ณ 23 พ.ย.: เพิ่มรอบรายงาน Grid Trade Performance (Issue #23 → Run #7–#10) ที่ทำตาม feedback ต่อ PR #5 แก้สถานะ PR #19 เป็น merge แล้ว และเพิ่ม gap เรื่องขนาดงานต่อ Issue ของโรงงาน |
 | v1.4 | 22 พ.ย. 2569 | ปรับ Scoreboard และ Progress Indicators ณ 22 พ.ย. (Human Iteration 2: Report Agent และ Discord) เพิ่มตัวอย่าง gap จากรอบนี้ เพิ่มเครื่องมือ (Vercel, Discord) และบทบาท Report Agent แก้ลิงก์ตามโครงสร้าง `docs/` ใหม่ |
 | v1.3 | 19 พ.ย. 2569 | ใช้คำ Human Iteration และ Agent Run ตาม weekly report (ข้อ 2.2) ปรับ Scoreboard สัปดาห์ 16–20 พ.ย. ให้แสดงสถานะ Human Iteration 1–3 เพิ่มลิงก์ Progress Report สัปดาห์ 16–20 พ.ย. |
 | v1.2 | 19 พ.ย. 2569 | เพิ่มการแก้ design gap ของ prototype (Issue #15 → PR #16) ใน Scoreboard และ Progress Indicators |
@@ -134,17 +135,17 @@ Project Plan อธิบายวิธีดำเนินงานให้�
 
 | สัปดาห์ | เป้า | รอบที่เสร็จ | หลักฐาน |
 |---|---|---|---|
-| 16–23 พ.ย. 2569 (กำหนดส่งเลื่อนเป็น 23 พ.ย. 18:00) | 3 (เฉพาะสัปดาห์นี้ตาม weekly report) | ณ 22 พ.ย.: (1) Human Iteration 1: Spec → รายงานจากข้อมูลปลอมผ่าน Run #4 (Issue #9 → PR #10) และ Eve agent ตัวเดียวรับ Spec แล้วได้รายงานที่ตรงกับ `report.md` ทุก byte พร้อมต้นทุนค่าโมเดลต่อรายงาน (2) Human Iteration 2: Discord เป็นช่องทางเดียว `/ask` แบบพิมพ์และแนบไฟล์ได้ 29/29 ใน server ทดสอบ (PR #19 รอ merge, ยังไม่ได้ทดสอบใน server ของทีม) (3) Private Data (Run #5, #6) ใช้แทน Human Iteration 3 ตาม feedback 19 พ.ย. ออกแบบเส้นทางไป executor ในบริษัทแล้ว (Software Design ข้อ 2.9) ยังไม่ได้เชื่อมข้อมูลจริง | Software Design ข้อ 2, 4.4, 10, SRS HR-05, HR-06, PR #19, Issue #12 → PR #13, Issue #15 → PR #16, [Progress Report 16–23 พ.ย.](progress/progress-report-2026-11-16.md) |
+| 16–23 พ.ย. 2569 (กำหนดส่งเลื่อนเป็น 23 พ.ย. 18:00) | 3 (เฉพาะสัปดาห์นี้ตาม weekly report) | ณ 23 พ.ย.: (1) Human Iteration 1: Spec → รายงานจากข้อมูลปลอมผ่าน Run #4 (Issue #9 → PR #10) และ Eve agent ตัวเดียวรับ Spec แล้วได้รายงานที่ตรงกับ `report.md` ทุก byte พร้อมต้นทุนค่าโมเดลต่อรายงาน (2) Human Iteration 2: Discord เป็นช่องทางเดียว `/ask` แบบพิมพ์และแนบไฟล์ได้ 29/29 ใน server ทดสอบ (merge PR #19 แล้ว ยังไม่ได้ทดสอบใน server ของทีม) (3) Private Data (Run #5, #6) ใช้แทน Human Iteration 3 ตาม feedback 19 พ.ย. ออกแบบเส้นทางไป executor ในบริษัทแล้ว (Software Design ข้อ 2.9) ยังไม่ได้เชื่อมข้อมูลจริง (4) รายงาน Grid Trade Performance ตามรูปแบบที่ทีม Quant ใช้ (feedback ต่อ PR #5): Spec ใน Issue #23 → Run #7–#10 ผ่าน Issue ย่อย 4 อัน → PDF 5 หน้า merge แล้วและปิด #23 gap: Spec ทั้งฉบับใหญ่เกิน budget ต่อ session ของโรงงาน จึงแตก Issue | Software Design ข้อ 2, 4.4, 5.5, 10, SRS HR-05, HR-06, FR-06, PR #19, Issue #23 → PR #26, #28, #30, #32, Issue #12 → PR #13, Issue #15 → PR #16, [Progress Report 16–23 พ.ย.](progress/progress-report-2026-11-16.md) |
 | 9–13 พ.ย. 2569 | 1 | 3 (Agent Run #1–#4): (1) Template v0.1 → Run #1 สำเร็จ → gap (2) Template v0.2 → Run #2 ค้างที่ implement → gap (3) Template v0.3 → Run #3 และ #4 สำเร็จและ merge แล้ว → gap ใหม่ 3 จุด | Progress Report Iteration 1, Issue #4 → PR #5, Issue #6, Issue #7 → PR #8, Issue #9 → PR #10 |
 
 ### 4.3 Progress Indicators
 
-| ตัวชี้วัด | ค่า ณ 22 พ.ย. 2569 |
+| ตัวชี้วัด | ค่า ณ 23 พ.ย. 2569 |
 |---|---|
-| รอบที่เสร็จ | 5 Human Iteration (3 รอบในสัปดาห์ 9–13 พ.ย. และ 2 รอบในสัปดาห์ 16–23 พ.ย.: Human Iteration 1 และรอบ Private Data ที่ใช้แทน Human Iteration 3) Human Iteration 2 นับว่าเสร็จเมื่อ merge PR #19 จาก Agent Run ของโรงงาน 6 ครั้ง และการรัน Report Agent บน Vercel |
-| ความไม่แน่นอนที่คลี่คลาย | Eve agent ตัวเดียวรันโค้ดรายงานใน Vercel Sandbox ได้และส่งรายงานเข้า Discord โดยโมเดลไม่เห็นตัวเลข ค่าโมเดลประมาณ $0.014 ต่อรายงาน (PR #19); agent เขียนโค้ดที่อ่าน private database ได้โดยไม่เห็นข้อมูลจริง และ result ที่ส่งกลับไม่มีค่ารั่ว (PR #13); ตัวกันเขียนลง repo ใช้ได้ทุกวิธีติดตั้ง และเลขบัญชีสั้นไม่ทำให้ leak check หยุดโดยไม่จำเป็น (PR #16); โรงงานรับ Spec ได้จริง; ตัวเลขคำนวณไว้แล้วใน pipeline; base branch แก้ด้วย merge PR #2; Spec ที่ไม่คำนวณใหม่ (Data Mapping) ได้รายงานที่ตรงกับ Spec (Run #4); Report Spec ใช้ data layer จาก Platform Spec ได้โดยไม่ต้องแก้ (Run #3 → #4) |
-| ข้อกำหนดที่ตรวจสอบแล้ว | Demonstrated ในระดับ prototype: PD-01 ถึง PD-04, PD-05 และ PD-06 บางส่วน; Demonstrated กับข้อมูลปลอม: HR-05, HR-06; Demonstrated: HR-01 ถึง HR-04, FR-01, FR-03 ถึง FR-09, NFR-01 ถึง NFR-06, NFR-08 (FR-04 เฉพาะ fixture) ผ่านบางส่วน: FR-02 (1 จาก 3 ประเภท), FR-10 (ดู SRS) |
-| ช่องว่างสำคัญที่ยังเปิด | ทดสอบ Discord ใน server ของทีม, ค่า Sandbox และ Function ต่อรายงาน (AI Gateway แสดง $0 และยังไม่มี billing data), เส้นทางจาก Discord ไป executor ในบริษัท (Software Design ข้อ 2.9) และ policy เรื่องส่งรายงานเข้า Discord, Trusted zone จริงในเครือข่ายบริษัทและสิทธิ์ database แบบอ่านอย่างเดียว, policy เรื่องผู้ให้บริการโมเดล, leak check ที่ไม่ค้นในชื่อ key และค่าจำนวนเต็ม, FR-10 (Report Spec ยังต้องอนุมัติ token 1 ครั้ง), FR-02 (อีก 2 ประเภทรายงาน), HR-05 กับข้อมูลจริง, schema ที่ยังไม่รองรับฝาก/ถอนหุ้นและรูปแบบปันผลของข้อมูลจริง, spec gap 3 จุดจาก Run #4, นิยามข้อมูลจริง |
+| รอบที่เสร็จ | 7 Human Iteration (3 รอบในสัปดาห์ 9–13 พ.ย. และ 4 รอบในสัปดาห์ 16–23 พ.ย.: Human Iteration 1, Human Iteration 2 (merge PR #19), รอบ Private Data ที่ใช้แทน Human Iteration 3 และรอบรายงาน Grid) จาก Agent Run ของโรงงาน 10 ครั้ง และการรัน Report Agent บน Vercel |
+| ความไม่แน่นอนที่คลี่คลาย | โรงงานสร้างรายงาน PDF ตามรูปแบบของทีมได้จาก Spec โดยโค้ดคำนวณทุกค่าก่อนวาด และสร้างซ้ำได้ตรงทุกไบต์ (PR #32); Spec ใหญ่ต้องแตกเป็น Issue ที่จบใน session เดียว (Run #7–#10); Eve agent ตัวเดียวรันโค้ดรายงานใน Vercel Sandbox ได้และส่งรายงานเข้า Discord โดยโมเดลไม่เห็นตัวเลข ค่าโมเดลประมาณ $0.014 ต่อรายงาน (PR #19); agent เขียนโค้ดที่อ่าน private database ได้โดยไม่เห็นข้อมูลจริง และ result ที่ส่งกลับไม่มีค่ารั่ว (PR #13); ตัวกันเขียนลง repo ใช้ได้ทุกวิธีติดตั้ง และเลขบัญชีสั้นไม่ทำให้ leak check หยุดโดยไม่จำเป็น (PR #16); โรงงานรับ Spec ได้จริง; ตัวเลขคำนวณไว้แล้วใน pipeline; base branch แก้ด้วย merge PR #2; Spec ที่ไม่คำนวณใหม่ (Data Mapping) ได้รายงานที่ตรงกับ Spec (Run #4); Report Spec ใช้ data layer จาก Platform Spec ได้โดยไม่ต้องแก้ (Run #3 → #4) |
+| ข้อกำหนดที่ตรวจสอบแล้ว | Demonstrated ในระดับ prototype: PD-01 ถึง PD-04, PD-05 และ PD-06 บางส่วน; Demonstrated กับข้อมูลปลอม: HR-05, HR-06; Demonstrated: HR-01 ถึง HR-04, FR-01, FR-03 ถึง FR-09, NFR-01 ถึง NFR-06, NFR-08 (FR-04 เฉพาะ fixture) ผ่านบางส่วน: FR-02 (1 จาก 3 ประเภท รายงาน Grid อยู่ในประเภท Returns & Transactions), FR-10 (ดู SRS) |
+| ช่องว่างสำคัญที่ยังเปิด | สูตรของรายงาน Grid (Expected Volume, NAV Vol, Cost Change %) ยังไม่ได้ยืนยันกับทีม Quant, โรงงานไม่ทำต่อหลัง approve เมื่อชน token guardrail (#23, #27), รายงาน Grid ยังสั่งผ่าน Discord ไม่ได้, ทดสอบ Discord ใน server ของทีม, ค่า Sandbox และ Function ต่อรายงาน (AI Gateway แสดง $0 และยังไม่มี billing data), เส้นทางจาก Discord ไป executor ในบริษัท (Software Design ข้อ 2.9) และ policy เรื่องส่งรายงานเข้า Discord, Trusted zone จริงในเครือข่ายบริษัทและสิทธิ์ database แบบอ่านอย่างเดียว, policy เรื่องผู้ให้บริการโมเดล, leak check ที่ไม่ค้นในชื่อ key และค่าจำนวนเต็ม, FR-10 (Report Spec ยังต้องอนุมัติ token 1 ครั้ง), FR-02 (อีก 2 ประเภทรายงาน), HR-05 กับข้อมูลจริง, schema ที่ยังไม่รองรับฝาก/ถอนหุ้นและรูปแบบปันผลของข้อมูลจริง, spec gap 3 จุดจาก Run #4, นิยามข้อมูลจริง |
 | ความพร้อม freeze | ยังไม่พร้อม (ข้อ 2.6) |
 
 ประเด็นเปิดอาจเพิ่มเมื่อพบปัญหาใหม่ จึงไม่ใช้จำนวนประเด็นที่ลดลงอย่างเดียวแทนความก้าวหน้า
