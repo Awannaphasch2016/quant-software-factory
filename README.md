@@ -96,6 +96,28 @@ exits 0. When any check fails, it writes only `checks.json`, removes stale
 nothing is built and the Layer B checks are reported as `"not run: Layer A
 failed"`. Two runs on the same input produce byte-identical files.
 
+## Grid Trade Performance figures
+
+Compute every figure of the Grid Trade Performance report for one Reverse Grid
+account and check them (part 2 of #23; the PDF comes in later parts):
+
+```bash
+python -m quant_software_factory.reporting.grid_performance \
+    data/fixtures/demo_grid_2026_11 reports/demo_grid_2026_11 \
+    --account DEMO-0001 --as-of 2026-11-06 --generated-at 2026-11-06T18:00:00Z
+```
+
+Data is read only through `DataSource.load` (`schema.GRID_DATASETS`). Every value
+in `report.json` is a string formatted as the report prints it (`Decimal`,
+ROUND_HALF_UP, rounded only for display). The Layer A checks cover the schema of
+the six datasets, the as-of rows and one row per instrument per date; the Layer
+B checks G0-G9 (layer `"B"`, tolerance 0.01) cover mapped values, NAV, holdings
+rows, same figure everywhere, units, weights, NAV volume, dividend YTD,
+transaction rows and chart series. When every check passes the command writes
+`report.json` and `checks.json` and exits 0; otherwise it writes only
+`checks.json`, removes a stale `report.json` and exits 1. Two runs produce
+byte-identical files.
+
 ## Private data boundary prototype
 
 Report code is developed without ever seeing private data. The prototype splits
