@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.5 | 23 พ.ย. 2569 | Current |
+| v1.6 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.6 | 23 พ.ย. 2569 | Report Agent มี tool `generate_grid_report` ส่ง PDF เข้า Discord sandbox ติดตั้ง fpdf2 ใน venv ตอน prepare (PR #35) ปรับข้อจำกัดในข้อ 9 |
 | v1.5 | 23 พ.ย. 2569 | เพิ่มข้อ 5.5 รายงาน Grid Trade Performance (PDF) ตามรูปแบบของทีม: การแตก Spec เป็น 4 Issue, timeline ของ Run #7–#10, การตัดสินใจ และ gap เพิ่มหลักฐานในข้อ 7 และปรับข้อจำกัดในข้อ 9 |
 | v1.4 | 22 พ.ย. 2569 | Human Iteration 2: เพิ่มข้อ 4.4 Report Agent และ Discord (ส่วนประกอบ, sequence, การตัดสินใจ, gap ที่พบระหว่างทดสอบ) เพิ่มข้อ 2.9 เส้นทางจาก Discord ถึง executor ในบริษัท (Intended) แก้ C4 Context ให้มี Report Agent ปรับคำตอบคำถามข้อ 3 และ 5 ในข้อ 2.6, Spec Structure v0.4 ในข้อ 3, หลักฐาน, traceability, ข้อจำกัด และต้นทุนต่อรายงานในข้อ 10 |
 | v1.3 | 19 พ.ย. 2569 | แก้ C4 Context (ข้อ 4.1) เป็น Discord และให้ข้อมูลจริงไปที่ executor ใน Trusted zone แทน GitHub ระบุว่าการรันเฉพาะโค้ดที่ merge แล้วยังเป็นขั้นตอนของคน (ข้อ 2.8) ตั้งชื่อ Run #5 และ #6 เพิ่มแถวต้นทุนและสถานะต้นทุนต่อรายงาน (ข้อ 10) |
@@ -631,7 +632,7 @@ Gap:
 | executor ใน prototype เป็นเครื่องผู้ทดสอบ ยังไม่ใช่เครื่องในเครือข่ายบริษัท | ศึกษาการใช้ self-hosted runner หรือเครื่องที่ทีมควบคุมเป็น executor และขอสิทธิ์ database แบบอ่านอย่างเดียวที่ได้รับอนุมัติ |
 | ยังไม่ได้ยืนยัน policy ของบริษัทเรื่องการส่งข้อมูลให้ผู้ให้บริการโมเดล | ถามฝ่ายที่ดูแลก่อนพิจารณาแนวทาง A (ZDR) สำหรับงานที่ต้องให้โมเดลเห็นข้อมูล |
 | leak check ไม่ค้นในชื่อ key ของ JSON และค่าจำนวนเต็ม (ข้อ 2.7) | เพิ่มการค้นใน key เมื่อแก้ `private_run` รอบหน้า และตรวจว่า result มีแค่ key ที่กำหนด และ `checks_total`, `checks_failed` ตรงกับจำนวนใน `checks` เพื่อให้ค่าจำนวนเต็มอื่นเข้ามาไม่ได้ |
-| รายงาน Returns & Transactions เป็น Markdown ส่วนรายงาน Grid เป็น PDF แล้ว (ข้อ 5.5) แต่ Report Agent ใน Discord ยังสร้างได้แค่แบบแรก | เพิ่ม tool ของรายงาน Grid ใน Report Agent และส่ง PDF เข้า Discord |
+| Report Agent ส่งรายงาน Grid เป็น PDF เข้า Discord ได้แล้ว (PR #35: tool `generate_grid_report`, ติดตั้ง `fpdf2` ใน venv ของ sandbox ตอน prepare ทดสอบใน image ของ Eve ด้วย Docker ก่อน deploy) แต่ใช้ได้แค่ข้อมูลปลอม | ต่อกับ executor ใน trusted zone ตามข้อ 2.9 |
 | สูตรของรายงาน Grid ยังไม่ได้ยืนยันกับทีม และรายงาน RAOT กับ Program Trading ยังไม่ได้ทำ | ยืนยันสูตร แล้วใช้วงจรเดียวกัน (แตก Issue ให้จบใน session เดียว) |
 
 ## 10. Execution Cost

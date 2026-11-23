@@ -13,7 +13,7 @@
 
 วันที่ 22 พ.ย. ทำ Human Iteration 2: deploy Report Agent (Eve agent ตัวเดียว) ไว้ใน Team Vercel ของพี่ Anak ผู้ใช้ส่ง Spec ทาง Discord ด้วยคำสั่ง `/ask` แล้วได้รายงานกลับในช่องเดิม tool เป็นผู้ส่งรายงาน โมเดลเห็นแค่สถานะ และไฟล์รายงานที่ได้ใน Discord ตรงกับ `report.md` ใน repo ทุก byte ค่าโมเดลต่อรายงานประมาณ $0.014 คิดจาก token จริงตามราคาในรายการโมเดล ยังไม่ได้วัดค่า Sandbox และ Function
 
-วันที่ 23 พ.ย. ทำตาม feedback เรื่อง PR #5 ที่ขอรายงานจริงที่ทีม Quant ใช้ได้ ไม่ใช่แค่ infrastructure: GitHub Issue #23 มี Report Spec ของรายงาน Grid Trade Performance แบบเดียวกับที่ทีมส่งลูกค้า (PDF 5 หน้า) โรงงานสร้างรายงานผ่าน Issue ย่อย 4 อัน แต่ละ PR merge เข้า `main` แล้ว PR สุดท้ายปิด #23 ผลคือ `reports/demo_grid_2026_11/report.pdf` จากข้อมูลปลอม ตัวเลขตรง Spec ทุกค่าและตัวเช็คผ่านทั้งหมด
+วันที่ 23 พ.ย. ทำตาม feedback เรื่อง PR #5 ที่ขอรายงานจริงที่ทีม Quant ใช้ได้ ไม่ใช่แค่ infrastructure: GitHub Issue #23 มี Report Spec ของรายงาน Grid Trade Performance แบบเดียวกับที่ทีมส่งลูกค้า (PDF 5 หน้า) โรงงานสร้างรายงานผ่าน Issue ย่อย 4 อัน แต่ละ PR merge เข้า `main` แล้ว PR สุดท้ายปิด #23 ผลคือ `reports/demo_grid_2026_11/report.pdf` จากข้อมูลปลอม ตัวเลขตรง Spec ทุกค่าและตัวเช็คผ่านทั้งหมด จากนั้นเพิ่มรายงานนี้ใน Report Agent (PR #35) ตอนนี้สั่ง `/ask` ใน Discord แล้วได้ไฟล์ PDF กลับมาในช่องเดิม (ทดสอบผ่าน 24/24)
 
 ยังไม่ได้เชื่อมข้อมูลจริง เส้นทางจาก Discord ไปถึง executor ในบริษัทออกแบบไว้แล้ว (Software Design ข้อ 2.9) แต่ต้องได้คำตอบเรื่องสิทธิ์และ policy ก่อน
 

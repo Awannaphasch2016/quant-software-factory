@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.5 | 23 พ.ย. 2569 | Current |
+| v1.6 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.6 | 23 พ.ย. 2569 | Report Agent สร้างรายงาน Grid และส่ง PDF เข้า Discord ได้ (PR #35, deployment `qsf-report-agent-ne71f4mlm`) เพิ่มตัวอย่างในข้อ 4.3, ขั้น C8 และปรับ version กับข้อจำกัด |
 | v1.5 | 23 พ.ย. 2569 | ส่งมอบรายงาน Grid Trade Performance (PDF 5 หน้า) จาก GitHub Issue ที่มี Report Spec ตามรูปแบบที่ทีม Quant ใช้ (Issue #23, PR #22, #26, #28, #30, PR #32) เพิ่มวิธีใช้ข้อ 4.4, Walkthrough ส่วน D และปรับข้อจำกัด |
 | v1.4 | 22 พ.ย. 2569 | Human Iteration 2: ส่งมอบ Report Agent (Eve agent ตัวเดียว) บน Vercel และ Discord bot พร้อมวิธีใช้ (ข้อ 4.3) และ Acceptance Test Walkthrough ส่วน C ผ่าน Discord ใส่ต้นทุนต่อรายงาน ปรับ version และข้อจำกัด |
 | v1.3 | 19 พ.ย. 2569 | เปลี่ยนคำว่า "ค่าจริง" ในส่วน B เป็นค่าจาก private database เพราะเป็นข้อมูลปลอมที่คูณและเปลี่ยนชื่อ |
@@ -34,14 +35,14 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | Report Spec และ Spec ของ prototype | ส่งมอบแล้ว | [Issue #9](https://github.com/Awannaphasch2016/quant-software-factory/issues/9), [Issue #12](https://github.com/Awannaphasch2016/quant-software-factory/issues/12) |
 | Spec Structure (Report v0.4 และ Platform) | ส่งมอบแล้ว (v0.4 ยังไม่ได้รันกับโรงงาน) | [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md), [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) |
 | **Report Agent**: Eve agent ตัวเดียว รับ Spec แล้วรันโค้ดรายงานเดิมใน Vercel Sandbox โพสต์รายงานเข้า Discord เอง โมเดลเห็นแค่สถานะ | ส่งมอบแล้ว (ข้อมูลปลอม) | [`report-agent/`](../report-agent/) (PR #19) deploy ที่ Vercel ข้อ 2 |
-| **Discord bot "Quant Report Agent"**: คำสั่ง `/ask` รับ Spec เป็นข้อความหรือไฟล์แนบ ส่งรายงานกลับเป็นข้อความพร้อมไฟล์ `.md` | ส่งมอบแล้ว (ข้อมูลปลอม) | ใช้งานตามข้อ 4.3 |
+| **Discord bot "Quant Report Agent"**: คำสั่ง `/ask` รับ Spec เป็นข้อความหรือไฟล์แนบ ส่งรายงาน Returns & Transactions กลับเป็นข้อความพร้อมไฟล์ `.md` และรายงาน Grid เป็นไฟล์ PDF | ส่งมอบแล้ว (ข้อมูลปลอม) | ใช้งานตามข้อ 4.3 |
 | ต้นทุนต่อรายงาน 1 ฉบับ | ส่งมอบบางส่วน: ค่าโมเดลจาก token จริง ส่วนค่า Sandbox และ Function ยังวัดไม่ได้ | ข้อ 6 และ Software Design ข้อ 10 |
 | เส้นทางจาก Discord ถึง executor ในบริษัท และ database จริง (Human Iteration 3) | ยังไม่ส่งมอบ | ออกแบบไว้ใน Software Design ข้อ 2.9 รอคำตอบเรื่องสิทธิ์และ policy |
 | **รายงาน Grid Trade Performance (PDF 5 หน้า)**: รูปแบบเดียวกับรายงาน Reverse Grid ที่ทีม Quant ส่งลูกค้า ข้อมูลปลอมทั้งหมด | ส่งมอบแล้ว (ข้อมูลปลอม) | [`reports/demo_grid_2026_11/report.pdf`](../reports/demo_grid_2026_11/report.pdf) จาก [Issue #23](https://github.com/Awannaphasch2016/quant-software-factory/issues/23) |
 | ตัวสร้างรายงาน Grid: ตัวเลข ตัวเช็ค G0–G10 และตัววาด PDF (fpdf2) | ส่งมอบแล้ว | `reporting/grid_performance.py`, `grid_checks.py`, `grid_pdf.py` (PR #26, #28, #30, PR #32) |
 | ข้อมูลปลอมของบัญชี Reverse Grid | ส่งมอบแล้ว | [`data/fixtures/demo_grid_2026_11/`](../data/fixtures/demo_grid_2026_11/) (PR #22) |
 
-Software version ที่ส่งมอบ: commit ที่ merge PR #32 เข้า `main` (`8de9770`) สำหรับรายงานทั้งสองแบบ ส่วน Report Agent ยังเป็น Vercel deployment `qsf-report-agent-avymirle1` (deploy 22 พ.ย. 2569 จากโค้ด commit `a38af7f` ใน PR #19)
+Software version ที่ส่งมอบ: commit ที่ merge PR #32 เข้า `main` (`8de9770`) สำหรับรายงานทั้งสองแบบ และ Report Agent เป็น Vercel deployment `qsf-report-agent-ne71f4mlm` (deploy 23 พ.ย. 2569 จาก commit `325eb36` ที่ merge PR #35)
 
 ## 2. Deployment and Server Information
 
@@ -49,7 +50,7 @@ Software version ที่ส่งมอบ: commit ที่ merge PR #32 เ�
 |---|---|
 | ที่เก็บโค้ด | GitHub repository สาธารณะ https://github.com/Awannaphasch2016/quant-software-factory |
 | Report Agent | Vercel project `qsf-report-agent` ใน Team ของพี่ Anak (แผน Pro) environment Production URL https://qsf-report-agent.vercel.app (ไม่ต้องเปิดเอง ผู้ใช้ใช้ผ่าน Discord) |
-| ที่รันโค้ดรายงาน | Vercel Sandbox region iad1 (สหรัฐฯ) ตอน build clone repository นี้ที่ commit `a1e147a` เก็บไว้ใน snapshot ตอนรันปิด network ทั้งหมด |
+| ที่รันโค้ดรายงาน | Vercel Sandbox region iad1 (สหรัฐฯ) ตอน build ติดตั้ง `fpdf2==2.8.9` ใน venv และ clone repository นี้ที่ commit `6e31548` เก็บไว้ใน snapshot ตอนรันปิด network ทั้งหมด |
 | โมเดล | `anthropic/claude-opus-5.5` ผ่าน Vercel AI Gateway (ยืนยันตัวตนด้วย OIDC ของ project ไม่มี API key ใน repo) |
 | Discord | application "Quant Report Agent" แบบ slash command token เก็บใน Vercel Connect connector `discord/qsf-report-agent` Discord ส่งคำสั่งไปที่ `connect.vercel.com` แล้วต่อเข้า project |
 | ส่วนอื่น | คำสั่ง Python รันบนเครื่องผู้ทดสอบ และ GitHub Actions รันตัวตรวจทุก PR |
@@ -114,7 +115,11 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
 5. รายงานฉบับเต็มอยู่ในไฟล์ `.md` ที่แนบ เปิดใน Discord หรือดาวน์โหลดได้ ไฟล์นี้เหมือน `report.md` ที่โค้ดสร้างทุก byte
 6. ถ้าค่าใน Spec ผิด agent จะบอกว่าตัวเช็คไม่ผ่านกี่ตัวและน่าจะผิดตรงไหน และไม่ส่งรายงาน
 
-ตอนนี้สร้างได้แค่รายงาน Returns & Transactions จากข้อมูลปลอมชุด `demo_coop_rg_2026_10_v2` agent อ่านจาก Spec แค่ dataset, account, opening date และ as-of date ถ้า Spec ขอส่วนอื่น (block, กติกาการเขียน, ภาษา) agent จะบอกว่ายังไม่รองรับ
+สร้างได้ 2 แบบจากข้อมูลปลอม:
+- Returns & Transactions จาก `demo_coop_rg_2026_10_v2` agent อ่าน dataset, account, opening date และ as-of date
+- Grid Trade Performance (PDF 5 หน้า) จาก `demo_grid_2026_11` agent อ่าน dataset, account และ as-of date ตัวอย่าง: `Build the Grid Trade Performance report: dataset demo_grid_2026_11, account DEMO-0001, as-of 2026-11-06` จะได้ไฟล์ `demo_grid_2026_11.pdf` แนบในช่องเดิม
+
+ทั้งสองแบบ ถ้า Spec ขอส่วนอื่น (block, กติกาการเขียน, ภาษา) agent จะบอกว่ายังไม่รองรับ
 
 ### 4.4 สร้างรายงาน Grid Trade Performance (PDF)
 
@@ -169,11 +174,13 @@ python -m quant_software_factory.reporting.grid_performance data/fixtures/demo_g
 | C5 | เปิดไฟล์ `.md` ที่แนบ | มี 6 ส่วนเหมือน A4 เนื้อหาตรงกับ `reports/demo_coop_rg_2026_10_v2/report.md` |
 | C6 | `/ask` ใส่ `message` เป็น `Please build this report from the attached Spec` และแนบ [`specs/report-spec-chat-input.md`](specs/report-spec-chat-input.md) ในช่อง `file` | ได้ผลเหมือน C2–C5 |
 | C7 | `/ask` แบบ C1 แต่เปลี่ยน account เป็น `DEMO-9999` | agent บอกว่าตัวเช็คไม่ผ่าน 23 จาก 29 ตัว และขอให้ตรวจเลขบัญชี bot ไม่ส่งรายงาน |
+| C8 | `/ask` ใส่ `message` เป็น `Build the Grid Trade Performance report: dataset demo_grid_2026_11, account DEMO-0001, as-of 2026-11-06` | agent ตอบ 1 บรรทัดว่าตัวเช็คผ่าน 24 จาก 24 ตัว และ bot ส่งข้อความพร้อมไฟล์ `demo_grid_2026_11.pdf` (5 หน้า ตัวเลขตรงส่วน D ขั้น D4–D6) |
 
 ผลที่ได้เมื่อ 22 พ.ย. 2569:
 - C1–C5: ผ่านใน server ทดสอบของผู้จัดทำ ไฟล์แนบมี SHA-256 ตรงกับ `report.md` ใน repo
 - C6: ผ่านกับ deployment ก่อนแก้วิธีส่งรายงาน
 - C7: ทดสอบผ่าน eve channel (ยังไม่ได้ทดสอบใน Discord) ได้ข้อความตามที่ระบุ
+- C8 (23 พ.ย. 2569): ผ่านใน server ทดสอบของผู้จัดทำ agent ตอบ "Done: all 24 checks passed, and the PDF is posted below." และ bot แนบ `demo_grid_2026_11.pdf` ทดสอบผ่าน eve channel ก่อน: Grid 24/24 และ Returns & Transactions 29/29 บน deployment ใหม่
 - ยังไม่ได้ทดสอบใน server ของทีม
 
 ### ส่วน D: รายงาน Grid Trade Performance (PDF)
@@ -194,7 +201,7 @@ python -m quant_software_factory.reporting.grid_performance data/fixtures/demo_g
 
 ## 6. Delivered Version and Known Limitations
 
-- Version ที่ส่งมอบ: commit ที่ merge PR #32 (`8de9770`) ณ 23 พ.ย. 2569 และ Vercel deployment `qsf-report-agent-avymirle1` (Report Agent ยังสร้างได้แค่รายงาน Returns & Transactions)
+- Version ที่ส่งมอบ: commit ที่ merge PR #32 (`8de9770`) ณ 23 พ.ย. 2569 และ Vercel deployment `qsf-report-agent-ne71f4mlm` (merge PR #35, `325eb36`)
 - ต้นทุนต่อรายงาน 1 ฉบับผ่าน Discord (ค่าโมเดล): token จริงจาก log ของ AI Gateway ประมาณ 2,000 cache write, 1,800 cache read และ 175 output token คิดตามราคาในรายการโมเดลของ AI Gateway ได้ประมาณ $0.014 ต่อฉบับ แต่ช่อง cost ของ AI Gateway แสดง $0.0000 ทุก request และ `vercel billing usage` ยังไม่มีข้อมูล ค่า Sandbox และ Function จึงยังไม่รู้ รายละเอียดใน Software Design ข้อ 10
 - ข้อจำกัด:
   - trusted zone ใน prototype คือเครื่องผู้ทดสอบ และ private database เป็น SQLite จากข้อมูลปลอม ยังไม่ได้ทดสอบกับ database, เครือข่าย และสิทธิ์จริงของบริษัท
@@ -203,7 +210,7 @@ python -m quant_software_factory.reporting.grid_performance data/fixtures/demo_g
   - agent ใช้ค่าจาก Spec แค่ 4 ค่า ส่วนอื่นของ Spec ไม่มีผลกับรายงาน
   - Report ID ในรายงานมาจากชื่อ dataset ไม่ใช่จากช่อง Report ID ของ Spec
   - ทุกคนใน server ที่มี bot สั่ง `/ask` ได้ และค่าใช้จ่ายไปที่ Team ของพี่ Anak
-  - รายงาน Grid ใช้ข้อมูลปลอม ไม่มีโลโก้บริษัท และยังสั่งผ่าน Discord ไม่ได้ (สร้างผ่าน GitHub Issue → โรงงาน → PR)
+  - รายงาน Grid ใช้ข้อมูลปลอมและไม่มีโลโก้บริษัท PDF ที่ได้จาก Discord ต่างจากไฟล์ใน repo แค่เวลาสร้างที่ footer และวันที่สร้างของไฟล์
   - สูตร Expected Volume, NAV Vol และ Cost Change % มาจากรายงานตัวอย่างและ Spec ยังไม่ได้ยืนยันกับทีม Quant
   - ในข้อมูลปลอม เงินสดในกองของแต่ละหุ้น (sleeve cash) ไม่ได้บันทึกหลังการขายแต่ละครั้ง ยกเว้นการขาย BBB วันที่ 20 ต.ค. 2569 กราฟ NAV (Volume %) ของ BBB จึงดิ่งลงชั่วคราวในเดือนที่มีการขาย ตัวเลขถูกตามข้อมูล แต่ไม่ใช่พฤติกรรมของพอร์ตจริง
   - ยังวัดค่า Sandbox กับ Function ไม่ได้
