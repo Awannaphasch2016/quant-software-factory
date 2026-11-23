@@ -41,6 +41,7 @@ from quant_software_factory.reporting.private_run import (
     render_result,
 )
 from quant_software_factory.reporting.private_run import main as private_run
+from quant_software_factory.reporting.schema import RETURNS_DATASETS
 
 REPO = Path(__file__).resolve().parents[1]
 FIXTURE = REPO / "data" / "fixtures" / "demo_coop_rg_2026_10_v2"
@@ -124,7 +125,7 @@ def _alter(db: Path, *statements: str) -> None:
 # --- SqliteSource ---------------------------------------------------------
 
 
-@pytest.mark.parametrize("dataset", list(SCHEMAS))
+@pytest.mark.parametrize("dataset", RETURNS_DATASETS)
 @pytest.mark.parametrize(
     ("as_of", "accounts"),
     [
@@ -148,7 +149,7 @@ def test_sqlite_source_matches_fixture_source(
 
 def test_sqlite_source_full_fixture_nonempty(tmp_path: Path) -> None:
     db = _make(tmp_path)
-    for dataset in SCHEMAS:
+    for dataset in RETURNS_DATASETS:
         rows = SqliteSource(db).load(dataset, AS_OF, [ACCOUNT])
         assert rows, dataset
         assert rows == FixtureSource(FIXTURE).load(dataset, AS_OF, [ACCOUNT])
@@ -215,7 +216,7 @@ def test_sqlite_source_is_read_only(tmp_path: Path) -> None:
     db = _make(tmp_path)
     before = _sha256(db)
     source = SqliteSource(db)
-    for dataset in SCHEMAS:
+    for dataset in RETURNS_DATASETS:
         source.load(dataset, AS_OF, [ACCOUNT])
     assert _sha256(db) == before
     assert sorted(p.name for p in tmp_path.iterdir()) == ["private.db"]
@@ -231,10 +232,10 @@ def test_make_private_db_tables_are_text(tmp_path: Path) -> None:
             r[0]
             for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
         )
-        assert tables == sorted(SCHEMAS)
-        for dataset, specs in SCHEMAS.items():
+        assert tables == sorted(RETURNS_DATASETS)
+        for dataset in RETURNS_DATASETS:
             info = list(conn.execute(f'PRAGMA table_info("{dataset}")'))
-            assert [r[1] for r in info] == [s.name for s in specs]
+            assert [r[1] for r in info] == [s.name for s in SCHEMAS[dataset]]
             assert {r[2] for r in info} == {"TEXT"}
 
 
@@ -271,7 +272,7 @@ def test_make_private_db_scale_and_replace(tmp_path: Path) -> None:
 
 def test_make_private_db_scale_one_is_verbatim(tmp_path: Path) -> None:
     db = _make(tmp_path, "one.db", "--scale", "1")
-    for dataset in SCHEMAS:
+    for dataset in RETURNS_DATASETS:
         rows = SqliteSource(db).load(dataset, AS_OF, [ACCOUNT])
         assert rows == FixtureSource(FIXTURE).load(dataset, AS_OF, [ACCOUNT])
 

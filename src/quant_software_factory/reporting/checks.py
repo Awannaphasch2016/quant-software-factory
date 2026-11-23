@@ -12,7 +12,7 @@ from datetime import date
 from .schema import (
     DATE_FIELD,
     PERIOD_FIELD,
-    SCHEMAS,
+    RETURNS_DATASETS,
     parse_date,
     parse_period,
     validate_rows,
@@ -89,7 +89,7 @@ def run_checks(
     """
     results: list[CheckResult] = []
     loaded: dict[str, Rows] = {}
-    for dataset in SCHEMAS:
+    for dataset in RETURNS_DATASETS:
         result, rows = _schema_check(source, dataset, account, as_of)
         results.append(result)
         if rows is not None:

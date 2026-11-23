@@ -32,7 +32,8 @@ class DataSource(Protocol):
 
         Rows of datasets with a ``date`` field are limited to ``date <= as_of``;
         ``performance`` rows to periods not after the as-of month;
-        ``account_info`` returns all rows for the accounts.
+        datasets with neither field (``account_info``, ``grid_setup``) return
+        all rows for the accounts.
 
         Raises:
             KeyError: ``dataset`` is not in the schema registry.
