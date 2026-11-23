@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.6 | 23 พ.ย. 2569 | Current |
+| v1.7 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.7 | 23 พ.ย. 2569 | ผล review เอกสาร: ปรับข้อ 4.4 ให้ตรงกับ PR #35 (3 tool, sandbox ที่ `6e31548` + fpdf2, เส้นทาง PDF) บันทึก Specification gap 2 ข้อจากรายงาน Grid ในข้อ 2.1 และ 3.3 เพิ่มโมดูลของรายงาน Grid ในข้อ 4.2 และ 4.3 แก้หลักฐานข้อ 7 (deployment ใหม่, Discord PDF, PR #22 เป็นของผู้จัดทำ) ปรับ traceability ข้อจำกัด และต้นทุนในข้อ 8–10 |
 | v1.6 | 23 พ.ย. 2569 | Report Agent มี tool `generate_grid_report` ส่ง PDF เข้า Discord sandbox ติดตั้ง fpdf2 ใน venv ตอน prepare (PR #35) ปรับข้อจำกัดในข้อ 9 |
 | v1.5 | 23 พ.ย. 2569 | เพิ่มข้อ 5.5 รายงาน Grid Trade Performance (PDF) ตามรูปแบบของทีม: การแตก Spec เป็น 4 Issue, timeline ของ Run #7–#10, การตัดสินใจ และ gap เพิ่มหลักฐานในข้อ 7 และปรับข้อจำกัดในข้อ 9 |
 | v1.4 | 22 พ.ย. 2569 | Human Iteration 2: เพิ่มข้อ 4.4 Report Agent และ Discord (ส่วนประกอบ, sequence, การตัดสินใจ, gap ที่พบระหว่างทดสอบ) เพิ่มข้อ 2.9 เส้นทางจาก Discord ถึง executor ในบริษัท (Intended) แก้ C4 Context ให้มี Report Agent ปรับคำตอบคำถามข้อ 3 และ 5 ในข้อ 2.6, Spec Structure v0.4 ในข้อ 3, หลักฐาน, traceability, ข้อจำกัด และต้นทุนต่อรายงานในข้อ 10 |
@@ -35,7 +36,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 
 ## 1. Design Overview
 
-เอกสารนี้อธิบายการออกแบบ Report Spec Structure และวิธีที่มันทำงานร่วมกับ Software Factory (Foreman) ของพี่ Anak พร้อมหลักฐานจากต้นแบบ 4 run ใน Iteration 1 ข้อกำหนดอ้างจาก SRS [1]
+เอกสารนี้อธิบายการออกแบบ Report Spec Structure และวิธีที่มันทำงานร่วมกับ Software Factory (Foreman) ของพี่ Anak พร้อมหลักฐานจาก Agent Run 10 ครั้ง (Run #1–#4 ใน Iteration 1, #5–#6 รอบ Private Data, #7–#10 รายงาน Grid) ข้อกำหนดอ้างจาก SRS [1]
 
 ตั้งแต่ v1.1 โจทย์หลักของการออกแบบคือให้ agent ทำงานกับ Private Data ได้โดยข้อมูลไม่รั่วออกนอก security boundary (ข้อ 2) ส่วนข้อ 3–10 เป็นการออกแบบ Spec Structure และหลักฐานจาก Iteration 1 ที่ยังใช้อยู่
 
@@ -63,7 +64,7 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | ข้อมูลลูกค้าอยู่ใน database บน server ภายในเครือข่ายบริษัท ไม่ได้อยู่บน cloud | การต่อจาก cloud เข้ามาต้องผ่านเครือข่ายพิเศษ หรือให้ส่วนที่แตะข้อมูลรันในบริษัท |
 | ตัวโมเดล (Claude) รันที่ผู้ให้บริการภายนอก | ข้อมูลใดที่อยู่ใน prompt ถือว่าออกนอกบริษัทแล้ว ไม่ว่า agent runtime จะอยู่ที่ไหน |
 | repository เป็น public | repo เก็บได้แค่โค้ด schema และข้อมูลปลอม |
-| ตัวเลขในรายงานคำนวณไว้แล้วโดย pipeline ของทีม | งานรายงานคือดึง จัดรูป และตรวจตัวเลข ไม่ต้องให้โมเดลตีความค่า |
+| ตัวเลขในรายงานคำนวณไว้แล้วโดย pipeline ของทีม | งานรายงานคือดึง จัดรูป และตรวจตัวเลข ไม่ต้องให้โมเดลตีความค่า ข้อยกเว้นที่พบ: รายงาน Grid มีค่าที่โค้ดคำนวณต่อจากข้อมูล (Expected Volume, NAV Volume, Cost Change %) ต้องถามทีมว่า pipeline มีค่าเหล่านี้หรือไม่ (SRS FR-03) |
 
 ### 2.2 แนวทางที่ศึกษา
 
@@ -322,6 +323,8 @@ v0.4 (22 พ.ย. 2569, ยังไม่ได้รันกับโรง�
 
 Block มาตรฐานได้จากการแตกรายงานตัวอย่างของทีม 3 ฉบับ (รายละเอียดใน Template v0.1 ภาคผนวก A) preset ของรายงานแต่ละประเภทคือการเลือก block ชุดหนึ่ง รายงาน 3 ประเภทจึงใช้ Spec Structure เดียวกัน ต่างกันแค่ preset, Data Sources และ Expected Values
 
+Specification gap จากรายงาน Grid (ข้อ 5.5): block และ preset อธิบายเนื้อหาของรายงาน Markdown ได้ แต่ไม่มีที่ให้กำหนด layout ของ PDF (หน้า การ์ด กราฟ ตำแหน่ง สี) และสูตรที่คำนวณต่อจากข้อมูล Spec ของ Issue #23 จึงเขียนหัวข้อ Formulas, Page layout, Formats และ Tests เอง และไม่มี Data Mapping, Report Blocks, Writing Rules, Open Items (SRS FR-01) รอบถัดไปควรเพิ่ม block ชนิด page/card/chart และหัวข้อ Formulas ใน Spec Structure แล้วเขียน Spec ของรายงาน Grid ใหม่ตามนั้นเพื่อทดสอบว่าใช้ซ้ำได้
+
 ## 4. System Architecture (C4)
 
 ### 4.1 System Context
@@ -357,12 +360,12 @@ flowchart LR
 | ส่วน | บทบาท | สิ่งที่สาธิตและจุดตรวจหลักฐาน |
 |---|---|---|
 | Spec Structure | I/O contract ของงานรายงาน | ฉบับใช้งาน: [`spec-structure/report-spec-structure.md`](spec-structure/report-spec-structure.md), [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md); ประวัติ: [`history/report-spec-template.md`](history/report-spec-template.md), [`history/report-spec-template-v0.2.md`](history/report-spec-template-v0.2.md), [`history/report-spec-template-v0.3.md`](history/report-spec-template-v0.3.md) |
-| GitHub Issue | Spec ที่กรอกแล้ว + trigger | Issue #4, #6, #7, #9 |
-| GitHub App `eve-forman` | connector ระหว่าง repository กับโรงงาน | คอมเมนต์ของ `eve-forman[bot]` ใน Issue #4, #6, #7, #9 |
+| GitHub Issue | Spec ที่กรอกแล้ว + trigger | Issue #4, #6, #7, #9, #12, #15, #23 (Issue ย่อย #25, #27, #29, #31) |
+| GitHub App `eve-forman` | connector ระหว่าง repository กับโรงงาน | คอมเมนต์ของ `eve-forman[bot]` ใน Issue ข้างบน |
 | Foreman บน Vercel | ประสาน classifier, analyst, implementer, reviewer (Claude Opus 5.5 ทุกสถานี ตาม `agent/lib/models.ts` ของ template) | ลำดับคอมเมนต์ใน Issue |
-| Branch + draft PR | Output ของโรงงาน | PR #5, #8, #10 |
-| GitHub Actions | ตรวจคุณภาพภายนอกโรงงาน | CI run 43151748082, 43383851475, 43395249810 |
-| `checks.json` | ผลตัวเช็คตัวเลขขณะรัน | `reports/demo_coop_rg_2026_10/checks.json` ใน PR #5, `reports/demo_coop_rg_2026_10_v2/checks.json` บน `main` |
+| Branch + draft PR | Output ของโรงงาน | PR #5, #8, #10, #13, #16, #26, #30, #32 (PR #28 ผู้จัดทำเปิดจาก branch ของโรงงาน) |
+| GitHub Actions | ตรวจคุณภาพภายนอกโรงงาน | CI run 43151748082, 43383851475, 43395249810 และ CI ของทุก PR ข้างบน |
+| `checks.json` | ผลตัวเช็คตัวเลขขณะรัน | `reports/demo_coop_rg_2026_10/checks.json` ใน PR #5, `reports/demo_coop_rg_2026_10_v2/checks.json` และ `reports/demo_grid_2026_11/checks.json` บน `main` |
 
 ### 4.3 Component (โค้ดที่ Spec สั่งให้โรงงานสร้าง ตาม Template v0.2 และ v0.3)
 
@@ -379,7 +382,7 @@ flowchart LR
   B -- "ไม่ผ่าน" --> FAIL
 ```
 
-ใน v0.3 แผนภาพนี้สร้างจริงแล้วบน `main` (Run #3 และ #4) ยกเว้น `InternalSource`
+ใน v0.3 แผนภาพนี้สร้างจริงแล้วบน `main` (Run #3 และ #4) ยกเว้น `InternalSource` ตอนนี้มี `SqliteSource` (PR #13) เป็น `DataSource` อีกตัว รายงาน Grid ใช้ลำดับเดียวกัน แต่ไม่มี narrative และวาด PDF จาก `report.json` เป็นขั้นสุดท้าย
 
 | Component | Module บน `main` | มาจาก |
 |---|---|---|
@@ -388,6 +391,10 @@ flowchart LR
 | Data Mapping → blocks, CLI | `reporting/returns_transactions.py` | Report Spec (PR #10) |
 | Number Checks ชั้น B และตัวเช็คการเขียน | `reporting/report_checks.py` | Report Spec (PR #10) |
 | Narrative | `reporting/narrative.py` | Report Spec (PR #10) |
+| `SqliteSource` (DataSource จาก SQLite) | `reporting/sqlite_source.py` | Platform Spec (PR #13) |
+| ตัวเลขของรายงาน Grid และ CLI | `reporting/grid_performance.py` | Issue #27 (PR #28), Issue #31 (PR #32) |
+| ตัวเช็คของรายงาน Grid (ชั้น A, G0–G10) | `reporting/grid_checks.py` | Issue #27, #31 |
+| ตัววาด PDF (fpdf2) | `reporting/grid_pdf.py` | Issue #29 (PR #30), Issue #31 (PR #32) |
 
 ### 4.4 Report Agent และ Discord (Human Iteration 2)
 
@@ -395,11 +402,12 @@ Report Agent คือ Eve agent ตัวเดียวใน [`report-agent/`
 
 | ส่วน | ไฟล์ | หน้าที่ |
 |---|---|---|
-| Agent | `agent/agent.ts`, `agent/instructions.md` | โมเดล `anthropic/claude-opus-5.5` ผ่าน AI Gateway ปิด tool ที่ eve มีให้ทั้งหมด (bash, ไฟล์, web) เหลือ 2 tool ด้านล่าง หยุด session ที่ใช้เกิน 20K output token |
-| Sandbox | `agent/sandbox.ts` | Vercel Sandbox ตอน build clone repository นี้ที่ commit `a1e147a` เก็บใน snapshot ตอนรันปิด network ทั้งหมด |
+| Agent | `agent/agent.ts`, `agent/instructions.md` | โมเดล `anthropic/claude-opus-5.5` ผ่าน AI Gateway ปิด tool ที่ eve มีให้ทั้งหมด (bash, ไฟล์, web) เหลือ 3 tool ด้านล่าง หยุด session ที่ใช้เกิน 20K output token |
+| Sandbox | `agent/sandbox.ts` | Vercel Sandbox ตอน build ติดตั้ง `fpdf2==2.8.9` ใน `/workspace/.venv` (image ของ eve ไม่มี pip) และ clone repository นี้ที่ commit `6e31548` เก็บใน snapshot ตอนรันปิด network ทั้งหมด (ก่อน PR #35 ใช้ `a1e147a` ไม่มี venv) |
 | `generate_report` | `agent/tools/generate_report.ts` | รัน `returns_transactions` ใน sandbox อ่าน `checks.json` และ `report.md` ถ้าผ่านทุกตัวเช็ค โพสต์รายงานเข้า Discord เอง ส่งให้โมเดลแค่สถานะ จำนวน และชื่อตัวเช็คที่ไม่ผ่าน (`toModelOutput`) |
+| `generate_grid_report` | `agent/tools/generate_grid_report.ts` | รัน `grid_performance` ด้วย Python ใน venv อ่าน `checks.json` และ `report.pdf` ถ้าผ่าน แนบ PDF เข้า Discord เอง (`postFile`) ส่งให้โมเดลแค่สถานะ ชื่อตัวเช็ค และขนาดไฟล์ (PR #35) |
 | `read_spec_file` | `agent/tools/read_spec_file.ts` | อ่านไฟล์ Spec ที่แนบใน Discord ได้เฉพาะไฟล์ข้อความในโฟลเดอร์ไฟล์แนบของ eve ไม่เกิน 50,000 ตัวอักษร |
-| การส่งรายงาน | `agent/lib/discord-report.ts` | ข้อความสรุปพร้อม `report.md` แนบ แล้วตามด้วยรายงานเป็นข้อความ ตารางอยู่ใน code block และเติมช่องว่างให้คอลัมน์ตรง (เปลี่ยนแค่ช่องว่าง มี test ยืนยันว่าทุก cell เหมือนเดิม) |
+| การส่งรายงาน | `agent/lib/discord-report.ts`, `agent/lib/report-tool.ts` | `postFile` ส่งข้อความ 1 ข้อความพร้อมไฟล์ 1 ไฟล์ (PDF ของรายงาน Grid) `postReport` ส่งข้อความสรุปพร้อม `report.md` แนบ แล้วตามด้วยรายงานเป็นข้อความ ตารางอยู่ใน code block และเติมช่องว่างให้คอลัมน์ตรง (เปลี่ยนแค่ช่องว่าง มี test ยืนยันว่าทุก cell เหมือนเดิม) |
 | Discord channel | `agent/channels/discord.ts`, `agent/discord-credentials.ts` | slash command `/ask` (ช่อง `message` และ `file`) token อยู่ใน Vercel Connect connector ไม่อยู่ใน repo |
 
 ```mermaid
@@ -421,6 +429,8 @@ sequenceDiagram
   RA->>D: คำตอบของ agent
 ```
 
+รายงาน Grid ใช้ลำดับเดียวกัน ต่างที่โมเดลเรียก `generate_grid_report(dataset, account, as-of)` sandbox รัน `grid_performance` และ tool แนบ `report.pdf` เป็นข้อความเดียว
+
 การตัดสินใจ:
 
 | การตัดสินใจ | เหตุผล | ข้อเสียที่ยอมรับ |
@@ -428,8 +438,9 @@ sequenceDiagram
 | Eve agent ตัวเดียว แทนการส่ง Issue เข้า Foreman จาก Discord | โค้ดรายงานมีอยู่แล้ว การสร้างรายงานจึงเป็นการรันโค้ด ไม่ใช่การเขียนโค้ด agent ตัวเดียวจบใน 15–30 วินาที ไม่ชนเพดาน token และวัดค่าใช้จ่ายต่อรายงานได้ ตามที่ weekly report ข้อ 2 แนะนำให้เริ่มจากระบบที่ง่ายที่สุด | รายงานชนิดใหม่ยังต้องเขียนโค้ดผ่าน Foreman ก่อน แล้วจึงเพิ่มเข้า Report Agent |
 | tool โพสต์รายงานเอง โมเดลเห็นแค่สถานะ | ตัวเลขไม่ผ่านโมเดล (HR-06, เข้ากับแนวทาง C ข้อ 2.4) และไม่มีความเสี่ยงที่โมเดลพิมพ์ตัวเลขผิด ค่าโมเดลต่อรายงานลดจากประมาณ $0.048 เหลือประมาณ $0.014 เพราะโมเดลไม่ต้องพิมพ์รายงานซ้ำ | ถ้าโพสต์ไม่สำเร็จ โมเดลรู้แค่ข้อความ error เนื้อหาไปถึง Discord ซึ่งรับได้กับข้อมูลปลอมเท่านั้น |
 | slash command แทนการ mention bot | ไม่ต้องมี process ที่รันตลอด (โหมด mention ต้องใช้ Gateway relay ที่รันบน Vercel Daemon ซึ่ง eve ระบุว่ายังเป็น experimental) | ผู้ใช้ต้องพิมพ์ `/ask` ไม่ได้คุยต่อในเธรด |
+| ติดตั้ง `fpdf2` ใน venv ตอน prepare (PR #35) | image ของ eve ไม่มี pip และตอนรันปิด network จึงต้องติดตั้งตอน build ทดสอบใน image เดียวกันด้วย Docker ก่อน deploy: ปิด network แล้วได้ PDF ตรงกับ repo ทุก byte | build นานขึ้น และต้อง deploy ใหม่เมื่อเปลี่ยนเวอร์ชัน |
 | pin โค้ดรายงานที่ commit และปิด network ของ sandbox | รายงานรันซ้ำได้และตรวจย้อนได้ว่ามาจากโค้ดเวอร์ชันไหน โค้ดใน sandbox ส่งข้อมูลออกไม่ได้ | แก้โค้ดรายงานแล้วต้องเปลี่ยน commit และ deploy ใหม่ |
-| ไม่มี tool ที่ eve ให้มา (bash, อ่าน/เขียนไฟล์, web) | โมเดลคำนวณหรือแก้ตัวเลขใน sandbox ไม่ได้ ทางเดียวที่ได้รายงานคือ `generate_report` | ต้องเขียน `read_spec_file` เองเพื่ออ่านไฟล์แนบ |
+| ไม่มี tool ที่ eve ให้มา (bash, อ่าน/เขียนไฟล์, web) | โมเดลคำนวณหรือแก้ตัวเลขใน sandbox ไม่ได้ ทางเดียวที่ได้รายงานคือ tool รายงาน (`generate_report`, `generate_grid_report`) | ต้องเขียน `read_spec_file` เองเพื่ออ่านไฟล์แนบ |
 
 Gap ที่พบระหว่างทดสอบบน Vercel และ Discord (22 พ.ย. 2569):
 
@@ -439,8 +450,8 @@ Gap ที่พบระหว่างทดสอบบน Vercel และ D
 | แนบไฟล์ Spec แล้ว agent ตอบว่าเปิดไฟล์ไม่ได้ เพราะปิด tool อ่านไฟล์ไว้ | Design | เพิ่ม `read_spec_file` ที่อ่านได้เฉพาะไฟล์แนบ | ปิดแล้ว รอบถัดไปได้ 29/29 |
 | โมเดลได้รายงานทั้งฉบับแล้วพิมพ์ซ้ำลง Discord ตัวเลขจึงผ่านโมเดลและไม่มีอะไรตรวจสำเนา | Design (จาก review เทียบกับ feedback 19 พ.ย.) | tool โพสต์รายงานเองและซ่อนจากโมเดล | ปิดแล้ว ไฟล์แนบมี SHA-256 ตรงกับ `report.md` |
 | Discord ไม่แสดงตาราง Markdown ตารางขึ้นเป็น `\|` ดิบ | Design | ครอบตารางด้วย code block และเติมช่องว่าง แนบ `report.md` เดิมไว้ด้วย | ปิดแล้ว บนมือถือตารางกว้างต้องเลื่อนข้าง |
-| agent ตอบว่ารายงาน "อยู่ด้านบน" แต่รายงานอยู่ใต้คำตอบ | Design | แก้ข้อความใน instructions | แก้และ deploy แล้ว ยังไม่ได้ดูผลใน Discord |
-| agent อ่านจาก Spec แค่ 4 ค่า ส่วนอื่นของ Spec ไม่มีผล | Specification | บอกผู้ใช้เมื่อ Spec ขอสิ่งที่โค้ดไม่ทำ (instructions ข้อ 7) | ยังเปิด |
+| agent ตอบว่ารายงาน "อยู่ด้านบน" แต่รายงานอยู่ใต้คำตอบ | Design | แก้ข้อความใน instructions | ปิดแล้ว 23 พ.ย. 2569 agent ใน Discord ตอบว่า "the PDF is posted below" |
+| agent อ่านจาก Spec แค่ 3–4 ค่า (dataset, account, วันที่) ส่วนอื่นของ Spec ไม่มีผล | Specification | บอกผู้ใช้เมื่อ Spec ขอสิ่งที่โค้ดไม่ทำ (instructions ข้อ 7) | ยังเปิด |
 
 ## 5. Agent Workflow และ Sequence
 
@@ -559,7 +570,7 @@ Gap:
 | CI | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/43151748082 ผ่าน 3.10–3.13 | NFR-04 |
 | Review | คอมเมนต์ใน Issue #4 เวลา 03:59:03 UTC: อนุมัติ ไม่มี blocking issue | AC-03 |
 | Spec ของรายงาน Grid | Issue #23: https://github.com/Awannaphasch2016/quant-software-factory/issues/23 และ Issue ย่อย #25, #27, #29, #31 | Input ตามรูปแบบรายงานของทีม Quant |
-| Output ของรายงาน Grid | PR #22, #26, #28, #30, PR #32 merge เข้า `main` แล้ว, `reports/demo_grid_2026_11/report.pdf` (5 หน้า), `report.json`, `checks.json` | Issue → Agent → รายงาน → PR → merge → ปิด Issue |
+| Output ของรายงาน Grid | PR #26, #28, #30, #32 merge เข้า `main` แล้ว (โค้ดจากโรงงาน) ได้ `reports/demo_grid_2026_11/report.pdf` (5 หน้า), `report.json`, `checks.json` ข้อมูลปลอมใน PR #22 ผู้จัดทำสร้างเองก่อนเปิด Issue | Issue → Agent → รายงาน → PR → merge → ปิด Issue |
 | ตัวเช็คของรายงาน Grid | `checks.json` 24/24 ผ่าน (Layer A, G0–G10) | ตัวเลขตรงกันทุกหน้าและตรงกับข้อมูล |
 | ค่าที่คาดหวังของรายงาน Grid | ผู้จัดทำคำนวณแยกจากโค้ดรายงานก่อนเปิด Issue แล้วเทียบกับ `report.json` ตรงทุกค่า | ตัวเลขไม่ได้มาจากโค้ดที่ถูกตรวจเอง |
 | Spec ที่ใช้ใน Run #2 | Issue #6: https://github.com/Awannaphasch2016/quant-software-factory/issues/6 | Input ตาม Template v0.2 ผ่าน Classify และ Analysis |
@@ -586,12 +597,14 @@ Gap:
 | CI ของการแก้ design gap | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44529767220 (PR) และ https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/44532003447 (`main`) ผ่าน 3.10–3.13 (264 tests) | NFR-04 |
 | ผลการรันการแก้ของผู้จัดทำ | ข้อ 2.7 (ติดตั้งแบบไม่ใช่ editable: ก่อนแก้เขียนลง repo ได้ หลังแก้ exit 2; บัญชี `A1`, `29` ผ่าน; walkthrough B ไม่เปลี่ยน) | PD-04, PD-05 |
 | โค้ด Report Agent | PR #19: https://github.com/Awannaphasch2016/quant-software-factory/pull/19 | HR-05, HR-06 |
-| Deploy บน Vercel | project `qsf-report-agent` ใน Team ของพี่ Anak, build log: sandbox clone repo ที่ `a1e147a` สำเร็จ, deployment ล่าสุด `qsf-report-agent-avymirle1` (22 พ.ย. 2569) | HR-05 |
+| Deploy บน Vercel | project `qsf-report-agent` ใน Team ของพี่ Anak: `qsf-report-agent-avymirle1` (22 พ.ย. 2569, sandbox ที่ `a1e147a`) แล้วแทนด้วย `qsf-report-agent-ne71f4mlm` (23 พ.ย. 2569, PR #35, sandbox ที่ `6e31548` + fpdf2) | HR-05 |
 | รายงานจาก agent ที่ deploy แล้ว | eve channel 22 พ.ย. 2569 16:26 น.: ข้อความรายงาน `diff` กับ `reports/demo_coop_rg_2026_10_v2/report.md` ไม่ต่าง | HR-05 |
 | Discord แบบพิมพ์และแบบแนบไฟล์ | server ทดสอบของผู้จัดทำ 16:51 และ 17:00 น.: 29/29 ทั้งสองแบบ ใน log ของ AI Gateway session ที่แนบไฟล์มีการเรียกโมเดล 3 ครั้ง (อ่านไฟล์, รันรายงาน, ตอบ) | HR-05, AC-05 |
 | รายงานไม่ผ่านโมเดล | Discord 17:19 น.: ไฟล์แนบ `demo_coop_rg_2026_10_v2.md` ขนาด 2,612 bytes SHA-256 `4d1aad3d…4ca6` ตรงกับ `report.md` ใน repo คำตอบของ agent ไม่มีจำนวนเงินหรือ % | HR-06 |
 | Spec ผิด | eve channel 18:06 น. บัญชี `DEMO-9999`: agent ตอบว่าตัวเช็คไม่ผ่าน 23 จาก 29 และขอให้ตรวจเลขบัญชี ไม่มีรายงาน | HR-06 |
-| test ของการส่งรายงาน | `report-agent/test/discord-report.test.ts` 6 กรณี และ CI job `report-agent` ใน PR #19 | HR-06 |
+| test ของการส่งรายงาน | `report-agent/test/discord-report.test.ts` 7 กรณี (กรณีที่ 7 ส่ง PDF ที่ commit ไว้ผ่าน `postFile` แล้วตรงทุก byte) และ CI job `report-agent` ใน PR #19 และ #35 | HR-06 |
+| fpdf2 ใน sandbox | Docker image ของ eve (`ghcr.io/vercel/eve:dockerfile-a22b7f0d63c2`, linux/amd64): ติดตั้งผ่าน venv แล้วรันแบบ `--network none` ได้ `24 checks, 0 failed` และ `report.pdf` SHA-256 `29c51310…a427` ตรงกับ repo | PR #35 |
+| รายงาน Grid ผ่าน Discord | eve channel บน deployment ใหม่: Grid 24/24 และ Returns & Transactions 29/29; Discord server ทดสอบ: agent ตอบ "Done: all 24 checks passed, and the PDF is posted below." และ bot แนบ `demo_grid_2026_11.pdf` | HR-05, HR-06, AC-05 |
 
 ข้อความในตารางสรุปผลที่รันจริง ไม่ได้ยืนยันว่าตัวเลขตรงกับนิยามของทีม เพราะ fixture และ Expected Values เป็นข้อมูลปลอมที่คำนวณตามนิยามสมมติ
 
@@ -599,16 +612,16 @@ Gap:
 
 | SRS | Design (ข้อ) | หลักฐาน (ข้อ 7) |
 |---|---|---|
-| HR-01, HR-02 | 4.1, 5.4 | Issue #4, #6, #7, #9 |
-| HR-03 | 5.4 | PR #5, #8, #10, merge PR #2, #8, #10 |
+| HR-01, HR-02 | 4.1, 5.4, 5.5 | Issue #4, #6, #7, #9, #23 และ Issue ย่อย |
+| HR-03 | 5.4, 5.5 | PR #5, #8, #10, #26, #30, #32, merge PR #2, #8, #10, #26, #28, #30, #32 |
 | HR-04 | 3.2 | คอมเมนต์ Classify ของ Issue #6, #7, #9 |
-| HR-05 | 4.1, 4.4, 2.9 (ข้อมูลจริง) | PR #19, การรันผ่าน Discord ในข้อ 7 |
-| HR-06 | 4.4 | ไฟล์แนบใน Discord ที่ SHA-256 ตรงกับ `report.md`, test ของ `discord-report.ts` |
-| FR-01, FR-02 | 3.1, 3.3 | Issue #4, #9, Template |
+| HR-05 | 4.1, 4.4, 2.9 (ข้อมูลจริง) | PR #19, PR #35, การรันผ่าน Discord ในข้อ 7 |
+| HR-06 | 4.4 | ไฟล์แนบใน Discord ที่ SHA-256 ตรงกับ `report.md`, PDF ที่ tool แนบเอง, test ของ `discord-report.ts` |
+| FR-01, FR-02 | 3.1, 3.3 | Issue #4, #9, Template; gap จาก Issue #23 ในข้อ 3.3 |
 | FR-03, FR-04 | 3.2, 4.3 | PR #8 (data layer), PR #10 (Data Mapping, test ที่ยืนยันว่าอ่านผ่าน `load(...)`) |
-| FR-05, FR-06, FR-07 | 4.3 | PR #5, PR #10, checks.json, test |
+| FR-05, FR-06, FR-07 | 4.3, 5.5 | PR #5, PR #10, PR #28–#32, checks.json, test |
 | FR-08 | 4.3 และ Natural Writing Proposal | narrative.md ใน PR #5 และบน `main` (PR #10) |
-| FR-10 | 5.1, 5.2, 5.3, 9 | คอมเมนต์ขออนุมัติใน Issue #4, #6, #9 และ Issue #7 ที่จบโดยไม่ต้องอนุมัติ |
+| FR-10 | 5.1, 5.2, 5.3, 5.5, 9 | คอมเมนต์ขออนุมัติใน Issue #4, #6, #9, #23, #27 และ Issue #7, #25, #29, #31 ที่จบโดยไม่ต้องอนุมัติ |
 | NFR-01, NFR-02, NFR-04, NFR-06 | 4.2 | PR #5, PR #10, CI, การรันซ้ำของผู้จัดทำ |
 | NFR-07 | 10 | token จริงของ Report Agent จาก log ของ AI Gateway |
 | PD-01, PD-03, PD-04 | 2.4, 2.5, 2.7 | Issue #12 → PR #13, Issue #15 → PR #16 (leak check จับทั้งคำ), ผลการตรวจในข้อ 2.7 (result ไม่มีค่าจาก private database) |
@@ -619,20 +632,21 @@ Gap:
 
 | รายการ | แนวทาง |
 |---|---|
-| Report Spec (Run #4) ยังชนเพดาน output token และต้องมีคนอนุมัติ 1 ครั้ง ส่วน Platform Spec (Run #3) จบเอง (FR-10 ผ่านบางส่วน) | ถามพี่ Anak เรื่องเพิ่มเพดาน หรือลดขนาด Report Spec แล้ววัดซ้ำ การจบเองจำเป็นต่อการสั่งงานผ่านแชต |
+| Spec ใหญ่ยังชนเพดาน output token และหลังอนุมัติโรงงานไม่ทำต่อ (Run #4 ต้องอนุมัติ, Issue #23 และ Run #8 ไม่ทำต่อ) แตก Issue แล้ว 3 ใน 4 จบใน session เดียว (FR-10 ผ่านบางส่วน) | แตก Spec ให้แต่ละ Issue จบใน session เดียวตั้งแต่แรก และถามพี่ Anak เรื่องเพดานกับ log ของโรงงาน |
 | Run #2 ไม่ตอบสนองหลังอนุมัติ 2 ครั้ง และเพดานลดจาก 100K เป็น 44.9K | ต้องให้พี่ Anak ตรวจ log และ budget ฝั่ง Vercel |
 | Report Spec v0.3 มี spec gap ใหม่ 3 จุด: ไม่มีตัวเลข NAV เปลี่ยนไปเท่าไรใน Data Mapping, ไม่ได้กำหนดว่าช่วงเวลาคิดจากอะไร, ตัวเช็ค B0 ไม่มีใน Spec | v0.4 ยังไม่ได้แก้ 3 จุดนี้ (v0.4 แก้เรื่องที่มาของข้อมูลและ driver) |
 | ใช้ซ้ำได้พิสูจน์แค่ 1 ประเภทรายงาน | รัน preset `client_pnl` |
 | นิยามและชื่อคอลัมน์จริงยังไม่มี | map ชื่อกลางกับของจริงฝั่งภายใน และทำ `InternalSource` นอก repository สาธารณะ |
 | ข้อความบรรยายจาก template ยังเล่าตามตาราง องค์ประกอบ "ซ้ำ" ได้ 3 คะแนนทั้ง Run #1 และ #4 สาเหตุคือ Writing Rules เรียงหัวข้อตามลำดับตาราง (Run #4 แก้เรื่องค่าติดลบและพหูพจน์ได้แล้ว) | แก้ลำดับหัวข้อใน Writing Rules ให้เริ่มจาก P/L รวมและส่วนประกอบ ตามฉบับแก้ใน Natural Writing Proposal ข้อ 3.2 แล้วรันใหม่ จากนั้นทำขั้น 2 (narrative facts) |
-| Report Agent ใช้ได้กับข้อมูลปลอมชุดเดียว และยังไม่ต่อกับ executor ในบริษัท | ทำตามข้อ 2.9 เมื่อได้คำตอบเรื่อง policy, เครื่อง runner และสิทธิ์ database |
-| Report ID มาจากชื่อ dataset และ agent ใช้จาก Spec แค่ 4 ค่า | เพิ่ม `report_id` เป็น input ของ tool ที่อ่านจาก Spec และขยายสิ่งที่ agent ส่งต่อเมื่อโค้ดรายงานรองรับ |
+| Report Agent ใช้ได้กับข้อมูลปลอม 2 ชุด (รายงานละชุด) และยังไม่ต่อกับ executor ในบริษัท | ทำตามข้อ 2.9 เมื่อได้คำตอบเรื่อง policy, เครื่อง runner และสิทธิ์ database |
+| Report ID มาจากชื่อ dataset และ agent ใช้จาก Spec แค่ 3–4 ค่า (dataset, account, วันที่) | เพิ่ม `report_id` เป็น input ของ tool ที่อ่านจาก Spec และขยายสิ่งที่ agent ส่งต่อเมื่อโค้ดรายงานรองรับ |
 | ทุกคนใน server ที่มี bot สั่ง `/ask` ได้ ค่าใช้จ่ายไปที่ Team ของพี่ Anak | จำกัดตาม role ด้วย `onCommand` ของ discord channel |
 | การส่งรายงานอยู่ใน tool และตรวจว่ามาจาก Discord จากชื่อ channel | ย้ายไปไว้ใน event ของ discord channel ถ้าต้องการรองรับหลายช่องทาง (จาก review /simplify) |
 | executor ใน prototype เป็นเครื่องผู้ทดสอบ ยังไม่ใช่เครื่องในเครือข่ายบริษัท | ศึกษาการใช้ self-hosted runner หรือเครื่องที่ทีมควบคุมเป็น executor และขอสิทธิ์ database แบบอ่านอย่างเดียวที่ได้รับอนุมัติ |
 | ยังไม่ได้ยืนยัน policy ของบริษัทเรื่องการส่งข้อมูลให้ผู้ให้บริการโมเดล | ถามฝ่ายที่ดูแลก่อนพิจารณาแนวทาง A (ZDR) สำหรับงานที่ต้องให้โมเดลเห็นข้อมูล |
 | leak check ไม่ค้นในชื่อ key ของ JSON และค่าจำนวนเต็ม (ข้อ 2.7) | เพิ่มการค้นใน key เมื่อแก้ `private_run` รอบหน้า และตรวจว่า result มีแค่ key ที่กำหนด และ `checks_total`, `checks_failed` ตรงกับจำนวนใน `checks` เพื่อให้ค่าจำนวนเต็มอื่นเข้ามาไม่ได้ |
-| Report Agent ส่งรายงาน Grid เป็น PDF เข้า Discord ได้แล้ว (PR #35: tool `generate_grid_report`, ติดตั้ง `fpdf2` ใน venv ของ sandbox ตอน prepare ทดสอบใน image ของ Eve ด้วย Docker ก่อน deploy) แต่ใช้ได้แค่ข้อมูลปลอม | ต่อกับ executor ใน trusted zone ตามข้อ 2.9 |
+| Spec Structure ยังไม่รองรับ layout ของ PDF และสูตรที่คำนวณต่อจากข้อมูล (ข้อ 3.3) และรายงาน Grid คำนวณค่าบางตัวเอง (ข้อ 2.1) | เพิ่ม block ชนิด page/card/chart และหัวข้อ Formulas ใน Spec Structure และถามทีมว่า pipeline มีค่าเหล่านี้หรือไม่ |
+| PDF ของรายงาน Grid จาก Discord มีเวลาสร้างเป็นเวลาที่สั่ง จึงไม่ตรงกับไฟล์ใน repo ทุก byte (ต่างแค่ footer และวันที่ของไฟล์) | ถ้าต้องการตรวจย้อน ให้เก็บ SHA-256 และเวลาสร้างของแต่ละฉบับ |
 | สูตรของรายงาน Grid ยังไม่ได้ยืนยันกับทีม และรายงาน RAOT กับ Program Trading ยังไม่ได้ทำ | ยืนยันสูตร แล้วใช้วงจรเดียวกัน (แตก Issue ให้จบใน session เดียว) |
 
 ## 10. Execution Cost
@@ -653,6 +667,7 @@ Gap:
 - ช่อง cost และ billed cost ของ AI Gateway แสดง $0.0000 ทุก request ตัวเลขข้างบนจึงคำนวณเอง ไม่ใช่ยอดที่ถูกเรียกเก็บ
 - ค่า Vercel Sandbox (เวลาที่ sandbox รัน) และ Function ยังไม่รู้ `vercel billing usage` ตอบว่ายังไม่มีข้อมูลของช่วงนี้ ต้องให้พี่ Anak ดูหน้า Usage ของ Team
 - ค่าใช้จ่ายครั้งเดียวตอน build (สร้าง snapshot) ไม่ได้นับต่อรายงาน
+- ยังไม่ได้วัดค่าโมเดลของรายงาน Grid ผ่าน Discord (23 พ.ย. 2569) คาดว่าใกล้กับแถว 17:19 น. เพราะโมเดลเรียก tool 1 ครั้งและไม่เห็นรายงาน แต่ยังไม่ได้ดู log
 
 ### 10.2 Foreman: ต้นทุนต่อ run
 
@@ -667,6 +682,8 @@ Gap:
 | Run #4 | output ≥ 100K tokens, โค้ด +2,012 บรรทัด | ~$4–6 ≈ 135–200 บาท (เทียบกับ Run #1) |
 | Run #5 (Issue #12) | ไม่ชนเพดาน ไม่ทราบจำนวน output token, โค้ด +1,340 บรรทัด | ประมาณไม่ได้ |
 | Run #6 (Issue #15) | ไม่ชนเพดาน ไม่ทราบจำนวน output token, โค้ด +401 บรรทัด | ประมาณไม่ได้ |
+| Issue #23 | ชน budget 21.7K ก่อน implement ไม่มี Output | ประมาณไม่ได้ |
+| Run #7–#10 (Issue #25, #27, #29, #31) | Run #8 ชน guardrail 3.3K หลัง push ส่วนอื่นไม่ชน ไม่ทราบจำนวน output token | ประมาณไม่ได้ |
 
 ต้นทุนของ Foreman ยังวัดไม่ได้ เพราะ log ของโรงงานอยู่ใน project อื่นที่ผู้จัดทำยังไม่ได้ดู (ผู้จัดทำเข้า Team ของพี่ Anak ได้ตั้งแต่ 22 พ.ย. 2569)
 

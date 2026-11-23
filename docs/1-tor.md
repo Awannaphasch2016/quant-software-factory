@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.3 | 22 พ.ย. 2569 | Current |
+| v1.4 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.4 | 23 พ.ย. 2569 | เพิ่มรายงาน PDF ตามรูปแบบของทีม (รายงาน Grid) ในสิ่งส่งมอบข้อ 4.1 และบันทึกในข้อ 3.2 ว่ารายงาน Grid มีค่าที่โค้ดคำนวณเองซึ่งต้องยืนยันกับทีม ขอบเขตไม่เปลี่ยน |
 | v1.3 | 22 พ.ย. 2569 | เพิ่ม Report Agent (Eve agent ตัวเดียวสำหรับ Discord) ในสิ่งส่งมอบข้อ 4.1 และค่าใช้จ่ายของ agent ในข้อ 5.1 เลื่อนกำหนดส่งสัปดาห์ที่ 2 เป็น 23 พ.ย. 2569 ในข้อ 5.2 |
 | v1.2 | 19 พ.ย. 2569 | เพิ่ม Private Data ในเกณฑ์ยอมรับข้อ 4.3 และกำหนดส่งงานสัปดาห์ที่ 2 (20 พ.ย. 2569) ในข้อ 5.2 ตามผลรีวิวเอกสาร |
 | v1.1 | 19 พ.ย. 2569 | เพิ่มการทำงานกับ Private Data เป็นวัตถุประสงค์หลักตาม feedback ของ mentor วันที่ 19 พ.ย. 2569 (ข้อ 2.1–2.3, 3.1, 3.3, 5.1) เปลี่ยนช่องทางแชตเป็น Discord และเพิ่ม Delivery Document ในรายการเอกสาร |
@@ -74,7 +75,7 @@ Project Plan, SRS และ Software Design เป็นเอกสารปล
 ### 3.2 Out of Scope
 
 - การสร้าง Software Factory ใหม่ (ใช้ของพี่ Anak)
-- การคำนวณตัวเลขใหม่แทน pipeline ของทีม
+- การคำนวณตัวเลขใหม่แทน pipeline ของทีม (รายงาน Grid มีค่าที่โค้ดคำนวณต่อจากข้อมูล เช่น Expected Volume ซึ่งต้องยืนยันกับทีมว่า pipeline มีอยู่แล้วหรือไม่ ดู SRS FR-03)
 - การ merge, deploy และการส่งรายงานถึงลูกค้า ซึ่งเป็นการตัดสินใจของคน
 - ข้อเสนอแนะหรือการคาดการณ์การลงทุนในรายงานลูกค้า
 - backtest และการเฝ้าดู pipeline (เลื่อนไปรอบหลัง)
@@ -100,7 +101,7 @@ Project Plan, SRS และ Software Design เป็นเอกสารปล
 
 Spec Structure (Report Spec Template), Spec ตัวอย่าง และผลการรันผ่านโรงงาน อธิบายและอ้างอิงหลักฐานใน Software Design [3] โค้ดที่โรงงานสร้างอยู่ใน repository `quant-software-factory` [4] ไม่ใช่สิ่งส่งมอบแยก
 
-ตั้งแต่ Human Iteration 2 มีสิ่งส่งมอบที่เป็น software ที่ deploy แล้ว คือ Report Agent ที่รับ Spec ทาง Discord และส่งรายงานกลับ ตำแหน่งที่ deploy วิธีใช้ และวิธีทดสอบอยู่ใน Delivery Document
+ตั้งแต่ Human Iteration 2 มีสิ่งส่งมอบที่เป็น software ที่ deploy แล้ว คือ Report Agent ที่รับ Spec ทาง Discord และส่งรายงานกลับ ตั้งแต่ 23 พ.ย. 2569 รายงานที่ส่งมอบรวมรายงาน PDF ตามรูปแบบที่ทีมใช้ (Grid Trade Performance) ตำแหน่งที่ deploy วิธีใช้ และวิธีทดสอบอยู่ใน Delivery Document
 
 ### 4.2 Documentation Deliverables
 
