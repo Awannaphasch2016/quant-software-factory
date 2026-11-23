@@ -105,6 +105,18 @@ export interface PostReportOptions {
   readonly fetchImpl?: typeof fetch;
 }
 
+export interface PostFileOptions {
+  readonly botToken: string;
+  readonly channelId: string;
+  /** Message text sent with the file. */
+  readonly summary: string;
+  readonly filename: string;
+  readonly content: Uint8Array | string;
+  readonly contentType: string;
+  /** For tests; defaults to the global `fetch`. */
+  readonly fetchImpl?: typeof fetch;
+}
+
 async function send(
   fetchImpl: typeof fetch,
   url: string,
@@ -124,16 +136,14 @@ async function send(
   throw new Error("Discord kept rate-limiting the report messages");
 }
 
-/**
- * Posts the summary with `report.md` attached, then the report text with
- * tables fenced, split into as many messages as needed.
- */
-export async function postReport(options: PostReportOptions): Promise<void> {
-  const fetchImpl = options.fetchImpl ?? fetch;
-  const url = `${API_BASE}/channels/${encodeURIComponent(options.channelId)}/messages`;
-  const auth = { authorization: `Bot ${options.botToken}` };
+function messagesUrl(channelId: string): string {
+  return `${API_BASE}/channels/${encodeURIComponent(channelId)}/messages`;
+}
 
-  await send(fetchImpl, url, () => {
+/** Posts one message with one file attached, byte for byte. */
+export async function postFile(options: PostFileOptions): Promise<void> {
+  const fetchImpl = options.fetchImpl ?? fetch;
+  await send(fetchImpl, messagesUrl(options.channelId), () => {
     const form = new FormData();
     form.append(
       "payload_json",
@@ -143,12 +153,29 @@ export async function postReport(options: PostReportOptions): Promise<void> {
         content: options.summary,
       })
     );
-    form.append(
-      "files[0]",
-      new Blob([options.markdown], { type: "text/markdown" }),
-      options.filename
-    );
-    return { body: form, headers: auth, method: "POST" };
+    const part = typeof options.content === "string" ? options.content : new Uint8Array(options.content);
+    form.append("files[0]", new Blob([part], { type: options.contentType }), options.filename);
+    return { body: form, headers: { authorization: `Bot ${options.botToken}` }, method: "POST" };
+  });
+}
+
+/**
+ * Posts the summary with `report.md` attached, then the report text with
+ * tables fenced, split into as many messages as needed.
+ */
+export async function postReport(options: PostReportOptions): Promise<void> {
+  const fetchImpl = options.fetchImpl ?? fetch;
+  const url = messagesUrl(options.channelId);
+  const auth = { authorization: `Bot ${options.botToken}` };
+
+  await postFile({
+    botToken: options.botToken,
+    channelId: options.channelId,
+    content: options.markdown,
+    contentType: "text/markdown",
+    fetchImpl,
+    filename: options.filename,
+    summary: options.summary,
   });
 
   const chunks = splitForDiscord(fenceTables(options.markdown));

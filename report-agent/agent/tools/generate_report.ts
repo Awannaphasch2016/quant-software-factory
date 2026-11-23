@@ -1,8 +1,8 @@
 import { defineTool, type ToolContext } from "eve/tools";
 import { z } from "zod";
-import { discordCredentials } from "../discord-credentials.js";
 import { postReport } from "../lib/discord-report.js";
-import { environment, REPO_DIR } from "../sandbox.js";
+import { ACCOUNT, botToken, checksSchema, discordChannelId, ISO_DATE } from "../lib/report-tool.js";
+import { environment, PYTHON, REPO_DIR } from "../sandbox.js";
 
 /**
  * Mock datasets the tool may read. Each name is a folder under
@@ -10,9 +10,6 @@ import { environment, REPO_DIR } from "../sandbox.js";
  * a Spec cannot point the command at an arbitrary path.
  */
 const DATASETS = ["demo_coop_rg_2026_10_v2"] as const;
-
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const ACCOUNT = /^[A-Za-z0-9-]{1,32}$/;
 
 const outputSchema = z.object({
   checks_failed: z.array(z.string()),
@@ -31,22 +28,6 @@ const outputSchema = z.object({
 });
 
 type Output = z.infer<typeof outputSchema>;
-
-const checksSchema = z.array(z.object({ name: z.string(), passed: z.boolean() }).passthrough());
-
-/** Resolves the bot token from the connector; it may be a value or a getter. */
-async function botToken(): Promise<string> {
-  const token = discordCredentials.botToken;
-  const value = typeof token === "function" ? await token() : token;
-  if (!value) throw new Error("No Discord bot token is configured");
-  return value;
-}
-
-/** The Discord channel id of the calling session, when it came from Discord. */
-function discordChannelId(channel: { kind: string; metadata: Readonly<Record<string, unknown>> }) {
-  const id = channel.metadata.channelId;
-  return channel.kind.endsWith("discord") && typeof id === "string" ? id : null;
-}
 
 /** Fields every result starts from; each path overrides only what it knows. */
 const EMPTY: Omit<Output, "exit_code" | "status"> = {
@@ -74,7 +55,7 @@ async function buildReport(
   const out = `${work}/${input.dataset}`;
   try {
     const run = await sandbox.run({
-      command: `python3 -m quant_software_factory.reporting.returns_transactions data/fixtures/${input.dataset} ${out} --account '${input.account}' --opening ${input.opening} --as-of ${input.as_of}`,
+      command: `${PYTHON} -m quant_software_factory.reporting.returns_transactions data/fixtures/${input.dataset} ${out} --account '${input.account}' --opening ${input.opening} --as-of ${input.as_of}`,
       env: { PYTHONPATH: "src" },
       workingDirectory: REPO_DIR,
     });
