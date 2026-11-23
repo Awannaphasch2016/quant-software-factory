@@ -1,0 +1,4 @@
+account_no,instrument,display_order,initial_units,initial_cost,commission_rate,expected_trade_units,expected_trade_return_pct
+DEMO-0001,AAA,1,500000,24.8000,0.0015,500000,0.0
+DEMO-0001,BBB,2,80000,160.5000,0.0015,80000,0.0
+DEMO-0001,CCC,3,300000,68.4000,0.0015,300000,0.0
