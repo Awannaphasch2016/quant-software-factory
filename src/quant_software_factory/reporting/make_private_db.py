@@ -5,7 +5,7 @@ Usage::
     python -m quant_software_factory.reporting.make_private_db <csv_dir> <db_path> \\
         [--scale K] [--account NEW_ID] [--client-name NAME]
 
-Reads ``<csv_dir>/<dataset>.csv`` for every dataset in the schema registry and
+Reads ``<csv_dir>/<dataset>.csv`` for every dataset in ``RETURNS_DATASETS`` and
 writes one TEXT table per dataset to ``<db_path>``, which must not exist yet.
 ``--scale K`` multiplies every ``decimal`` field by ``K`` except
 ``performance.return_pct``, keeping the number of decimal places; quantities,
@@ -28,7 +28,7 @@ from contextlib import closing
 from decimal import Inexact, localcontext
 from pathlib import Path
 
-from .schema import ACCOUNT_FIELD, SCHEMAS, parse_decimal
+from .schema import ACCOUNT_FIELD, RETURNS_DATASETS, SCHEMAS, parse_decimal
 
 CLIENT_FIELD = "client_name"
 UNSCALED = frozenset({("performance", "return_pct")})
@@ -186,7 +186,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.account,
                 args.client_name,
             )
-            for dataset in SCHEMAS
+            for dataset in RETURNS_DATASETS
         }
         write_db(db_path, data)
     except FileExistsError:

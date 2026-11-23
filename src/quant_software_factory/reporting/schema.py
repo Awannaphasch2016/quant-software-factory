@@ -3,6 +3,9 @@
 ``SCHEMAS`` is the single definition of each dataset's fields and types. It is
 used by :mod:`.source` to check headers and filter rows, and by the A3 schema
 check to validate values.
+
+``RETURNS_DATASETS`` lists the datasets used by the Returns & Transactions
+report; the A3 schema checks and ``make_private_db`` cover exactly these.
 """
 
 from __future__ import annotations
@@ -73,7 +76,11 @@ SCHEMAS: dict[str, tuple[FieldSpec, ...]] = {
         FieldSpec("date", "date"),
         FieldSpec("account_no", "str"),
         FieldSpec("instrument", "str"),
-        FieldSpec("side", "enum", ("BUY", "SELL", "DIVIDEND")),
+        FieldSpec(
+            "side",
+            "enum",
+            ("BUY", "SELL", "DIVIDEND", "PORT_ADJUSTED", "GAIN_ADJUSTMENT"),
+        ),
         FieldSpec("qty", "int"),
         *_decimals("price", "fee", "tax", "amount"),
         FieldSpec("realized_pl", "decimal", required=False),
@@ -91,7 +98,34 @@ SCHEMAS: dict[str, tuple[FieldSpec, ...]] = {
             "capital_gain", "dividend", "unrealized_change", "total_pl", "return_pct"
         ),
     ),
+    "grid_setup": (
+        FieldSpec("account_no", "str"),
+        FieldSpec("instrument", "str"),
+        FieldSpec("display_order", "int"),
+        FieldSpec("initial_units", "int"),
+        *_decimals("initial_cost", "commission_rate"),
+        FieldSpec("expected_trade_units", "int"),
+        FieldSpec("expected_trade_return_pct", "decimal"),
+    ),
+    "grid_cash": (
+        FieldSpec("date", "date"),
+        FieldSpec("account_no", "str"),
+        FieldSpec("instrument", "str"),
+        FieldSpec("cash", "decimal"),
+    ),
 }
+
+# Datasets of the Returns & Transactions report. The A3 schema checks,
+# make_private_db and the private-boundary tests iterate this tuple, not
+# SCHEMAS, so registering further datasets does not change their behavior.
+RETURNS_DATASETS: tuple[str, ...] = (
+    "account_info",
+    "nav_daily",
+    "holdings_daily",
+    "transactions",
+    "cash_flow",
+    "performance",
+)
 
 
 def parse_date(value: str) -> date | None:
