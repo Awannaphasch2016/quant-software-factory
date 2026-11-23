@@ -28,6 +28,8 @@ result.json
 # - real client reports and internal system documentation
 report-examples/
 *.pdf
+# - except the synthetic demo Grid report, drawn from the demo fixture
+!reports/demo_grid_2026_11/report.pdf
 README_DATA_SOURCES*
 # - mentor briefs, feedback and the intern's working notes, which live
 #   outside this repository

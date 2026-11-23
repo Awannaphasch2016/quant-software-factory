@@ -38,6 +38,7 @@ from quant_software_factory.reporting.grid_performance import (
     load_inputs,
     main,
     run_report,
+    write_outputs,
 )
 from quant_software_factory.reporting.make_private_db import read_csv, write_db
 from quant_software_factory.reporting.schema import GRID_DATASETS
@@ -58,7 +59,7 @@ OPTIONS = [
     "--generated-at",
     GENERATED_AT,
 ]
-FILES = ["checks.json", "report.json"]
+FILES = ["checks.json", "report.json", "report.pdf"]
 LAYER_A_NAMES = [
     "A2_account_info_has_rows",
     "A2_grid_cash_as_of_date",
@@ -147,7 +148,7 @@ def report(out_dir: Path) -> Report:
     return data
 
 
-def test_fixture_passes_and_writes_two_files(out_dir: Path) -> None:
+def test_fixture_passes_and_writes_three_files(out_dir: Path) -> None:
     assert _names(out_dir) == FILES
     results = json.loads((out_dir / "checks.json").read_text(encoding="utf-8"))
     names = [r["name"] for r in results]
@@ -167,7 +168,8 @@ def test_deterministic_and_matches_committed(tmp_path: Path, out_dir: Path) -> N
         data = (out_dir / name).read_bytes()
         assert data == (second / name).read_bytes(), name
         assert data == (COMMITTED / name).read_bytes(), name
-        assert data.endswith(b"\n") and b"\r" not in data
+        if name.endswith(".json"):
+            assert data.endswith(b"\n") and b"\r" not in data
 
 
 def test_sqlite_source_gives_identical_report(tmp_path: Path, out_dir: Path) -> None:
@@ -176,8 +178,11 @@ def test_sqlite_source_gives_identical_report(tmp_path: Path, out_dir: Path) -> 
     run = run_report(SqliteSource(db), ACCOUNT, AS_OF, GENERATED_AT)
     assert all(r.passed for r in run.results)
     assert run.report is not None
-    text = json.dumps(run.report, indent=2) + "\n"
-    assert text.encode("utf-8") == (out_dir / "report.json").read_bytes()
+    out = tmp_path / REPORT_ID
+    write_outputs(out, run.results, run.report)
+    assert _names(out) == FILES
+    for name in FILES:
+        assert (out / name).read_bytes() == (out_dir / name).read_bytes(), name
 
 
 def _row(rows: list[dict[str, Any]], ticker: str) -> dict[str, Any]:
@@ -825,12 +830,24 @@ def test_inputs_read_only_through_load() -> None:
     assert set(spy.calls) == set(GRID_DATASETS)
 
 
-@pytest.mark.parametrize("module", ["grid_performance.py", "grid_checks.py"])
+@pytest.mark.parametrize(
+    "module", ["grid_performance.py", "grid_checks.py", "grid_pdf.py"]
+)
 def test_no_hard_coded_client_values(module: str) -> None:
     text = (PACKAGE / module).read_text(encoding="utf-8")
-    for value in ("DEMO-COOP", "DEMO-0001", "Reverse Grid", "2024-02-28"):
+    values = ["DEMO-COOP", "DEMO-0001", "2024-02-28", "28 Feb 2024"]
+    if module != "grid_pdf.py":
+        # The PDF prints "Reverse Grid Trading" as its title.
+        values.append("Reverse Grid")
+    for value in values:
         assert value not in text
     assert not re.search(r"\d+\.\d+\.\d+\.\d+|https?://", text)
+
+
+def test_pdf_module_computes_nothing() -> None:
+    text = (PACKAGE / "grid_pdf.py").read_text(encoding="utf-8")
+    for name in ("Decimal", "parse_display", "grid_performance", "grid_checks"):
+        assert name not in text
 
 
 def test_rejects_bad_generated_at(capsys: pytest.CaptureFixture[str]) -> None:
