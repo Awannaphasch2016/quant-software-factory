@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.4 | 22 พ.ย. 2569 | Current |
+| v1.5 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.5 | 23 พ.ย. 2569 | เพิ่มข้อ 5.5 รายงาน Grid Trade Performance (PDF) ตามรูปแบบของทีม: การแตก Spec เป็น 4 Issue, timeline ของ Run #7–#10, การตัดสินใจ และ gap เพิ่มหลักฐานในข้อ 7 และปรับข้อจำกัดในข้อ 9 |
 | v1.4 | 22 พ.ย. 2569 | Human Iteration 2: เพิ่มข้อ 4.4 Report Agent และ Discord (ส่วนประกอบ, sequence, การตัดสินใจ, gap ที่พบระหว่างทดสอบ) เพิ่มข้อ 2.9 เส้นทางจาก Discord ถึง executor ในบริษัท (Intended) แก้ C4 Context ให้มี Report Agent ปรับคำตอบคำถามข้อ 3 และ 5 ในข้อ 2.6, Spec Structure v0.4 ในข้อ 3, หลักฐาน, traceability, ข้อจำกัด และต้นทุนต่อรายงานในข้อ 10 |
 | v1.3 | 19 พ.ย. 2569 | แก้ C4 Context (ข้อ 4.1) เป็น Discord และให้ข้อมูลจริงไปที่ executor ใน Trusted zone แทน GitHub ระบุว่าการรันเฉพาะโค้ดที่ merge แล้วยังเป็นขั้นตอนของคน (ข้อ 2.8) ตั้งชื่อ Run #5 และ #6 เพิ่มแถวต้นทุนและสถานะต้นทุนต่อรายงาน (ข้อ 10) |
 | v1.2 | 19 พ.ย. 2569 | ปิด design gap 3 ข้อจากข้อ 2.7 ด้วย Issue #15 → PR #16 (ตัวกันเขียนลง repo ไม่ขึ้นกับวิธีติดตั้ง, leak check จับทั้งคำ, กำหนด layer `"boundary"`) เพิ่มผลตรวจของผู้จัดทำ ข้อจำกัดของ leak check ที่เหลือ หลักฐาน และ traceability |
@@ -506,6 +507,34 @@ sequenceDiagram
 
 จุดที่คนเกี่ยวข้อง: เขียน Spec, ติด label, อนุมัติเมื่อชนเพดาน, ตรวจและ merge การอนุมัติกลางทางไม่ได้อยู่ในการออกแบบเดิม เป็นผลจากเพดาน token (ดูข้อ 9)
 
+### 5.5 รายงาน Grid Trade Performance (Issue #23 → Run #7–#10, 23 พ.ย. 2569)
+
+ตอบ feedback ต่อ PR #5 ที่ขอ "รายงานจริง" ไม่ใช่ infrastructure: Input คือ Issue #23 ที่มี Report Spec ของรายงาน Reverse Grid แบบเดียวกับที่ทีม Quant ส่งลูกค้า (PDF 5 หน้า: Summary Performance, Transaction และหน้ารายหุ้นพร้อมกราฟ 2 อัน) Output คือ `reports/demo_grid_2026_11/report.pdf`
+
+ขั้นตอน:
+1. ผู้จัดทำสร้างข้อมูลปลอม (PR #22) และคำนวณค่าที่คาดหวังด้วยสคริปต์แยกจากโค้ดรายงาน แล้วใส่ไว้ใน Spec
+2. เปิด Issue #23 โรงงานวิเคราะห์ผ่านและยืนยันว่าค่าที่คาดหวังทุกแถวคำนวณจากข้อมูลได้ แต่ชน budget 21.7K output token ต่อ session ก่อน implement และหลัง approve ไม่ทำต่อภายใน 43 นาที
+3. สั่งหยุดแล้วแตก Spec เป็น 4 Issue ที่แต่ละอันจบใน session เดียว แต่ละ PR merge ก่อนเปิด Issue ถัดไป
+
+| Run | Issue → PR | ขอบเขต | label ถึง push | หมายเหตุ |
+|---|---|---|---|---|
+| #7 | #25 → #26 | ลงทะเบียน `grid_setup`, `grid_cash` และกันรายงานเดิมด้วย `RETURNS_DATASETS` | 8 นาที (PR ที่ 9 นาที) | ไม่ต้อง approve |
+| #8 | #27 → #28 | ตัวเลขทุกค่า, ตัวเช็ค G0–G9, `report.json` | 13 นาที | ชน guardrail หลัง push, approve แล้วไม่ตอบ 14 นาที ผู้จัดทำเปิด PR จาก branch ของโรงงานโดยไม่แก้โค้ด และตรวจค่าที่คาดหวังเองแทนขั้น review |
+| #9 | #29 → #30 | fpdf2, PDF หน้า 1–2 จาก `report.json` | 16 นาที (PR ที่ 20 นาที) | ไม่ต้อง approve |
+| #10 | #31 → PR #32 | หน้ารายหุ้น 3–5, กราฟ, G10, แก้ตัวหนาจากการตรวจ PR #30 ปิด #23 | 19 นาที (PR ที่ 22 นาที) | ไม่ต้อง approve ผู้จัดทำเปิด PDF ตรวจทุกหน้าก่อน merge |
+
+การตัดสินใจ:
+- **โค้ดคำนวณก่อน แล้ววาดทีหลัง** `report.json` เก็บทุกค่าที่พิมพ์ใน PDF เป็นข้อความที่จัดรูปแบบแล้ว ตัววาด PDF (`grid_pdf.py`) อ่านจาก `report.json` อย่างเดียว ตัวเช็คจึงตรวจตัวเลขได้โดยไม่ต้องอ่าน PDF
+- **fpdf2 แทน WeasyPrint** fpdf2 เป็น Python ล้วน ไม่ต้องมี Pango ในเครื่องของโรงงานและ CI ทดสอบก่อนแล้วว่าสร้างซ้ำได้ไฟล์เหมือนเดิม ข้อเสียคือต้องกำหนดตำแหน่งเองทั้งหมด กฎ standard library ยังใช้กับส่วนคำนวณและตัวเช็ค
+- **PDF ไม่บีบอัด** (`compress = False`) และวันที่สร้างมาจาก `--generated-at` เพื่อให้ไฟล์เหมือนกันทุก byte บน Python 3.10–3.13 (โรงงานเสนอในขั้นวิเคราะห์)
+- **จำลองการดึงจาก database** test สร้าง SQLite จาก CSV ชุดเดียวกันแล้วรันผ่าน `SqliteSource` ต้องได้ไฟล์เหมือนกัน เมื่อได้สิทธิ์ข้อมูลจริงจะเปลี่ยนแค่ตัว source
+- **ไม่มีโลโก้และใช้ disclaimer ที่เขียนเอง** เพราะ repository เป็น public
+
+Gap:
+- งานใหญ่เกิน budget ต่อ session ของโรงงาน และ approve แล้วไม่ทำต่อ 2 ครั้ง (#23, #27): Design gap ของขนาดงานต่อ Issue แก้โดยแตก Issue
+- PR #28 มีคำว่า "do not close #23" GitHub อ่านเป็นคำสั่งปิด #23: เปิด #23 ใหม่ และหลีกเลี่ยงคำว่า close/fix/resolve ตามด้วยเลข Issue ใน PR ที่ไม่ได้ตั้งใจปิด
+- สูตร Expected Volume, NAV Vol และ Cost Change % อนุมานจากรายงานตัวอย่าง ยังไม่ได้ยืนยันกับทีม Quant
+
 ## 6. Prototype Usage
 
 0. ถ้า repository ยังไม่มี data layer ให้เปิด Platform Spec ก่อนแล้ว merge (ทำครั้งเดียว ใน Iteration 1 คือ Issue #7) ช่องกรอกอยู่ใน [`spec-structure/platform-spec-structure.md`](spec-structure/platform-spec-structure.md) ข้อ 6
@@ -528,6 +557,10 @@ sequenceDiagram
 | Test | 122 tests, รวม 36 กรณีของ Expected Values (ตาม PR body) | FR-05 |
 | CI | https://github.com/Awannaphasch2016/quant-software-factory/actions/runs/43151748082 ผ่าน 3.10–3.13 | NFR-04 |
 | Review | คอมเมนต์ใน Issue #4 เวลา 03:59:03 UTC: อนุมัติ ไม่มี blocking issue | AC-03 |
+| Spec ของรายงาน Grid | Issue #23: https://github.com/Awannaphasch2016/quant-software-factory/issues/23 และ Issue ย่อย #25, #27, #29, #31 | Input ตามรูปแบบรายงานของทีม Quant |
+| Output ของรายงาน Grid | PR #22, #26, #28, #30, PR #32 merge เข้า `main` แล้ว, `reports/demo_grid_2026_11/report.pdf` (5 หน้า), `report.json`, `checks.json` | Issue → Agent → รายงาน → PR → merge → ปิด Issue |
+| ตัวเช็คของรายงาน Grid | `checks.json` 24/24 ผ่าน (Layer A, G0–G10) | ตัวเลขตรงกันทุกหน้าและตรงกับข้อมูล |
+| ค่าที่คาดหวังของรายงาน Grid | ผู้จัดทำคำนวณแยกจากโค้ดรายงานก่อนเปิด Issue แล้วเทียบกับ `report.json` ตรงทุกค่า | ตัวเลขไม่ได้มาจากโค้ดที่ถูกตรวจเอง |
 | Spec ที่ใช้ใน Run #2 | Issue #6: https://github.com/Awannaphasch2016/quant-software-factory/issues/6 | Input ตาม Template v0.2 ผ่าน Classify และ Analysis |
 | Base branch | คอมเมนต์ Classify ของ Issue #6: "the new branch will be cut fresh from `main`" | HR-04 |
 | Merge PR #2 | commit `e6a0963` (12 พ.ย. 09:15:57 UTC) | HR-03 คนเป็นผู้ merge |
@@ -598,7 +631,8 @@ sequenceDiagram
 | executor ใน prototype เป็นเครื่องผู้ทดสอบ ยังไม่ใช่เครื่องในเครือข่ายบริษัท | ศึกษาการใช้ self-hosted runner หรือเครื่องที่ทีมควบคุมเป็น executor และขอสิทธิ์ database แบบอ่านอย่างเดียวที่ได้รับอนุมัติ |
 | ยังไม่ได้ยืนยัน policy ของบริษัทเรื่องการส่งข้อมูลให้ผู้ให้บริการโมเดล | ถามฝ่ายที่ดูแลก่อนพิจารณาแนวทาง A (ZDR) สำหรับงานที่ต้องให้โมเดลเห็นข้อมูล |
 | leak check ไม่ค้นในชื่อ key ของ JSON และค่าจำนวนเต็ม (ข้อ 2.7) | เพิ่มการค้นใน key เมื่อแก้ `private_run` รอบหน้า และตรวจว่า result มีแค่ key ที่กำหนด และ `checks_total`, `checks_failed` ตรงกับจำนวนใน `checks` เพื่อให้ค่าจำนวนเต็มอื่นเข้ามาไม่ได้ |
-| Output เป็น Markdown | PDF เป็น Spec แยก เมื่ออนุมัติ dependency แล้ว |
+| รายงาน Returns & Transactions เป็น Markdown ส่วนรายงาน Grid เป็น PDF แล้ว (ข้อ 5.5) แต่ Report Agent ใน Discord ยังสร้างได้แค่แบบแรก | เพิ่ม tool ของรายงาน Grid ใน Report Agent และส่ง PDF เข้า Discord |
+| สูตรของรายงาน Grid ยังไม่ได้ยืนยันกับทีม และรายงาน RAOT กับ Program Trading ยังไม่ได้ทำ | ยืนยันสูตร แล้วใช้วงจรเดียวกัน (แตก Issue ให้จบใน session เดียว) |
 
 ## 10. Execution Cost
 

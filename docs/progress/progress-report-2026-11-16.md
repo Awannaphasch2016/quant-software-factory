@@ -1,7 +1,7 @@
 # Progress Report: สัปดาห์ 16–23 พ.ย. 2569
 
 - ผู้จัดทำ: Inthanon Ratnavardhana
-- ข้อมูล ณ 22 พ.ย. 2569 (ฉบับ 19 พ.ย. ดูได้จาก history ของไฟล์นี้ใน git)
+- ข้อมูล ณ 23 พ.ย. 2569 (ฉบับก่อนหน้าดูได้จาก history ของไฟล์นี้ใน git)
 - กำหนดส่งเลื่อนจาก 20 พ.ย. เป็น 23 พ.ย. 2569 เวลา 18:00 น.
 - รายละเอียดการออกแบบและหลักฐานอยู่ใน [Software Design](../4-software-design.md) ข้อ 2, 4.4 และ 10 ข้อกำหนดอยู่ใน [SRS](../3-srs.md) ข้อ 3
 
@@ -13,14 +13,16 @@
 
 วันที่ 22 พ.ย. ทำ Human Iteration 2: deploy Report Agent (Eve agent ตัวเดียว) ไว้ใน Team Vercel ของพี่ Anak ผู้ใช้ส่ง Spec ทาง Discord ด้วยคำสั่ง `/ask` แล้วได้รายงานกลับในช่องเดิม tool เป็นผู้ส่งรายงาน โมเดลเห็นแค่สถานะ และไฟล์รายงานที่ได้ใน Discord ตรงกับ `report.md` ใน repo ทุก byte ค่าโมเดลต่อรายงานประมาณ $0.014 คิดจาก token จริงตามราคาในรายการโมเดล ยังไม่ได้วัดค่า Sandbox และ Function
 
+วันที่ 23 พ.ย. ทำตาม feedback เรื่อง PR #5 ที่ขอรายงานจริงที่ทีม Quant ใช้ได้ ไม่ใช่แค่ infrastructure: GitHub Issue #23 มี Report Spec ของรายงาน Grid Trade Performance แบบเดียวกับที่ทีมส่งลูกค้า (PDF 5 หน้า) โรงงานสร้างรายงานผ่าน Issue ย่อย 4 อัน แต่ละ PR merge เข้า `main` แล้ว PR สุดท้ายปิด #23 ผลคือ `reports/demo_grid_2026_11/report.pdf` จากข้อมูลปลอม ตัวเลขตรง Spec ทุกค่าและตัวเช็คผ่านทั้งหมด
+
 ยังไม่ได้เชื่อมข้อมูลจริง เส้นทางจาก Discord ไปถึง executor ในบริษัทออกแบบไว้แล้ว (Software Design ข้อ 2.9) แต่ต้องได้คำตอบเรื่องสิทธิ์และ policy ก่อน
 
 ## 2. สถานะ Human Iteration ตาม weekly report
 
 | Human Iteration | เป้าหมาย | สถานะ | หลักฐาน |
 |---|---|---|---|
-| 1 | สร้างรายงานจาก Report Spec ด้วยข้อมูลปลอม | มีสิ่งส่งมอบครบแล้ว: <br>- Issue ที่มี Report Spec, PR ที่ merge แล้ว และ Issue ที่ปิดแล้ว (Run #4) <br>- Eve agent ตัวเดียวรับ Spec แล้วได้รายงานที่ตรง Spec <br>- ต้นทุนค่าโมเดลต่อรายงาน (ค่า Sandbox ยังวัดไม่ได้) | Issue #9 → PR #10, PR #19, Software Design ข้อ 10.1 |
-| 2 | ใช้งานผ่าน Discord เป็นช่องทางเดียว | ทำงานได้ใน server ทดสอบ ทั้งแบบพิมพ์ Spec และแบบแนบไฟล์ <br>รอ merge PR #19 และยังไม่ได้ทดสอบใน server ของทีม | PR #19, Delivery Document ส่วน C |
+| 1 | สร้างรายงานจาก Report Spec ด้วยข้อมูลปลอม | มีสิ่งส่งมอบครบแล้ว: <br>- Issue ที่มี Report Spec, PR ที่ merge แล้ว และ Issue ที่ปิดแล้ว (Run #4) <br>- Eve agent ตัวเดียวรับ Spec แล้วได้รายงานที่ตรง Spec <br>- ต้นทุนค่าโมเดลต่อรายงาน (ค่า Sandbox ยังวัดไม่ได้) | Issue #9 → PR #10, PR #19, Software Design ข้อ 10.1 <br>รายงาน PDF ตามรูปแบบของทีม: Issue #23 → PR #26, #28, #30, PR #32 |
+| 2 | ใช้งานผ่าน Discord เป็นช่องทางเดียว | ทำงานได้ใน server ทดสอบ ทั้งแบบพิมพ์ Spec และแบบแนบไฟล์ <br>merge PR #19 แล้ว แต่ยังไม่ได้ทดสอบใน server ของทีม | PR #19, Delivery Document ส่วน C |
 | 3 | เชื่อมข้อมูลจริง | ตาม feedback 19 พ.ย. เปลี่ยนเป็นการออกแบบ architecture สำหรับ Private Data <br>- prototype กับ private database จำลอง (Run #5, #6) <br>- ออกแบบเส้นทางจาก Discord ไป executor ในบริษัท (Intended) <br>ยังไม่ได้เชื่อมข้อมูลจริง | Run #5, Run #6, Software Design ข้อ 2.9 |
 
 ## 3. งานในสัปดาห์นี้
@@ -31,6 +33,13 @@
 |---|---|---|---|---|---|
 | #5 | Issue #12: private data boundary prototype | PR #13 merge แล้ว (`ab61d91`) | 15 นาที | ไม่ต้อง | run 44481298874 ผ่าน 3.10–3.13, 235 tests |
 | #6 | Issue #15: แก้ design gap 3 ข้อจาก PR #13 | PR #16 merge แล้ว (`3a422c5`) | 11 นาที | ไม่ต้อง | run 44529767220 และ 44532003447 ผ่าน 3.10–3.13, 264 tests |
+| — | Issue #23: Report Spec ฉบับเต็มของรายงาน Grid | โรงงานวิเคราะห์ผ่าน แต่ชน token guardrail และไม่ทำต่อหลัง approve จึงสั่งหยุดแล้วแตกเป็น 4 Issue | — | 1 ครั้ง (ไม่ตอบ) | — |
+| #7 | Issue #25: ลงทะเบียน dataset ของ grid และกันรายงานเดิม | PR #26 merge แล้ว (`17a2621`) | 9 นาที | ไม่ต้อง | ผ่าน 3.10–3.13 |
+| #8 | Issue #27: คำนวณตัวเลข ตัวเช็ค G0–G9 และ `report.json` | PR #28 merge แล้ว (`96c05e9`) เปิด PR เองจาก branch ของโรงงาน | 13 นาทีถึง push | 1 ครั้ง (ไม่ตอบ) | ผ่าน 3.10–3.13, 398 tests |
+| #9 | Issue #29: PDF หน้า 1–2 | PR #30 merge แล้ว (`8da4d63`) | 20 นาที | ไม่ต้อง | ผ่าน 3.10–3.13, 410 tests |
+| #10 | Issue #31: หน้ารายหุ้น 3–5 พร้อมกราฟ ปิด #23 | PR #32 merge แล้ว (`8de9770`) | 22 นาที | ไม่ต้อง | ผ่าน 3.10–3.13 |
+
+ข้อมูลปลอมของรายงาน Grid (PR #22) ผู้จัดทำสร้างเองก่อนเปิด Issue พร้อมค่าที่คาดหวังที่คำนวณแยกจากโค้ดรายงาน
 
 ### 3.2 Report Agent (Human Iteration 2)
 
@@ -48,9 +57,11 @@
 - Research 3 แนวทางที่ mentor ให้ศึกษา พร้อมคำตอบคำถาม 5 ข้อ (Software Design ข้อ 2.2–2.6)
 - โรงงานเขียน `SqliteSource`, `make_private_db` และ `private_run` จาก Spec ที่ไม่มีข้อมูลจริง executor รันกับ database ที่คูณตัวเลข 7 เท่าแล้วได้รายงานถูกต้อง ตัวเลข 34 ตัวในรายงานไม่หลุดเข้า `result.json`
 - Report Agent สร้างรายงานจาก Spec ที่ส่งทาง Discord ได้โดยไม่ต้องเข้า GitHub และรายงานถึงผู้ใช้โดยไม่ผ่านโมเดล (HR-05 กับข้อมูลปลอม, HR-06 ผลรายครั้งในข้อ 3.2)
+- รายงาน Grid Trade Performance (PDF 5 หน้า) ตามรูปแบบที่ทีม Quant ใช้ จากวงจร GitHub Issue → โรงงาน → PR → merge → ปิด Issue (#23) ตัวเลขทุกค่าตรง Expected Values ใน Spec รันซ้ำและรันผ่าน `SqliteSource` ได้ไฟล์เหมือนเดิมทุก byte
 - ผู้ตรวจรันซ้ำได้ตาม [Delivery Document](../5-delivery-document.md) ข้อ 5:
   - ส่วน A และ B รันบนเครื่องของผู้ตรวจ
   - ส่วน C ทำผ่าน Discord โดยเชิญ bot เข้า server ก่อน
+  - ส่วน D สร้างรายงาน Grid เป็น PDF บนเครื่องของผู้ตรวจ
 
 ## 5. Gap ที่พบและการจัดประเภท
 
@@ -64,6 +75,9 @@
 | โมเดลได้รายงานทั้งฉบับแล้วพิมพ์ซ้ำ ตัวเลขจึงผ่านโมเดล | Design (จาก review เทียบกับ feedback 19 พ.ย.) | tool ส่งรายงานเอง (PR #19) |
 | ช่อง Data Sources ของ Spec ผูกกับ fixture จึงใช้ Spec เดิมกับข้อมูลจริงไม่ได้ และกฎ standard library ห้าม driver ของ database | Specification | Spec Structure v0.4 (ยังไม่ได้รันกับโรงงาน) |
 | schema ยังไม่รองรับฝาก/ถอนหุ้น การถอนกำไร และรูปแบบปันผลของข้อมูลจริง ส่วนวันเริ่มลงทุนยังไม่พบแหล่ง (จากการเทียบกับแผนผังแหล่งข้อมูลของ pipeline ระดับชื่อตาราง) | Specification | แก้ใน Platform Spec รอบถัดไป |
+
+| Spec ของรายงาน Grid ทั้งฉบับใหญ่เกิน budget 21.7K output token ต่อ session ของโรงงาน และ approve แล้วโรงงานไม่ทำต่อ (#23, #27) | Design (ขนาดของงานต่อ Issue) | แตกเป็น Issue ย่อยที่แต่ละอันจบใน session เดียว ถ้าหยุดหลัง push เปิด PR จาก branch ของโรงงานเองและบันทึกไว้ใน PR |
+| PR #28 เขียนว่า "do not close #23" แล้ว GitHub อ่านเป็นคำสั่งปิด #23 | Design (กระบวนการ) | เปิด #23 ใหม่ และไม่ใช้คำว่า close/fix/resolve ตามด้วยเลข Issue ใน PR ที่ไม่ได้ตั้งใจปิด |
 
 ไม่ได้ลดข้อกำหนดข้อใดเพื่อให้ prototype ผ่าน
 
@@ -81,6 +95,7 @@
 ## 7. รอบถัดไป
 
 1. ทำ Human Iteration 3 ตาม Software Design ข้อ 2.9 เมื่อได้คำตอบในข้อ 6
+1. ยืนยันสูตรของรายงาน Grid (Expected Volume, NAV Vol, Cost Change %) กับทีม Quant แล้วทำรายงานแบบ RAOT และ Program Trading ด้วยวงจรเดียวกัน
 2. แก้ schema ใน Platform Spec ให้รองรับข้อมูลจริง (ฝาก/ถอนหุ้น, ปันผล, วันเริ่มลงทุน)
 3. ให้ Report ID มาจาก Spec และจำกัดผู้ใช้ `/ask` ตาม role
 4. แก้ข้อจำกัดของ leak check
