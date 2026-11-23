@@ -21,15 +21,19 @@ from quant_software_factory.reporting.grid_checks import (
     GRID_CHECK_NAMES,
     dividend_check,
     nav_volume_check,
+    pdf_page_count,
+    pdf_pages_check,
     same_figure_check,
     transaction_rows_check,
 )
 from quant_software_factory.reporting.grid_performance import (
     GridInputs,
     Report,
+    axis,
     build_report,
     expected_volume,
     fmt_as_of_label,
+    fmt_day_month,
     fmt_money,
     fmt_pct,
     fmt_plain,
@@ -37,8 +41,10 @@ from quant_software_factory.reporting.grid_performance import (
     fmt_whole,
     load_inputs,
     main,
+    parse_display,
     run_report,
     write_outputs,
+    x_label_indices,
 )
 from quant_software_factory.reporting.make_private_db import read_csv, write_db
 from quant_software_factory.reporting.schema import GRID_DATASETS
@@ -77,6 +83,7 @@ LAYER_A_NAMES = [
 ]
 G_NAMES = [
     "G0_mapped_values",
+    "G10_pdf_pages",
     "G1_nav",
     "G2_holding_rows",
     "G3_same_figure",
@@ -178,6 +185,7 @@ def test_sqlite_source_gives_identical_report(tmp_path: Path, out_dir: Path) -> 
     run = run_report(SqliteSource(db), ACCOUNT, AS_OF, GENERATED_AT)
     assert all(r.passed for r in run.results)
     assert run.report is not None
+    assert run.pdf == (out_dir / "report.pdf").read_bytes()
     out = tmp_path / REPORT_ID
     write_outputs(out, run.results, run.report)
     assert _names(out) == FILES
@@ -273,7 +281,16 @@ def test_report_structure(report: Report) -> None:
             "avg_cost",
             "market_price",
             "nav_volume_pct",
+            "x_labels",
+            "axes",
         ]
+        for label in item["chart"]["x_labels"]:
+            assert list(label) == ["index", "label"]
+        axes = item["chart"]["axes"]
+        assert list(axes) == ["price", "nav_volume_pct", "market_price"]
+        for scale in axes.values():
+            assert list(scale) == ["min", "max", "ticks"]
+            assert len(scale["ticks"]) == 4
         for row in item["transactions"]:
             assert list(row) == ["trade_date", "side", "qty", "price", "amount"]
 
@@ -454,6 +471,112 @@ def test_expected_chart(report: Report, ticker: str) -> None:
     assert chart["nav_volume_pct"][0] == "0.0000"
     assert re.fullmatch(r"-?\d+\.\d{4}", chart["avg_cost"][0])
     assert re.fullmatch(r"-?\d+\.\d{2}", chart["market_price"][0])
+
+
+@pytest.mark.parametrize("ticker", ["AAA", "BBB", "CCC"])
+def test_expected_chart_labels(report: Report, ticker: str) -> None:
+    chart = _instrument(report, ticker)["chart"]
+    indices = [x["index"] for x in chart["x_labels"]]
+    assert indices == ["0", "7", "14", "20", "27", "34"]
+    labels = [x["label"] for x in chart["x_labels"]]
+    assert (labels[0], labels[-1]) == ("28 Feb", "06 Nov")
+    for x in chart["x_labels"]:
+        day = date.fromisoformat(chart["dates"][int(x["index"])])
+        assert x["label"] == fmt_day_month(day)
+    axes = chart["axes"]
+    for name, pattern, fmt in (
+        ("price", r"-?[\d,]+\.\d{2}", fmt_money),
+        ("market_price", r"-?[\d,]+\.\d{2}", fmt_money),
+        ("nav_volume_pct", r"-?\d+\.\d%", lambda v: fmt_pct(v, 1)),
+    ):
+        scale = axes[name]
+        parsed = [parse_display(t) for t in scale["ticks"]]
+        ticks = [t for t in parsed if t is not None]
+        assert len(ticks) == 4
+        assert ticks == sorted(ticks)
+        for tick in scale["ticks"]:
+            assert re.fullmatch(pattern, tick), tick
+        assert scale["ticks"][0] == fmt(Decimal(scale["min"]))
+        assert scale["ticks"][-1] == fmt(Decimal(scale["max"]))
+    price_points = [Decimal(v) for v in chart["avg_cost"] + chart["market_price"]]
+    low, high = Decimal(axes["price"]["min"]), Decimal(axes["price"]["max"])
+    assert all(low <= v <= high for v in price_points)
+    market = [Decimal(v) for v in chart["market_price"]]
+    low, high = (
+        Decimal(axes["market_price"]["min"]),
+        Decimal(axes["market_price"]["max"]),
+    )
+    assert all(low <= v <= high for v in market)
+
+
+def test_axis_scale(report: Report) -> None:
+    chart = _instrument(report, "CCC")["chart"]
+    values = [Decimal(v) for v in chart["nav_volume_pct"]]
+    assert (min(values), max(values)) == (Decimal(-40), Decimal(0))
+    assert chart["axes"]["nav_volume_pct"] == {
+        "min": "-42.0000",
+        "max": "2.0000",
+        "ticks": ["-42.0%", "-27.3%", "-12.7%", "2.0%"],
+    }
+    bbb = _instrument(report, "BBB")["chart"]
+    market = [Decimal(v) for v in bbb["market_price"]]
+    spread = max(market) - min(market)
+    scale = bbb["axes"]["market_price"]
+    assert Decimal(scale["min"]) == min(market) - spread * Decimal("0.05")
+    assert Decimal(scale["max"]) == max(market) + spread * Decimal("0.05")
+
+
+@pytest.mark.parametrize(
+    ("n", "expected"),
+    [
+        (35, [0, 7, 14, 20, 27, 34]),
+        (1, [0]),
+        (2, [0, 1]),
+        (3, [0, 1, 2]),
+        (6, [0, 1, 2, 3, 4, 5]),
+        (0, []),
+    ],
+)
+def test_x_label_indices(n: int, expected: list[int]) -> None:
+    assert x_label_indices(n) == expected
+
+
+def test_axis_helper() -> None:
+    flat = axis([Decimal("12.5")] * 3, fmt_money)
+    assert flat == {
+        "min": "11.5000",
+        "max": "13.5000",
+        "ticks": ["11.50", "12.17", "12.83", "13.50"],
+    }
+    scale = axis([Decimal(0), Decimal(-40)], lambda v: fmt_pct(v, 1))
+    assert scale == {
+        "min": "-42.0000",
+        "max": "2.0000",
+        "ticks": ["-42.0%", "-27.3%", "-12.7%", "2.0%"],
+    }
+    small = axis([Decimal("-0.01"), Decimal("0.01")], lambda v: fmt_pct(v, 1))
+    assert small["ticks"] == ["0.0%", "0.0%", "0.0%", "0.0%"]
+
+
+def test_g10_fails_on_wrong_page_count() -> None:
+    _, report = _fixture_report()
+    assert pdf_page_count((COMMITTED / "report.pdf").read_bytes()) == 5
+    good = pdf_pages_check(report, 5)
+    assert (good.name, good.passed, good.actual) == (
+        "G10_pdf_pages",
+        True,
+        "5 pages vs 5",
+    )
+    for pages in (4, 6):
+        result = pdf_pages_check(report, pages)
+        assert result.passed is False
+        assert result.actual == f"{pages} pages vs 5"
+        assert result.layer == "B"
+    missing = copy.deepcopy(report)
+    missing["instruments"].pop()
+    result = pdf_pages_check(missing, 5)
+    assert result.passed is False
+    assert result.actual == "5 pages vs 4"
 
 
 def test_chart_values(report: Report) -> None:
@@ -788,6 +911,8 @@ def test_layer_a_check_failures(
         (fmt_plain(Decimal("38.11975"), 4), "38.1198"),
         (fmt_as_of_label(date(2026, 11, 6)), "As of 06 November 2026"),
         (fmt_as_of_label(date(2024, 2, 1)), "As of 01 February 2024"),
+        (fmt_day_month(date(2024, 2, 28)), "28 Feb"),
+        (fmt_day_month(date(2026, 11, 6)), "06 Nov"),
     ],
 )
 def test_formatting(value: str, expected: str) -> None:
@@ -873,6 +998,6 @@ def test_module_entrypoint(tmp_path: Path) -> None:
         text=True,
     )
     assert proc.returncode == 0, proc.stderr
-    assert proc.stdout == "23 checks, 0 failed\n"
+    assert proc.stdout == "24 checks, 0 failed\n"
     for name in FILES:
         assert (out / name).read_bytes() == (COMMITTED / name).read_bytes(), name

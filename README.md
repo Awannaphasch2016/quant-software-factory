@@ -99,7 +99,7 @@ failed"`. Two runs on the same input produce byte-identical files.
 ## Grid Trade Performance figures
 
 Compute every figure of the Grid Trade Performance report for one Reverse Grid
-account, check them and draw the report PDF (parts 2 and 3 of #23):
+account, check them and draw the report PDF (#23):
 
 ```bash
 python -m quant_software_factory.reporting.grid_performance \
@@ -111,20 +111,25 @@ Data is read only through `DataSource.load` (`schema.GRID_DATASETS`). Every valu
 in `report.json` is a string formatted as the report prints it (`Decimal`,
 ROUND_HALF_UP, rounded only for display). The Layer A checks cover the schema of
 the six datasets, the as-of rows and one row per instrument per date; the Layer
-B checks G0-G9 (layer `"B"`, tolerance 0.01) cover mapped values, NAV, holdings
+B checks G0-G10 (layer `"B"`, tolerance 0.01) cover mapped values, NAV, holdings
 rows, same figure everywhere, units, weights, NAV volume, dividend YTD,
-transaction rows and chart series. When every check passes the command writes
-`checks.json`, `report.json` and `report.pdf` and exits 0; otherwise it writes
-only `checks.json`, removes a stale `report.json` and `report.pdf` and exits 1.
-Two runs produce byte-identical files.
+transaction rows, chart series and the PDF page count (2 + one page per
+instrument). If the PDF cannot be drawn, G10 fails with the error. When every
+check passes the command writes `checks.json`, `report.json` and `report.pdf`
+and exits 0; otherwise it writes only `checks.json`, removes a stale
+`report.json` and `report.pdf` and exits 1. Two runs produce byte-identical
+files.
 
 `report.pdf` (A4, `grid_pdf.render_pdf`) is drawn with fpdf2, the package's only
 runtime dependency, from `report.json` alone: it prints the strings there and
 computes no figures. Page 1 is Summary Performance (customer, cards, allocation
-donut and holdings, summary table) and page 2 is Transaction (the 25 latest
-rows); part 4 adds the per-instrument pages. The file is uncompressed, uses the
-core Helvetica font and takes its creation date from `--generated-at`, so it is
-byte-identical across runs.
+donut and holdings, summary table), page 2 is Transaction (the 25 latest rows)
+and pages 3 to 5 show one instrument each (cards, an Average Cost vs. Market
+Price chart, a NAV (Volume %) vs. Market Price chart and the instrument's 7
+latest transactions). Chart scales, tick labels and x labels are precomputed
+in `report.json` (`instruments[].chart.axes` and `x_labels`). The file is
+uncompressed, uses the core Helvetica font and takes its creation date from
+`--generated-at`, so it is byte-identical across runs.
 
 ## Private data boundary prototype
 

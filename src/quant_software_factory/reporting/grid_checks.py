@@ -1,13 +1,15 @@
-"""Layer B checks (G0-G9) of the Grid Trade Performance report.
+"""Layer B checks (G0-G10) of the Grid Trade Performance report.
 
 G1, G2, G4 and G5 compare unrounded ``Decimal`` values from the datasets; G3,
-G6, G7, G8 and G9 check the built report against the inputs or against itself.
+G6, G7, G8 and G9 check the built report against the inputs or against itself;
+G10 checks the page count of the drawn ``report.pdf``.
 All results use the ``CheckResult`` format of the Layer A checks with layer
 ``"B"``.
 """
 
 from __future__ import annotations
 
+import re
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from decimal import Decimal
@@ -33,6 +35,9 @@ TOLERANCE = Decimal("0.01")
 OK = "ok"
 
 G0_NAME = "G0_mapped_values"
+G10_NAME = "G10_pdf_pages"
+FIXED_PAGES = 2
+_PAGE_RE = re.compile(rb"/Type /Page\b")
 
 _EXPECTED: dict[str, str] = {
     G0_NAME: "every mapped value present exactly once and valid",
@@ -60,6 +65,7 @@ _EXPECTED: dict[str, str] = {
         "instrument (or all if fewer); every row exists in transactions"
     ),
     "G9_chart_series": "one point per history date, from inception to as-of",
+    G10_NAME: "page count = 2 + number of instruments",
 }
 
 GRID_CHECK_NAMES: tuple[str, ...] = tuple(sorted(_EXPECTED))
@@ -363,15 +369,33 @@ def chart_series_check(inputs: GridInputs, report: Report) -> CheckResult:
     return _errors_result("G9_chart_series", errors, ok)
 
 
-def grid_checks(inputs: GridInputs, report: Report) -> list[CheckResult]:
-    """Run G1-G9 on the parsed inputs and the built report.
+def pdf_page_count(data: bytes) -> int:
+    """Count the page objects (``/Type /Page``) of an uncompressed PDF."""
+    return len(_PAGE_RE.findall(data))
+
+
+def pdf_pages_check(report: Report, pages: int) -> CheckResult:
+    """G10: the PDF has the two fixed pages plus one page per instrument."""
+    instruments = report.get("instruments")
+    want = FIXED_PAGES + (len(instruments) if isinstance(instruments, list) else 0)
+    return _result(G10_NAME, pages == want, f"{pages} pages vs {want}")
+
+
+def pdf_not_drawn(reason: str) -> CheckResult:
+    """G10 failed because the PDF could not be drawn."""
+    return _result(G10_NAME, False, reason)
+
+
+def grid_checks(inputs: GridInputs, report: Report, pages: int) -> list[CheckResult]:
+    """Run G1-G10 on the parsed inputs, the built report and its PDF.
 
     Args:
         inputs: Parsed inputs the report was built from.
         report: Report dict from ``build_report``.
+        pages: Page count of the PDF drawn from ``report``.
 
     Returns:
-        One result per check, in name order.
+        One result per check, G1 to G10.
     """
     return [
         nav_check(inputs),
@@ -383,4 +407,5 @@ def grid_checks(inputs: GridInputs, report: Report) -> list[CheckResult]:
         dividend_check(inputs, report),
         transaction_rows_check(inputs, report),
         chart_series_check(inputs, report),
+        pdf_pages_check(report, pages),
     ]

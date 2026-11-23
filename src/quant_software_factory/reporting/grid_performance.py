@@ -6,11 +6,12 @@ Usage::
         --account <account> --as-of YYYY-MM-DD --generated-at <timestamp>
 
 Runs the Layer A data checks first, then loads the mapped values, computes every
-figure the report prints and runs the Layer B checks (G0-G9). When every check
-passes it writes ``checks.json``, ``report.json`` and ``report.pdf`` (drawn by
-:mod:`.grid_pdf` from the report) to ``<out>`` and exits 0. When any check fails
-it writes only ``checks.json``, removes a stale ``report.json`` and
-``report.pdf`` and exits 1. The report ID is the name of ``<out>``.
+figure the report prints, draws ``report.pdf`` (:mod:`.grid_pdf`, from the
+report) and runs the Layer B checks (G0-G10). When every check passes it writes
+``checks.json``, ``report.json`` and ``report.pdf`` to ``<out>`` and exits 0.
+When any check fails it writes only ``checks.json``, removes a stale
+``report.json`` and ``report.pdf`` and exits 1. The report ID is the name of
+``<out>``.
 
 All data is read through :meth:`DataSource.load`. Figures are computed with
 ``Decimal`` and rounded (ROUND_HALF_UP) only when formatted for display; every
@@ -22,7 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_FLOOR, ROUND_HALF_UP, Decimal
@@ -40,6 +41,8 @@ NONE = "-"
 LOT = 100
 TRANSACTION_ROWS = 25
 INSTRUMENT_TRANSACTION_ROWS = 7
+X_LABELS = 6
+Y_TICKS = 4
 REPORT_FILE = "report.json"
 PDF_FILE = "report.pdf"
 CHECKS_FILE = "checks.json"
@@ -71,6 +74,7 @@ _MONTH_NAMES = (
 _GENERATED_AT_RE = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z")
 _HUNDRED = Decimal(100)
 _ONE = Decimal(1)
+_AXIS_MARGIN = Decimal("0.05")
 
 Report = dict[str, Any]
 
@@ -111,6 +115,11 @@ def fmt_plain(value: Decimal, places: int) -> str:
 def fmt_as_of_label(day: date) -> str:
     """Format the as-of label, for example ``As of 06 November 2026``."""
     return f"As of {day.day:02d} {_MONTH_NAMES[day.month - 1]} {day.year:04d}"
+
+
+def fmt_day_month(day: date) -> str:
+    """Format a chart x label, for example ``06 Nov``."""
+    return f"{day.day:02d} {_MONTH_NAMES[day.month - 1][:3]}"
 
 
 def parse_display(text: str) -> Decimal | None:
@@ -551,6 +560,57 @@ def transaction_row(trade: Trade, with_ticker: bool = True) -> dict[str, str]:
     return row
 
 
+# --- Chart axes -------------------------------------------------------------
+
+
+def x_label_indices(n: int) -> list[int]:
+    """Indices of the x labels of a chart with ``n`` points.
+
+    ``X_LABELS`` evenly spaced points including the first and the last:
+    ``k * (n - 1) / (X_LABELS - 1)`` rounded half up, without duplicates.
+    """
+    if n <= 0:
+        return []
+    steps = X_LABELS - 1
+    indices: list[int] = []
+    for k in range(X_LABELS):
+        index = (2 * k * (n - 1) + steps) // (2 * steps)
+        if index not in indices:
+            indices.append(index)
+    return indices
+
+
+def axis(values: Sequence[Decimal], fmt: Callable[[Decimal], str]) -> dict[str, Any]:
+    """Scale and tick labels of one chart axis.
+
+    The scale runs from the minimum minus 5% of the range to the maximum plus
+    5% of the range; when every value is equal it runs from ``v - 1`` to
+    ``v + 1``. ``Y_TICKS`` ticks are evenly spaced from the bottom to the top
+    of the scale and formatted with ``fmt``.
+
+    Returns:
+        ``{"min", "max", "ticks"}``: the scale bounds as plain 4-decimal
+        strings (for drawing only) and the tick labels, bottom to top.
+    """
+    low, high = min(values), max(values)
+    spread = high - low
+    if spread == 0:
+        low, high = low - _ONE, high + _ONE
+    else:
+        low, high = low - spread * _AXIS_MARGIN, high + spread * _AXIS_MARGIN
+    spread = high - low
+    return {
+        "min": fmt_plain(low, 4),
+        "max": fmt_plain(high, 4),
+        # Multiply before dividing so the top tick is exactly ``high``.
+        "ticks": [fmt(low + spread * k / (Y_TICKS - 1)) for k in range(Y_TICKS)],
+    }
+
+
+def _vol_pct(value: Decimal) -> str:
+    return fmt_pct(value, 1)
+
+
 # --- Report -----------------------------------------------------------------
 
 
@@ -578,6 +638,9 @@ def _instrument(
     setup = f.setup
     own = [t for t in trades if t.instrument == setup.instrument]
     history = [inputs.holdings[(setup.instrument, d)] for d in inputs.dates]
+    avg_cost = [h.avg_cost for h in history]
+    market_price = [h.market_price for h in history]
+    nav_pct = [nav_volume_pct(inputs, setup, d) for d in inputs.dates]
     return {
         "ticker": setup.instrument,
         "cards": {
@@ -596,11 +659,18 @@ def _instrument(
         "initial_cost_value": fmt_whole(f.initial_cost_value),
         "chart": {
             "dates": [d.isoformat() for d in inputs.dates],
-            "avg_cost": [fmt_plain(h.avg_cost, 4) for h in history],
-            "market_price": [fmt_plain(h.market_price, 2) for h in history],
-            "nav_volume_pct": [
-                fmt_plain(nav_volume_pct(inputs, setup, d), 4) for d in inputs.dates
+            "avg_cost": [fmt_plain(v, 4) for v in avg_cost],
+            "market_price": [fmt_plain(v, 2) for v in market_price],
+            "nav_volume_pct": [fmt_plain(v, 4) for v in nav_pct],
+            "x_labels": [
+                {"index": str(i), "label": fmt_day_month(inputs.dates[i])}
+                for i in x_label_indices(len(inputs.dates))
             ],
+            "axes": {
+                "price": axis([*avg_cost, *market_price], fmt_money),
+                "nav_volume_pct": axis(nav_pct, _vol_pct),
+                "market_price": axis(market_price, fmt_money),
+            },
         },
         "transactions": [
             transaction_row(t, with_ticker=False)
@@ -710,10 +780,13 @@ class GridRun:
     Attributes:
         results: Layer A and Layer B check results, sorted by name.
         report: The built report, or ``None`` when Layer A or G0 failed.
+        pdf: The drawn ``report.pdf`` bytes, or ``None`` when no report was
+            built or drawing it failed.
     """
 
     results: list[CheckResult]
     report: Report | None
+    pdf: bytes | None = None
 
 
 def run_report(
@@ -728,19 +801,25 @@ def run_report(
         generated_at: Generation timestamp shown in the header.
 
     Returns:
-        The sorted check results and the report (``None`` if not built).
+        The sorted check results, the report (``None`` if not built) and the
+        PDF drawn from it. A drawing error does not raise: G10 fails with the
+        error as its actual value and ``pdf`` is ``None``.
     """
     # Imported here: grid_checks imports the calculations from this module.
     from .grid_checks import (
         G0_NAME,
+        G10_NAME,
         GRID_CHECK_NAMES,
         grid_checks,
         mapped_values_check,
         not_run_results,
+        pdf_not_drawn,
+        pdf_page_count,
     )
 
     layer_a = run_grid_checks(source, account, as_of)
     report: Report | None = None
+    pdf: bytes | None = None
     layer_b: list[CheckResult]
     if not all(r.passed for r in layer_a):
         layer_b = not_run_results(GRID_CHECK_NAMES, "not run: Layer A failed")
@@ -752,10 +831,20 @@ def run_report(
             layer_b = [g0, *not_run_results(rest, f"not run: {G0_NAME} failed")]
         else:
             report = build_report(inputs)
-            layer_b = [g0, *grid_checks(inputs, report)]
+            try:
+                pdf = render_pdf(report)
+            except Exception as exc:
+                not_drawn = pdf_not_drawn(f"not drawn: {type(exc).__name__}: {exc}")
+                checks = grid_checks(inputs, report, 0)
+                layer_b = [
+                    g0,
+                    *[not_drawn if r.name == G10_NAME else r for r in checks],
+                ]
+            else:
+                layer_b = [g0, *grid_checks(inputs, report, pdf_page_count(pdf))]
 
     results = sorted([*layer_a, *layer_b], key=lambda r: r.name)
-    return GridRun(results, report)
+    return GridRun(results, report, pdf)
 
 
 def _write(path: Path, text: str) -> None:
@@ -763,12 +852,16 @@ def _write(path: Path, text: str) -> None:
 
 
 def write_outputs(
-    out: Path, results: Sequence[CheckResult], report: Report | None
+    out: Path,
+    results: Sequence[CheckResult],
+    report: Report | None,
+    pdf: bytes | None = None,
 ) -> None:
     """Write ``checks.json`` and, when every check passed, the report files.
 
-    The report files are ``report.json`` and ``report.pdf``. The PDF is drawn
-    before anything is written, so a drawing error leaves ``out`` untouched.
+    The report files are ``report.json`` and ``report.pdf``. When ``pdf`` is
+    not given the PDF is drawn here, before anything is written, so a drawing
+    error leaves ``out`` untouched.
     When any check failed or no report was built, a stale ``report.json`` and
     ``report.pdf`` in ``out`` are removed.
 
@@ -776,9 +869,11 @@ def write_outputs(
         out: Output folder; created if missing.
         results: Check results in the order they are written.
         report: The built report, or ``None``.
+        pdf: The PDF already drawn from ``report`` (see :func:`run_report`).
     """
-    pdf: bytes | None = None
-    if report is not None and all(r.passed for r in results):
+    if report is None or not all(r.passed for r in results):
+        pdf = None
+    elif pdf is None:
         pdf = render_pdf(report)
     out.mkdir(parents=True, exist_ok=True)
     _write(
@@ -838,7 +933,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     run = run_report(
         FixtureSource(args.root), args.account, args.as_of, args.generated_at
     )
-    write_outputs(args.out, run.results, run.report)
+    write_outputs(args.out, run.results, run.report, run.pdf)
     failed = sum(not r.passed for r in run.results)
     print(f"{len(run.results)} checks, {failed} failed")
     return 0 if failed == 0 and run.report is not None else 1

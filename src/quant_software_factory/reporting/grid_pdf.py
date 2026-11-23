@@ -1,9 +1,11 @@
 """Draw the Grid Trade Performance PDF from a built ``report.json``.
 
-Pages 1 (Summary Performance) and 2 (Transaction) of the Grid report (part 3
-of #23). The drawing code computes no figures: every number printed is a
-string taken as is from ``report.json``, and the donut chart is drawn from the
-``allocation[].weight_raw`` values.
+Page 1 is Summary Performance, page 2 is Transaction and pages 3 onwards show
+one instrument each, in the order of ``report.json.instruments`` (#23). The
+drawing code computes no figures: every number printed is a string taken as is
+from ``report.json``. Only positions are derived from numbers: the donut chart
+from the ``allocation[].weight_raw`` values and the line charts from the
+``chart`` series and the ``chart.axes`` scale bounds.
 
 The output is deterministic: content streams are uncompressed, the core
 Helvetica font is used (no embedded font) and the PDF creation date is taken
@@ -12,7 +14,7 @@ from ``header.generated_at``. Text uses only Latin-1 characters.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from datetime import datetime, timezone
 from typing import Any
 
@@ -28,6 +30,11 @@ NAVY = "#1E3A8A"
 LABEL_BLUE = "#1D4ED8"
 GREEN = "#15803D"
 WHITE = "#FFFFFF"
+NEGATIVE = "#DC2626"
+CHART_BLUE = "#2563EB"
+GRID_LINE = 0.1
+SERIES_LINE = 0.4
+DASH = (1.5, 1.0)
 SLICE_COLOURS = ("#1E3A8A", "#D97706", "#15803D", "#7C3AED")
 
 MARGIN = 10.0
@@ -53,6 +60,37 @@ FOOTNOTE = (
 )
 CAPTION = "Pie chart by market value."
 TOTAL_LABEL = "Total"
+
+APPROX_LABEL = "Approximately Initial Cost Value (Initial Unit \u00d7 Initial Cost)"
+PRICE_CHART_TITLE = "Average Cost vs. Market Price"
+PRICE_CHART_CAPTION = "Average Cost and Market Price over time."
+VOLUME_CHART_TITLE = "NAV (Volume %) vs. Market Price"
+VOLUME_CHART_CAPTION = "NAV volume % and Market Price."
+PRICE_AXIS = "Price"
+VOLUME_AXIS = "Vol %"
+AVG_COST_LEGEND = "Average Cost"
+MARKET_PRICE_LEGEND = "Market Price"
+NAV_VOLUME_LEGEND = "NAV Volume %"
+CHANGE_LABEL = "Change %"
+COST_CHANGE_LABEL = "Cost Change %"
+
+# Instrument cards: (label, card key, sub-label, sub-label card key).
+CardSpec = tuple[str, str, str, str]
+INSTRUMENT_CARD_ROWS: tuple[tuple[CardSpec, ...], ...] = (
+    (
+        ("Initial Units", "initial_units", "", ""),
+        ("Current Units", "current_units", CHANGE_LABEL, "current_units_change_pct"),
+        ("Expected Trade Units", "expected_trade_units", "", ""),
+        ("Expected Trade Return (%)", "expected_trade_return_pct", "", ""),
+        ("Cash", "cash", "", ""),
+    ),
+    (
+        ("NAV Vol", "nav_volume", "", ""),
+        ("Gain Vol", "gain_volume", "", ""),
+        ("Initial Cost", "initial_cost", "", ""),
+        ("Current Cost", "current_cost", COST_CHANGE_LABEL, "cost_change_pct"),
+    ),
+)
 
 _GENERATED_AT_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
@@ -86,6 +124,21 @@ TRANSACTION_COLUMNS: tuple[Column, ...] = (
     ("Price", "price", 28.0, True),
     ("Amount", "amount", 34.0, True),
 )
+INSTRUMENT_TRANSACTION_COLUMNS: tuple[Column, ...] = (
+    ("Trade Date", "trade_date", 34.0, False),
+    ("Side", "side", 40.0, False),
+    ("Qty", "qty", 34.0, True),
+    ("Price", "price", 34.0, True),
+    ("Amount", "amount", 40.0, True),
+)
+
+# One plotted line: (values, colour, dashed).
+Series = tuple[Sequence[str], str, bool]
+
+
+def _sign_colour(value: str) -> str:
+    """Red for a value printed with a leading minus sign, else the text colour."""
+    return NEGATIVE if value.startswith("-") else TEXT
 
 
 def _creation_date(generated_at: str) -> datetime:
@@ -127,6 +180,16 @@ class _Writer:
         pdf.set_text_color(colour)
         pdf.set_xy(x, y)
         pdf.cell(w, h, value, align="R" if right else "L")
+
+    def width(self, value: str, size: float, style: str = "") -> float:
+        """Width of ``value`` in mm at the given font size and style."""
+        self.pdf.set_font(FONT, style, size)
+        return float(self.pdf.get_string_width(value))
+
+    def square(self, x: float, y: float, colour: str) -> None:
+        """Small filled legend square."""
+        self.pdf.set_fill_color(colour)
+        self.pdf.rect(x, y, 2.5, 2.5, style="F")
 
     def panel(self, x: float, y: float, w: float, h: float) -> None:
         """White panel with a thin rounded border."""
@@ -309,7 +372,9 @@ class _Writer:
         self.table(
             RIGHT - PAD - table_w, y + 10, HOLDINGS_COLUMNS, rows, 6.5, bold_last=True
         )
-        self.text(MARGIN, y + h + 1, CONTENT_W, 3.5, CAPTION, 7, "", SECONDARY)
+        # Inside the panel, under the donut.
+        caption_y = chart_y + diameter + 2
+        self.text(chart_x, caption_y, 55, 3.5, CAPTION, 7, "", SECONDARY)
 
     def summary(self, y: float, h: float) -> None:
         self.panel(MARGIN, y, CONTENT_W, h)
@@ -339,9 +404,215 @@ class _Writer:
         self.text(MARGIN + PAD, top + 3, 80, 5, "Transaction details", 9, "B")
         self.table(MARGIN + PAD, top + 10, TRANSACTION_COLUMNS, rows, row_h)
 
+    # --- Instrument pages ---------------------------------------------------
+
+    def instrument_card(
+        self,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        cards: dict[str, str],
+        spec: CardSpec,
+    ) -> None:
+        """Card: value (bold 14 pt) over its label, optional sub-label and value.
+
+        The sub-label value is red when it is printed with a minus sign.
+        """
+        label, key, sub_label, sub_key = spec
+        pad = 2.5
+        inner = w - 2 * pad
+        self.panel(x, y, w, h)
+        self.text(x + pad, y + 3, inner, 6, cards[key], 14, "B")
+        self.text(x + pad, y + 10, inner, 3.5, label, 7, "", SECONDARY)
+        if sub_label:
+            self.text(x + pad, y + 13.5, inner, 3, sub_label, 6.5, "", SECONDARY)
+            sub_x = x + pad + self.width(sub_label, 6.5) + 1.5
+            value = cards[sub_key]
+            colour = _sign_colour(value)
+            self.text(sub_x, y + 13.5, x + w - pad - sub_x, 3, value, 6.5, "B", colour)
+
+    def instrument_cards(self, item: Report, y: float) -> float:
+        """Draw the card grid and the approximate value line; return its bottom."""
+        cards: dict[str, str] = item["cards"]
+        gap = 3.0
+        card_h = 18.0
+        for row in INSTRUMENT_CARD_ROWS:
+            card_w = (CONTENT_W - gap * (len(row) - 1)) / len(row)
+            for index, spec in enumerate(row):
+                x = MARGIN + index * (card_w + gap)
+                self.instrument_card(x, y, card_w, card_h, cards, spec)
+            y += card_h + gap
+        self.hline(MARGIN, RIGHT, y)
+        y += 1.5
+        self.text(MARGIN, y, CONTENT_W, 3.5, APPROX_LABEL, 7, "", SECONDARY)
+        value_x = MARGIN + self.width(APPROX_LABEL, 7) + 2
+        value = item["initial_cost_value"]
+        self.text(value_x, y, RIGHT - value_x, 3.5, value, 7, "", SECONDARY)
+        return y + 3.5
+
+    def legend(
+        self, right: float, y: float, entries: Iterable[tuple[str, str]]
+    ) -> None:
+        """Legend entries (colour square and label) ending at ``right``."""
+        items = list(entries)
+        widths = [self.width(label, 6.5) for label, _ in items]
+        x = right - sum(3.5 + w for w in widths) - 3 * (len(items) - 1)
+        for (label, colour), w in zip(items, widths, strict=True):
+            self.square(x, y + 0.25, colour)
+            self.text(x + 3.5, y, w, 3, label, 6.5, "", SECONDARY)
+            x += 3.5 + w + 3
+
+    def chart(
+        self,
+        x: float,
+        y: float,
+        w: float,
+        h: float,
+        chart: Report,
+        titles: tuple[str, str, str, str],
+        axes: tuple[str, str],
+        legend: Sequence[tuple[str, str]],
+        series: tuple[Series, Series],
+    ) -> None:
+        """Line chart panel with two series, each scaled to its own axis.
+
+        ``titles`` holds the chart title, the caption and the left and right
+        axis titles; ``axes`` names the ``chart.axes`` entries of the left and
+        right axes; ``series`` holds the left-axis and the right-axis series.
+        Every point is plotted, evenly spaced by index.
+        """
+        pdf = self.pdf
+        title, caption, left_title, right_title = titles
+        self.panel(x, y, w, h)
+        self.text(x + PAD, y + 3, w - 2 * PAD, 5, title, 9, "B")
+        self.legend(x + w - PAD, y + 9, legend)
+
+        left = x + 14
+        right = x + w - 14
+        top = y + 17
+        bottom = y + h - 9
+        self.text(
+            x + 1, top - 4.5, left - x - 2, 3, left_title, 6, "B", SECONDARY, True
+        )
+        self.text(
+            right + 1, top - 4.5, x + w - right - 2, 3, right_title, 6, "B", SECONDARY
+        )
+
+        dates: list[str] = chart["dates"]
+        count = len(dates)
+
+        def x_at(index: int) -> float:
+            if count <= 1:
+                return (left + right) / 2
+            return left + (right - left) * index / (count - 1)
+
+        # Light grid: one line per y tick and per x label.
+        left_axis: dict[str, Any] = chart["axes"][axes[0]]
+        right_axis: dict[str, Any] = chart["axes"][axes[1]]
+        ticks = len(left_axis["ticks"])
+        tick_ys = [
+            bottom - (bottom - top) * k / (ticks - 1) if ticks > 1 else bottom
+            for k in range(ticks)
+        ]
+        for tick_y in tick_ys:
+            self.hline(left, right, tick_y, GRID_LINE)
+        pdf.set_line_width(GRID_LINE)
+        pdf.set_draw_color(BORDER)
+        for label in chart["x_labels"]:
+            at = x_at(int(label["index"]))
+            pdf.line(at, top, at, bottom)
+
+        for (values, colour, dashed), scale in zip(
+            series, (left_axis, right_axis), strict=True
+        ):
+            low = float(scale["min"])
+            high = float(scale["max"])
+            span = high - low
+
+            def y_at(value: str, low: float = low, span: float = span) -> float:
+                return bottom - (bottom - top) * (float(value) - low) / span
+
+            points = [(x_at(i), y_at(v)) for i, v in enumerate(values)]
+            pdf.set_line_width(SERIES_LINE)
+            pdf.set_draw_color(colour)
+            if dashed:
+                pdf.set_dash_pattern(dash=DASH[0], gap=DASH[1])
+            pdf.polyline(points, style="D")
+            if dashed:
+                pdf.set_dash_pattern()
+
+        for tick_y, low_label, high_label in zip(
+            tick_ys, left_axis["ticks"], right_axis["ticks"], strict=True
+        ):
+            self.text(
+                x + 1, tick_y - 1.5, left - x - 2, 3, low_label, 6, "", SECONDARY, True
+            )
+            self.text(
+                right + 1,
+                tick_y - 1.5,
+                x + w - right - 2,
+                3,
+                high_label,
+                6,
+                "",
+                SECONDARY,
+            )
+        for label in chart["x_labels"]:
+            at = x_at(int(label["index"]))
+            pdf.set_font(FONT, "", 6)
+            pdf.set_text_color(SECONDARY)
+            pdf.set_xy(at - 8, bottom + 1)
+            pdf.cell(16, 3, label["label"], align="C")
+
+        self.text(x, y + h + 1, w, 3.5, caption, 7, "", SECONDARY)
+
+    def instrument_page(self, item: Report) -> None:
+        """One instrument: card grid, two line charts and its transactions."""
+        self.page(item["ticker"])
+        self.instrument_cards(item, 57)
+
+        chart = item["chart"]
+        gap = 4.0
+        chart_w = (CONTENT_W - gap) / 2
+        chart_y = 107.0
+        chart_h = 68.0
+        self.chart(
+            MARGIN,
+            chart_y,
+            chart_w,
+            chart_h,
+            chart,
+            (PRICE_CHART_TITLE, PRICE_CHART_CAPTION, PRICE_AXIS, PRICE_AXIS),
+            ("price", "price"),
+            ((AVG_COST_LEGEND, NAVY), (MARKET_PRICE_LEGEND, GREEN)),
+            ((chart["avg_cost"], NAVY, False), (chart["market_price"], GREEN, False)),
+        )
+        self.chart(
+            MARGIN + chart_w + gap,
+            chart_y,
+            chart_w,
+            chart_h,
+            chart,
+            (VOLUME_CHART_TITLE, VOLUME_CHART_CAPTION, VOLUME_AXIS, PRICE_AXIS),
+            ("nav_volume_pct", "market_price"),
+            ((NAV_VOLUME_LEGEND, CHART_BLUE), (MARKET_PRICE_LEGEND, NEGATIVE)),
+            (
+                (chart["nav_volume_pct"], CHART_BLUE, False),
+                (chart["market_price"], NEGATIVE, True),
+            ),
+        )
+
+        rows = item["transactions"]
+        row_h = 7.0
+        top = 184.0
+        self.panel(MARGIN, top, CONTENT_W, 14 + row_h * (len(rows) + 1))
+        self.text(MARGIN + PAD, top + 3, 80, 5, "Transaction details", 9, "B")
+        self.table(MARGIN + PAD, top + 10, INSTRUMENT_TRANSACTION_COLUMNS, rows, row_h)
+
 
 def render_pdf(report: Report) -> bytes:
-    """Draw pages 1 and 2 of the Grid report.
+    """Draw the Grid report: pages 1 and 2, then one page per instrument.
 
     Args:
         report: The report dict as written to ``report.json``.
@@ -352,4 +623,6 @@ def render_pdf(report: Report) -> bytes:
     writer = _Writer(report)
     writer.page_one()
     writer.page_two()
+    for item in report["instruments"]:
+        writer.instrument_page(item)
     return bytes(writer.pdf.output())
