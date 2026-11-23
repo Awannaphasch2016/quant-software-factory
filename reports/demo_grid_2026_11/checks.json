@@ -1,0 +1,163 @@
+[
+  {
+    "name": "A2_account_info_has_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": ">= 1 row",
+    "actual": "1 row(s)"
+  },
+  {
+    "name": "A2_grid_cash_as_of_date",
+    "layer": "A",
+    "passed": true,
+    "expected": "row dated 2026-11-06 for every instrument",
+    "actual": "present"
+  },
+  {
+    "name": "A2_grid_cash_unique_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": "one row per instrument per date",
+    "actual": "unique"
+  },
+  {
+    "name": "A2_grid_setup_has_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": ">= 1 row",
+    "actual": "3 row(s)"
+  },
+  {
+    "name": "A2_holdings_daily_as_of_date",
+    "layer": "A",
+    "passed": true,
+    "expected": "row dated 2026-11-06 for every instrument",
+    "actual": "present"
+  },
+  {
+    "name": "A2_holdings_daily_unique_rows",
+    "layer": "A",
+    "passed": true,
+    "expected": "one row per instrument per date",
+    "actual": "unique"
+  },
+  {
+    "name": "A2_nav_daily_as_of_date",
+    "layer": "A",
+    "passed": true,
+    "expected": "row dated 2026-11-06",
+    "actual": "present"
+  },
+  {
+    "name": "A3_schema_account_info",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_grid_cash",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_grid_setup",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_holdings_daily",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_nav_daily",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "A3_schema_transactions",
+    "layer": "A",
+    "passed": true,
+    "expected": "valid",
+    "actual": "valid"
+  },
+  {
+    "name": "G0_mapped_values",
+    "layer": "B",
+    "passed": true,
+    "expected": "every mapped value present exactly once and valid",
+    "actual": "ok"
+  },
+  {
+    "name": "G1_nav",
+    "layer": "B",
+    "passed": true,
+    "expected": "sum of holdings market_value + sum of grid_cash = nav_daily.nav and sum of grid_cash = nav_daily.cash on every date",
+    "actual": "35 dates ok"
+  },
+  {
+    "name": "G2_holding_rows",
+    "layer": "B",
+    "passed": true,
+    "expected": "cost_value = volume x avg_cost, market_value = volume x market_price, unrealized_pl = market_value - cost_value on every row",
+    "actual": "105 rows ok"
+  },
+  {
+    "name": "G3_same_figure",
+    "layer": "B",
+    "passed": true,
+    "expected": "NAV card = holdings_total market_value; cash card = CASH row; holdings, summary and instruments agree",
+    "actual": "ok"
+  },
+  {
+    "name": "G4_units",
+    "layer": "B",
+    "passed": true,
+    "expected": "initial_units + BUY - SELL qty to each date = volume on that date",
+    "actual": "105 rows ok"
+  },
+  {
+    "name": "G5_weights",
+    "layer": "B",
+    "passed": true,
+    "expected": "instrument and CASH weights sum to 100",
+    "actual": "100.0000 vs 100"
+  },
+  {
+    "name": "G6_nav_volume",
+    "layer": "B",
+    "passed": true,
+    "expected": "nav_volume = current_units + expected_volume; gain_volume = nav_volume - initial_units",
+    "actual": "ok"
+  },
+  {
+    "name": "G7_dividend_ytd",
+    "layer": "B",
+    "passed": true,
+    "expected": "dividend_ytd card = sum of DIVIDEND amount in the as-of year",
+    "actual": "830,000 vs 830,000 from 3 row(s)"
+  },
+  {
+    "name": "G8_transaction_rows",
+    "layer": "B",
+    "passed": true,
+    "expected": "25 rows overall and 7 per instrument (or all if fewer); every row exists in transactions",
+    "actual": "ok"
+  },
+  {
+    "name": "G9_chart_series",
+    "layer": "B",
+    "passed": true,
+    "expected": "one point per history date, from inception to as-of",
+    "actual": "35 points per instrument, 2024-02-28 to 2026-11-06"
+  }
+]

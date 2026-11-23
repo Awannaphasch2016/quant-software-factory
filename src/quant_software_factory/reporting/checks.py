@@ -1,5 +1,8 @@
 """Layer A data checks: freshness (A1), completeness (A2) and schema (A3).
 
+:func:`run_checks` covers the Returns & Transactions datasets and
+:func:`run_grid_checks` the Grid Trade Performance datasets.
+
 All data is read through :meth:`DataSource.load`; this module never opens files.
 """
 
@@ -11,6 +14,7 @@ from datetime import date
 
 from .schema import (
     DATE_FIELD,
+    GRID_DATASETS,
     PERIOD_FIELD,
     RETURNS_DATASETS,
     parse_date,
@@ -133,6 +137,103 @@ def run_checks(
             as_of_month,
         ),
         ("A2_performance_has_rows", "performance", ">= 1 row", _row_count),
+    ]
+    for name, dataset, expected, check in dependent:
+        if dataset not in loaded:
+            actual = f"not run: A3_schema_{dataset} failed"
+            results.append(CheckResult(name, LAYER, False, expected, actual))
+            continue
+        passed, actual = check(loaded[dataset])
+        results.append(CheckResult(name, LAYER, passed, expected, actual))
+    return sorted(results, key=lambda r: r.name)
+
+
+INSTRUMENT_FIELD = "instrument"
+
+
+def _instruments(rows: Rows) -> set[str]:
+    return {r[INSTRUMENT_FIELD] for r in rows}
+
+
+def _has_date_per_instrument(
+    day: date, required: set[str]
+) -> Callable[[Rows], tuple[bool, str]]:
+    def check(rows: Rows) -> tuple[bool, str]:
+        present = {
+            r[INSTRUMENT_FIELD] for r in rows if parse_date(r[DATE_FIELD]) == day
+        }
+        missing = sorted((required | _instruments(rows)) - present)
+        if missing:
+            return False, "absent for " + ", ".join(missing)
+        return True, "present"
+
+    return check
+
+
+def _unique_rows(rows: Rows) -> tuple[bool, str]:
+    seen: set[tuple[str, str]] = set()
+    duplicates: set[tuple[str, str]] = set()
+    for row in rows:
+        key = (row[DATE_FIELD], row[INSTRUMENT_FIELD])
+        if key in seen:
+            duplicates.add(key)
+        seen.add(key)
+    if duplicates:
+        return False, "duplicate: " + ", ".join(
+            f"{day} {instrument}" for day, instrument in sorted(duplicates)
+        )
+    return True, "unique"
+
+
+def run_grid_checks(source: DataSource, account: str, as_of: date) -> list[CheckResult]:
+    """Run the Layer A checks of the Grid Trade Performance report.
+
+    A3 validates the schema of every dataset in ``GRID_DATASETS``. A2 checks
+    that ``account_info`` and ``grid_setup`` have rows, that ``nav_daily`` has a
+    row at the as-of date, that ``holdings_daily`` and ``grid_cash`` have an
+    as-of row for every instrument (those in the dataset and, when it passed
+    A3, in ``grid_setup``), and that ``holdings_daily`` and ``grid_cash`` have
+    one row per instrument per date.
+
+    Args:
+        source: Data source to read through.
+        account: Account number.
+        as_of: Report as-of date.
+
+    Returns:
+        Check results sorted by name. A2 checks whose dataset failed A3 are
+        reported as not run (``passed`` false, reason in ``actual``).
+    """
+    results: list[CheckResult] = []
+    loaded: dict[str, Rows] = {}
+    for dataset in GRID_DATASETS:
+        result, rows = _schema_check(source, dataset, account, as_of)
+        results.append(result)
+        if rows is not None:
+            loaded[dataset] = rows
+
+    setup = _instruments(loaded.get("grid_setup", []))
+    as_of_text = f"row dated {as_of.isoformat()}"
+    per_instrument = f"{as_of_text} for every instrument"
+    unique = "one row per instrument per date"
+    dependent: list[tuple[str, str, str, Callable[[Rows], tuple[bool, str]]]] = [
+        ("A2_account_info_has_rows", "account_info", ">= 1 row", _row_count),
+        (
+            "A2_grid_cash_as_of_date",
+            "grid_cash",
+            per_instrument,
+            _has_date_per_instrument(as_of, setup),
+        ),
+        ("A2_grid_cash_unique_rows", "grid_cash", unique, _unique_rows),
+        ("A2_grid_setup_has_rows", "grid_setup", ">= 1 row", _row_count),
+        (
+            "A2_holdings_daily_as_of_date",
+            "holdings_daily",
+            per_instrument,
+            _has_date_per_instrument(as_of, setup),
+        ),
+        ("A2_holdings_daily_unique_rows", "holdings_daily", unique, _unique_rows),
+        ("A2_nav_daily_as_of_date", "nav_daily", as_of_text, _has_date(as_of)),
     ]
     for name, dataset, expected, check in dependent:
         if dataset not in loaded:

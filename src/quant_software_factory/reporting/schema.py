@@ -6,6 +6,7 @@ check to validate values.
 
 ``RETURNS_DATASETS`` lists the datasets used by the Returns & Transactions
 report; the A3 schema checks and ``make_private_db`` cover exactly these.
+``GRID_DATASETS`` lists the datasets used by the Grid Trade Performance report.
 """
 
 from __future__ import annotations
@@ -125,6 +126,17 @@ RETURNS_DATASETS: tuple[str, ...] = (
     "transactions",
     "cash_flow",
     "performance",
+)
+
+# Datasets of the Grid Trade Performance report; its Layer A checks
+# (``checks.run_grid_checks``) iterate this tuple.
+GRID_DATASETS: tuple[str, ...] = (
+    "account_info",
+    "nav_daily",
+    "holdings_daily",
+    "transactions",
+    "grid_setup",
+    "grid_cash",
 )
 
 
