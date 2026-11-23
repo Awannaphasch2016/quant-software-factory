@@ -98,6 +98,13 @@
     "actual": "ok"
   },
   {
+    "name": "G10_pdf_pages",
+    "layer": "B",
+    "passed": true,
+    "expected": "page count = 2 + number of instruments",
+    "actual": "5 pages vs 5"
+  },
+  {
     "name": "G1_nav",
     "layer": "B",
     "passed": true,
