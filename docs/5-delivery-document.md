@@ -6,12 +6,13 @@
 
 | Document Version | Last Updated | Status |
 |---|---|---|
-| v1.4 | 22 พ.ย. 2569 | Current |
+| v1.5 | 23 พ.ย. 2569 | Current |
 
 Change Log (ประวัติทุก version ดูได้จาก history ของไฟล์นี้ใน git)
 
 | Version | วันที่ | สิ่งที่เปลี่ยน |
 |---|---|---|
+| v1.5 | 23 พ.ย. 2569 | ส่งมอบรายงาน Grid Trade Performance (PDF 5 หน้า) จาก GitHub Issue ที่มี Report Spec ตามรูปแบบที่ทีม Quant ใช้ (Issue #23, PR #22, #26, #28, #30, PR #32) เพิ่มวิธีใช้ข้อ 4.4, Walkthrough ส่วน D และปรับข้อจำกัด |
 | v1.4 | 22 พ.ย. 2569 | Human Iteration 2: ส่งมอบ Report Agent (Eve agent ตัวเดียว) บน Vercel และ Discord bot พร้อมวิธีใช้ (ข้อ 4.3) และ Acceptance Test Walkthrough ส่วน C ผ่าน Discord ใส่ต้นทุนต่อรายงาน ปรับ version และข้อจำกัด |
 | v1.3 | 19 พ.ย. 2569 | เปลี่ยนคำว่า "ค่าจริง" ในส่วน B เป็นค่าจาก private database เพราะเป็นข้อมูลปลอมที่คูณและเปลี่ยนชื่อ |
 | v1.2 | 19 พ.ย. 2569 | ปรับ version ที่ส่งมอบเป็น `3a422c5` (PR #16 แก้ตัวกันเขียนลง repo และ leak check) เอาเงื่อนไขติดตั้งแบบ editable ออก และปรับข้อจำกัด |
@@ -36,9 +37,11 @@ Change Log (ประวัติทุก version ดูได้จาก hist
 | **Discord bot "Quant Report Agent"**: คำสั่ง `/ask` รับ Spec เป็นข้อความหรือไฟล์แนบ ส่งรายงานกลับเป็นข้อความพร้อมไฟล์ `.md` | ส่งมอบแล้ว (ข้อมูลปลอม) | ใช้งานตามข้อ 4.3 |
 | ต้นทุนต่อรายงาน 1 ฉบับ | ส่งมอบบางส่วน: ค่าโมเดลจาก token จริง ส่วนค่า Sandbox และ Function ยังวัดไม่ได้ | ข้อ 6 และ Software Design ข้อ 10 |
 | เส้นทางจาก Discord ถึง executor ในบริษัท และ database จริง (Human Iteration 3) | ยังไม่ส่งมอบ | ออกแบบไว้ใน Software Design ข้อ 2.9 รอคำตอบเรื่องสิทธิ์และ policy |
-| รายงานรูปแบบ PDF | ยังไม่ส่งมอบ | |
+| **รายงาน Grid Trade Performance (PDF 5 หน้า)**: รูปแบบเดียวกับรายงาน Reverse Grid ที่ทีม Quant ส่งลูกค้า ข้อมูลปลอมทั้งหมด | ส่งมอบแล้ว (ข้อมูลปลอม) | [`reports/demo_grid_2026_11/report.pdf`](../reports/demo_grid_2026_11/report.pdf) จาก [Issue #23](https://github.com/Awannaphasch2016/quant-software-factory/issues/23) |
+| ตัวสร้างรายงาน Grid: ตัวเลข ตัวเช็ค G0–G10 และตัววาด PDF (fpdf2) | ส่งมอบแล้ว | `reporting/grid_performance.py`, `grid_checks.py`, `grid_pdf.py` (PR #26, #28, #30, PR #32) |
+| ข้อมูลปลอมของบัญชี Reverse Grid | ส่งมอบแล้ว | [`data/fixtures/demo_grid_2026_11/`](../data/fixtures/demo_grid_2026_11/) (PR #22) |
 
-Software version ที่ส่งมอบ: commit ที่ merge PR #19 เข้า `main` และ Vercel deployment `qsf-report-agent-avymirle1` (deploy 22 พ.ย. 2569 จากโค้ด commit `a38af7f` ใน PR #19)
+Software version ที่ส่งมอบ: commit ที่ merge PR #32 เข้า `main` (`8de9770`) สำหรับรายงานทั้งสองแบบ ส่วน Report Agent ยังเป็น Vercel deployment `qsf-report-agent-avymirle1` (deploy 22 พ.ย. 2569 จากโค้ด commit `a38af7f` ใน PR #19)
 
 ## 2. Deployment and Server Information
 
@@ -52,7 +55,7 @@ Software version ที่ส่งมอบ: commit ที่ merge PR #19 เ�
 | ส่วนอื่น | คำสั่ง Python รันบนเครื่องผู้ทดสอบ และ GitHub Actions รันตัวตรวจทุก PR |
 | ผู้เขียนโค้ด (โซน Agent) | Software Factory (Foreman) ของพี่ Anak บน Vercel ผ่าน GitHub App `eve-forman` เห็นแค่ Spec, schema และข้อมูลปลอม |
 | Trusted zone ใน prototype | โฟลเดอร์บนเครื่องผู้ทดสอบที่อยู่นอก repository แทนเครื่องในเครือข่ายบริษัท |
-| แหล่งข้อมูล | ข้อมูลปลอมใน [`data/fixtures/demo_coop_rg_2026_10_v2/`](../data/fixtures/demo_coop_rg_2026_10_v2/) และ private database (SQLite) ที่ผู้ทดสอบสร้างเอง ไม่มีการเชื่อม database ของบริษัท |
+| แหล่งข้อมูล | ข้อมูลปลอมใน [`data/fixtures/demo_coop_rg_2026_10_v2/`](../data/fixtures/demo_coop_rg_2026_10_v2/), [`data/fixtures/demo_grid_2026_11/`](../data/fixtures/demo_grid_2026_11/) และ private database (SQLite) ที่ผู้ทดสอบสร้างเอง ไม่มีการเชื่อม database ของบริษัท |
 | Environment | Report Agent: Production บน Vercel / ส่วนอื่น: Development |
 
 ## 3. Access and Prerequisites
@@ -113,6 +116,16 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
 
 ตอนนี้สร้างได้แค่รายงาน Returns & Transactions จากข้อมูลปลอมชุด `demo_coop_rg_2026_10_v2` agent อ่านจาก Spec แค่ dataset, account, opening date และ as-of date ถ้า Spec ขอส่วนอื่น (block, กติกาการเขียน, ภาษา) agent จะบอกว่ายังไม่รองรับ
 
+### 4.4 สร้างรายงาน Grid Trade Performance (PDF)
+
+รันที่โฟลเดอร์รากของ repository:
+
+```bash
+python -m quant_software_factory.reporting.grid_performance data/fixtures/demo_grid_2026_11 reports/demo_grid_2026_11 --account DEMO-0001 --as-of 2026-11-06 --generated-at 2026-11-06T18:00:00Z
+```
+
+ผ่านทั้งหมด: เขียน `report.pdf`, `report.json` และ `checks.json` แล้วจบด้วย exit code 0 มีตัวเช็คไม่ผ่าน: เขียนแค่ `checks.json` และจบด้วย exit code 1 รันซ้ำด้วยค่าเดิมได้ไฟล์เหมือนเดิมทุก byte เพราะวันที่สร้างมาจาก `--generated-at`
+
 ## 5. Acceptance Test Walkthrough
 
 ### ส่วน A: รายงานจากข้อมูลปลอม
@@ -120,7 +133,7 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
 | ขั้น | ทำอะไร | ผลที่ควรได้ |
 |---|---|---|
 | A1 | `git clone https://github.com/Awannaphasch2016/quant-software-factory.git` แล้ว `cd quant-software-factory` | ได้โฟลเดอร์ repository |
-| A2 | `python -m venv .venv` แล้ว activate จากนั้น `pip install -e .` | ติดตั้งสำเร็จ ไม่มี dependency ภายนอก |
+| A2 | `python -m venv .venv` แล้ว activate จากนั้น `pip install -e .` | ติดตั้งสำเร็จ มี dependency ภายนอกตัวเดียวคือ `fpdf2==2.8.9` ใช้วาด PDF ของรายงาน Grid |
 | A3 | รันคำสั่งในข้อ 4.1 | แสดง `29 checks, 0 failed` และ exit code 0 |
 | A4 | เปิด `reports/demo_coop_rg_2026_10_v2/report.md` | มี 6 ส่วนตามลำดับ: Returns & Transactions Report, KPI summary, Holdings, Transactions, Narrative, Disclaimer |
 | A5 | ตรวจ KPI summary | Net asset value 792,398.00, Total P/L 27,398.00, Period return 3.83% |
@@ -163,9 +176,25 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
 - C7: ทดสอบผ่าน eve channel (ยังไม่ได้ทดสอบใน Discord) ได้ข้อความตามที่ระบุ
 - ยังไม่ได้ทดสอบใน server ของทีม
 
+### ส่วน D: รายงาน Grid Trade Performance (PDF)
+
+ทำต่อจากส่วน A ขั้น A2
+
+| ขั้น | ทำอะไร | ผลที่ควรได้ |
+|---|---|---|
+| D1 | รันคำสั่งในข้อ 4.4 | แสดง `24 checks, 0 failed` และ exit code 0 |
+| D2 | `git status --short reports/` | ไม่มีผลลัพธ์ แปลว่า PDF, JSON และผลตรวจที่สร้างใหม่ตรงกับที่ commit ไว้ทุก byte |
+| D3 | เปิด `reports/demo_grid_2026_11/report.pdf` | 5 หน้า A4 ตามลำดับ: Summary Performance, Transaction, AAA, BBB, CCC |
+| D4 | ตรวจหน้า 1 | Net Asset Value 28,360,975, Cash on Hand 249,825, Dividend (YTD) 830,000, Cash on Hand % 0.9% และ Total market value 28,360,974.70 |
+| D5 | ตรวจหน้า 2 | 25 รายการ แถวแรก 2026-10-20 BBB Sell 1,800 @ 139.00 มีแถว Port Adjusted และ Gain Adjustment |
+| D6 | ตรวจหน้า 3–5 | การ์ด 10 ใบ, กราฟ Average Cost vs. Market Price และ NAV (Volume %) vs. Market Price ตั้งแต่ 28 Feb ถึง 06 Nov และรายการล่าสุดของหุ้นนั้น เช่น CCC: Change % -40.00%, Gain Vol -120,000 |
+| D7 | เทียบกับ Spec | ทุกค่าในตาราง Expected Values ของ [Issue #23](https://github.com/Awannaphasch2016/quant-software-factory/issues/23) ตรงกับ PDF |
+
+ผลที่ได้เมื่อ 23 พ.ย. 2569: D1–D7 ผ่านบนเครื่องผู้จัดทำ และ CI ผ่าน Python 3.10–3.13 ใน PR #32
+
 ## 6. Delivered Version and Known Limitations
 
-- Version ที่ส่งมอบ: commit ที่ merge PR #19 และ Vercel deployment `qsf-report-agent-avymirle1` ณ 22 พ.ย. 2569
+- Version ที่ส่งมอบ: commit ที่ merge PR #32 (`8de9770`) ณ 23 พ.ย. 2569 และ Vercel deployment `qsf-report-agent-avymirle1` (Report Agent ยังสร้างได้แค่รายงาน Returns & Transactions)
 - ต้นทุนต่อรายงาน 1 ฉบับผ่าน Discord (ค่าโมเดล): token จริงจาก log ของ AI Gateway ประมาณ 2,000 cache write, 1,800 cache read และ 175 output token คิดตามราคาในรายการโมเดลของ AI Gateway ได้ประมาณ $0.014 ต่อฉบับ แต่ช่อง cost ของ AI Gateway แสดง $0.0000 ทุก request และ `vercel billing usage` ยังไม่มีข้อมูล ค่า Sandbox และ Function จึงยังไม่รู้ รายละเอียดใน Software Design ข้อ 10
 - ข้อจำกัด:
   - trusted zone ใน prototype คือเครื่องผู้ทดสอบ และ private database เป็น SQLite จากข้อมูลปลอม ยังไม่ได้ทดสอบกับ database, เครือข่าย และสิทธิ์จริงของบริษัท
@@ -174,5 +203,8 @@ python -m quant_software_factory.reporting.private_run --db <db_path> --private-
   - agent ใช้ค่าจาก Spec แค่ 4 ค่า ส่วนอื่นของ Spec ไม่มีผลกับรายงาน
   - Report ID ในรายงานมาจากชื่อ dataset ไม่ใช่จากช่อง Report ID ของ Spec
   - ทุกคนใน server ที่มี bot สั่ง `/ask` ได้ และค่าใช้จ่ายไปที่ Team ของพี่ Anak
-  - ยังไม่มี PDF และยังวัดค่า Sandbox กับ Function ไม่ได้
+  - รายงาน Grid ใช้ข้อมูลปลอม ไม่มีโลโก้บริษัท และยังสั่งผ่าน Discord ไม่ได้ (สร้างผ่าน GitHub Issue → โรงงาน → PR)
+  - สูตร Expected Volume, NAV Vol และ Cost Change % มาจากรายงานตัวอย่างและ Spec ยังไม่ได้ยืนยันกับทีม Quant
+  - ในข้อมูลปลอม เงินสดในกองของแต่ละหุ้น (sleeve cash) ไม่ได้บันทึกหลังการขายแต่ละครั้ง ยกเว้นการขาย BBB วันที่ 20 ต.ค. 2569 กราฟ NAV (Volume %) ของ BBB จึงดิ่งลงชั่วคราวในเดือนที่มีการขาย ตัวเลขถูกตามข้อมูล แต่ไม่ใช่พฤติกรรมของพอร์ตจริง
+  - ยังวัดค่า Sandbox กับ Function ไม่ได้
   - ข้อความบรรยายยังไม่มีตัวเลข "NAV เปลี่ยนไปเท่าไร" และยังเล่าซ้ำกับตาราง (ดู [`proposals/natural-writing-proposal.md`](proposals/natural-writing-proposal.md))
